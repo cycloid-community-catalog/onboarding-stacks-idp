@@ -5,7 +5,7 @@ name: 'Scaffold Software Project'
 canonical: stack-scaffold-demo
 author: Cycloid
 description: |
-  Create a GitHub or GitLab repository and scaffold a new project with my organization best practices and security rules.
+  Create a GitHub, GitLab or Azure DevOps repository and scaffold a new project with my organization best practices and security rules.
 image: |
   https://cycloid-demo-stacks-logo.s3.eu-west-1.amazonaws.com/git.png
 keywords:
@@ -17,6 +17,7 @@ keywords:
   - 'application'
   - 'GitLab'
   - 'GitHub'
+  - 'Azure DevOps'
 technologies:
 - technology: terraform
   version: 1.8.3
