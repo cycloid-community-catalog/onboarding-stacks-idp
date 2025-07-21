@@ -4,8 +4,9 @@ variable "cy_project" {}
 variable "cy_env" {}
 variable "cy_component" {}
 
-variable "azure_cred" {
-  description = "Azure credentials"
+variable "azuredevops_pat" {
+  type        = string
+  description = "Azure DevOps personal access token"
   sensitive   = true
 }
 

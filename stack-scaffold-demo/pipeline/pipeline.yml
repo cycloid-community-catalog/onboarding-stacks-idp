@@ -31,7 +31,7 @@ resources:
       gitlab_repo_description: ((gitlab_repo_description))
       gitlab_repo_visibility: ((gitlab_repo_visibility))
 ($ else if eq .use_case "azuredevops" $)
-      azure_cred: ((azure_cred))
+      azuredevops_pat: ((azuredevops_pat))
       azuredevops_org: ((azuredevops_org))
       azuredevops_project: ((azuredevops_project))
       azuredevops_repo_name: ((azuredevops_repo_name))

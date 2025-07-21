@@ -61,9 +61,9 @@ gitlab_repo_visibility: "private"
 # Azure DevOps
 #
 
-#. azure_cred (required): ''
-#+ Azure credentials
-azure_cred: ((azure_cred))
+#. azuredevops_pat (required): ''
+#+ Azure DevOps personal access token
+azuredevops_pat: ((azuredevops_pat))
 
 #. azuredevops_org (required): '($ .org $)'
 #+ Azure DevOps organization

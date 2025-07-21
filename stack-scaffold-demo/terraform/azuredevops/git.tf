@@ -23,3 +23,11 @@ resource "azuredevops_git_repository_deploy_key" "scaffold" {
   key = tls_private_key.azuredevops_generated_key.public_key_openssh
   read_only = false
 }
+
+resource "azuredevops_serviceendpoint_ssh" "scaffold" {
+  project_id            = azuredevops_project.scaffold_project.id
+  service_endpoint_name = "Scaffold SSH"
+  host                  = tls_private_key.azuredevops_generated_key.public_key_openssh
+  username              = "git"
+  description           = "Managed by Terraform"
+}
