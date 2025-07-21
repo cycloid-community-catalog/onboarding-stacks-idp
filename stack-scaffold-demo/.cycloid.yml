@@ -1,0 +1,65 @@
+---
+# Configuration of the Cycloid stack
+version: '4'
+name: 'Scaffold Software Project'
+canonical: stack-scaffold-demo
+author: Cycloid
+description: |
+  Create a GitHub or GitLab repository and scaffold a new project with my organization best practices and security rules.
+image: |
+  https://cycloid-demo-stacks-logo.s3.eu-west-1.amazonaws.com/git.png
+keywords:
+  - 'VueJS'
+  - 'git'
+  - 'IDP'
+  - 'Internal Developer Platform'
+  - 'developer'
+  - 'application'
+  - 'GitLab'
+  - 'GitHub'
+technologies:
+- technology: terraform
+  version: 1.8.3
+
+config:
+  github:
+    name: 'GitHub Repository Scaffolding'
+    description: 'Create a GitHub repository and scaffold a new project with organization best practices.'
+    pipeline:
+      pipeline:
+        path: pipeline/pipeline.yml
+      variables:
+        path: pipeline/variables.sample.yml
+        destination: '($ .config_root $)/variables.yml'
+    terraform:
+      main:
+        path: 'terraform/github/main.tf'
+        destination: '($ .config_root $)/terraform/github/main.tf'
+
+  gitlab:
+    name: 'GitLab Repository Scaffolding'
+    description: 'Create a GitLab repository and scaffold a new project with organization best practices.'
+    pipeline:
+      pipeline:
+        path: pipeline/pipeline.yml
+      variables:
+        path: pipeline/variables.sample.yml
+        destination: '($ .config_root $)/variables.yml'
+    terraform:
+      main:
+        path: 'terraform/gitlab/main.tf'
+        destination: '($ .config_root $)/terraform/gitlab/main.tf'
+
+azuredevops:
+  name: 'Azure DevOps Repository Scaffolding'
+  description: 'Create an Azure DevOps repository and scaffold a new project with organization best practices.'
+  pipeline:
+    pipeline:
+      path: pipeline/pipeline.yml
+    variables:
+      path: pipeline/variables.sample.yml
+      destination: '($ .config_root $)/variables.yml'
+  terraform:
+    main:
+      path: 'terraform/azuredevops/main.tf'
+      destination: '($ .config_root $)/terraform/azuredevops/main.tf'
