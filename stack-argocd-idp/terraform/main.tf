@@ -19,4 +19,8 @@ module "argocd" {
   #. argocd_git_key:  ""
   #+ The SSH private key to access the ArgoCD git repo
   argocd_git_key =  tls_private_key.github_generated_key.private_key_openssh
+
+  #. kubernetes_ip_address:  ""
+  #+ The IP address of the Kubernetes cluster
+  kubernetes_ip_address = ""
 }

@@ -16,6 +16,10 @@ variable "argocd_git_key" {
   description = "The private SSH key to access the ArgoCD git repo."
 }
 
+variable "kubernetes_ip_address" {
+  description = "The IP address of the Kubernetes cluster."
+}
+
 # Tags
 variable "extra_tags" {
   default = {}

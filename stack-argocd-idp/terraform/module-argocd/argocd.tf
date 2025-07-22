@@ -17,7 +17,7 @@ resource "helm_release" "argocd" {
   set = [
     {
       name  = "global.domain"
-      value = "${var.cy_org}-${var.cy_project}-${var.cy_env}-argocd.5.104.98.15.nip.io"
+      value = "${var.cy_org}-${var.cy_project}-${var.cy_env}-argocd.${var.kubernetes_ip_address}.nip.io"
     },
     {
       name  = "server.ingress.enabled"
@@ -63,10 +63,10 @@ resource "random_password" "argocd" {
 }
 
 resource "cycloid_credential" "argocd" {
-  name                   = "${var.cy_org}-${var.cy_project}-${var.cy_env}-admin-argocd"
+  name                   = "${var.cy_project}-${var.cy_env}-admin-argocd"
   description            = "ArgoCD Admin password."
-  path                   = "${var.cy_org}-${var.cy_project}-${var.cy_env}-admin-argocd"
-  canonical              = "${var.cy_org}-${var.cy_project}-${var.cy_env}-admin-argocd"
+  path                   = "${var.cy_project}-${var.cy_env}-admin-argocd"
+  canonical              = "${var.cy_project}-${var.cy_env}-admin-argocd"
 
   type = "basic_auth"
   body = {
