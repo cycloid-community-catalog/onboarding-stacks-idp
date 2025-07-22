@@ -18,7 +18,7 @@ resources:
     vars:
       cy_api_key: ((cy_api_key))
       cy_api_url: ($ .api_url $)
-      github_pat: ((github_pat.password))
+      github_pat: ((github_pat))
       cy_org: ($ .org $)
       cy_project: ($ .project $)
       cy_env: ($ .env $)

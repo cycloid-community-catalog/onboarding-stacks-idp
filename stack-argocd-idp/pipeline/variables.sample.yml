@@ -12,7 +12,7 @@ kubeconfig_content: "((($ .project $)-($ .env $)-kubeconfig.kubeconfig))"
 
 #. github_pat (required): ''
 #+ GitHub Personal Access Token allowing to create the new ArgoCD repository.
-github_pat: "((github-pat))"
+github_pat: ((github-pat.password))
 
 #
 # Default variables
