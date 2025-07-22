@@ -80,7 +80,7 @@ app_replicas: 3
 
 #. kubeconfig_content (required): ''
 #+ Kubeconfig content from Cycloid vault.
-kubeconfig_content: "((custom_($ .project $)-kubeconfig.kubeconfig))"
+kubeconfig_content: "((($ .project $)-kubeconfig.kubeconfig))"
 
 #
 # Default variables

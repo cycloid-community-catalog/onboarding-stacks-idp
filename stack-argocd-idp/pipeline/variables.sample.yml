@@ -2,9 +2,9 @@
 # Kubernetes
 #
 
-#. kubeconfig_content (required): "((custom_($ .org $)-($ .project $)-($ .env $)-kubeconfig.kubeconfig))"
+#. kubeconfig_content (required): "((($ .org $)-($ .project $)-($ .env $)-kubeconfig.kubeconfig))"
 #+ Kubeconfig content from Cycloid vault.
-kubeconfig_content: "((custom_($ .org $)-($ .project $)-($ .env $)-kubeconfig.kubeconfig))"
+kubeconfig_content: "((($ .org $)-($ .project $)-($ .env $)-kubeconfig.kubeconfig))"
 
 #
 # GitHub
