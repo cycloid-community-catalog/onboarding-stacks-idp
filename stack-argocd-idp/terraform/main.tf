@@ -22,5 +22,5 @@ module "argocd" {
 
   #. kubernetes_ip_address:  ""
   #+ The IP address of the Kubernetes cluster
-  kubernetes_ip_address = ""
+  kubernetes_ip_address = var.kubernetes_ip_address
 }

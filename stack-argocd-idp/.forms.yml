@@ -18,16 +18,20 @@ use_cases:
         validations: 
         - regexp: "^\\d+\\.\\d+\\.\\d+$" 
           error_message: "Please enter a valid ArgoCD version such as 7.8.3"
-      - name: "Kubernetes Cluster"
-        description: "Kubernetes cluster IP address"
-        key: kubernetes_ip_address
-        widget: cy_inventory_resource
+
+    - name: Kubernetes Cluster
+      technologies: [pipeline]
+      vars:
+      - name: "Kubeconfig"
+        description: "The Kubeconfig to access your Kubernetes Cluster."
+        key: kubeconfig_content
+        widget: cy_cred
         widget_config:
-          attribute: public_ip
-          filters:
-            project: ($ .project $)
-            type: aws_instance
+          display_keys: true
+          cred_types:
+            - custom
         type: string
+        default: "((($ .project $)-($ .env $)-kubeconfig.kubeconfig))"
         required: true
 
     - name: GitHub

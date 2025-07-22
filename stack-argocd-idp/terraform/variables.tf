@@ -11,6 +11,12 @@ variable "github_pat" {
   sensitive   = true
 }
 
+# Kubernetes
+variable "kubernetes_ip_address" {
+  type        = string
+  description = "Kubernetes external IP address"
+}
+
 # Cycloid
 variable "cy_api_url" {
   type        = string

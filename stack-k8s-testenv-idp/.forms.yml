@@ -155,7 +155,7 @@ use_cases:
         default: 3
         required: true
 
-    - name: Kubernetes Test Cluster
+    - name: Kubernetes Cluster
       technologies: [pipeline]
       vars:
       - name: "Kubeconfig"
