@@ -100,7 +100,7 @@ jobs:
             - |
               /usr/bin/merge-stack-and-config
               mkdir -p merged-stack/.kube && echo -e "${KUBECONFIG_CONTENT}" >merged-stack/.kube/config
-              echo "kubernetes_ip_address = $(kubectl config view -o json | jq .clusters[0].cluster.server | gawk -F[/:] '{print $4}')" >merged-stack/terraform.tfvars
+              echo "kubernetes_ip_address = $(grep "server: https" merged-stack/.kube/config | head -1 | grep -oE '((1?[0-9][0-9]?|2[0-4][0-9]|25[0-5])\.){3}(1?[0-9][0-9]?|2[0-4][0-9]|25[0-5])')" >merged-stack/terraform.tfvars
           inputs:
           - name: git_config-terraform
             path: "config"
@@ -147,7 +147,7 @@ jobs:
             - |
               /usr/bin/merge-stack-and-config
               mkdir -p merged-stack/.kube && echo -e "${KUBECONFIG_CONTENT}" >merged-stack/.kube/config
-              echo "kubernetes_ip_address = $(kubectl config view -o json | jq .clusters[0].cluster.server | gawk -F[/:] '{print $4}')" >merged-stack/terraform.tfvars
+              echo "kubernetes_ip_address = $(grep "server: https" merged-stack/.kube/config | head -1 | grep -oE '((1?[0-9][0-9]?|2[0-4][0-9]|25[0-5])\.){3}(1?[0-9][0-9]?|2[0-4][0-9]|25[0-5])')" >merged-stack/terraform.tfvars
           inputs:
           - name: git_config-terraform
             path: "config"
