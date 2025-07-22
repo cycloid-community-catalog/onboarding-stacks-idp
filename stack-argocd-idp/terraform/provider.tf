@@ -1,7 +1,5 @@
 provider "helm" {
-  kubernetes {
-    insecure    = true
-  }
+  insecure    = true
 }
 
 provider "kubernetes" {
