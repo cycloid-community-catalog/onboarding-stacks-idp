@@ -2,7 +2,7 @@
 # Configuration of the Cycloid stack
 version: '4'
 name: 'Scaffold Software Project'
-canonical: stack-scaffold-demo
+canonical: stack-scaffold-idp
 author: Cycloid
 description: |
   Create a GitHub, GitLab or Azure DevOps repository and scaffold a new project with my organization best practices and security rules.

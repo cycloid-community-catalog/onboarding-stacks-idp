@@ -1,0 +1,95 @@
+#
+# Registry
+#
+
+#. registry_repository (required): ''
+#+ The repository path to use for the container images.
+registry_repository: "olivier2t/app-test-env"
+
+#. registry_username (required): ''
+#+ The username to access the registry.
+registry_username: "((dockerhub.username))"
+
+#. registry_password (required): ''
+#+ The password to access the registry.
+registry_password: "((dockerhub.password))"
+
+#
+# Application
+#
+
+#. git_url (required): ''
+#+ Public git URL where the application is stored.
+git_url: ""
+
+#. git_branch (required): ''
+#+ Git branch where the application is stored.
+git_branch: ""
+
+#. git_ssh_key (required): ''
+#+ The SSH private key to access the git repository.
+git_ssh_key: ""
+
+#
+# Database
+#
+
+#. database_integration (required): false
+#+ Is there a connection string to build from a Cycloid inventory database and a Cycloid secret?
+database_integration: false
+
+#. database_env_var_name (required): false
+#+ Name of the environment variable where the database connection string will be stored for your application
+database_env_var_name: false
+
+#. database_engine (required): "postgresql"
+#+ Select the database engine that Prisma will connect to.
+database_engine: "postgresql"
+
+#. database_cloud (required): "postgresql"
+#+ Select the database engine that Prisma will connect to.
+database_cloud: "aws"
+
+#. database_aws (required): ""
+#+ Select the AWS RDS instance that Prisma will connect to.
+database_aws: ""
+
+#. database_azure (required): ""
+#+ Select the Azure Managed Database that Prisma will connect to.
+database_azure: ""
+
+#. database_name (required): ""
+#+ Database name that Prisma will connect to.
+database_name: ""
+
+#
+# Application
+#
+
+#. app_env_vars (required): ""
+#+ Other environment variables to provide to your application.
+app_env_vars: ""
+
+#. app_replicas (required): ''
+#+ The number of replicas to deploy in the Kubernetes Cluster.
+app_replicas: 3
+
+#
+# Kubernetes
+#
+
+#. kubeconfig_content (required): ''
+#+ Kubeconfig content from Cycloid vault.
+kubeconfig_content: "((custom_($ .project $)-kubeconfig.kubeconfig))"
+
+#
+# Default variables
+#
+
+#. cy_api_key (required): ((admin-api-key.key))
+#+ API key to grant admin acess to Cycloid API.
+cy_api_key: ((admin-api-key.key))
+
+#. terraform_version (required): '1.8.3'
+#+ terraform version used to execute your code.
+terraform_version: '1.8.3'

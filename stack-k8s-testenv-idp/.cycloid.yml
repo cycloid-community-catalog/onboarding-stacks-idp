@@ -1,0 +1,25 @@
+---
+# Configuration of the Cycloid stack
+version: '4'
+name: 'Test Env on Kubernetes'
+canonical: 'stack-k8s-testenv-idp'
+description: 'Deploy an application test environment in a Kubernetes cluster.'
+author: 'Cycloid'
+image: 'https://cycloid-demo-stacks-logo.s3.eu-west-1.amazonaws.com/testenv.png'
+keywords:
+- 'kubernetes'
+- 'application'
+- 'test'
+- 'provider:kubernetes'
+technologies:
+- technology: terraform
+  version: 1.8.3
+
+config:
+  default:
+    pipeline:
+      pipeline:
+        path: pipeline/pipeline.yml
+      variables:
+        path: pipeline/variables.sample.yml
+        destination: '($ .config_root $)/variables.yml'

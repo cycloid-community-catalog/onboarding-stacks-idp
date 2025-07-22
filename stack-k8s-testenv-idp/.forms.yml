@@ -1,0 +1,171 @@
+---
+version: "2"
+use_cases:
+- name: default
+  sections:
+  - name: Nexus Repository
+    groups:
+    - name: Application Git
+      technologies: [pipeline]
+      vars:
+      # - name: "Application Git URL"
+      #   description: "Git URL where the application is stored."
+      #   key: git_url
+      #   widget: simple_text
+      #   type: string
+      #   default: "git@github.com:"
+      #   required: true
+      - name: "Application Git URL"
+        description: "Git URL where the application is stored."
+        key: git_url
+        widget: cy_inventory_resource
+        widget_config:
+          attribute: ssh_clone_url
+          filters:
+            type: github_repository
+            project: ($ .project $)
+            environment: ($ .env $)
+        required: true
+        type: string
+
+      - name: "Application Git Branch"
+        description: "Git branch where the application is stored."
+        key: git_branch
+        widget: auto_complete
+        type: string
+        values: ["develop", "main", "master"]
+        default: "main"
+        required: true
+
+      - name: "SSH Key"
+        description: "The SSH private key to access the git repository."
+        key: git_ssh_key
+        widget: cy_cred
+        widget_config:
+          display_keys: true
+          cred_types:
+            - ssh
+        type: string
+        default: "((($ .project $)-($ .env $)-git-ssh.ssh_key))"
+        required: true
+
+    - name: Database Integration
+      technologies: [pipeline]
+      vars:
+      - name: "Database Integration"
+        description: "Is there a connection string to build from a Cycloid inventory database and a Cycloid secret?"
+        key: database_integration
+        widget: switch
+        type: boolean
+        default: false
+        required: true
+
+    - name: Database Type
+      technologies: [pipeline]
+      condition: "database_integration==true"
+      vars:
+      - name: "Connection String Env Var Name"
+        description: "Name of the environment variable where the database connection string will be stored for your application."
+        key: database_env_var_name
+        widget: simple_text
+        required: false
+        type: string
+        default: "DATABASE_URL"
+      - name: "Database Engine"
+        description: "Select the database engine that Prisma will connect to."
+        key: database_engine
+        widget: radios
+        required: true
+        type: map
+        values:
+        - {label: "PostgreSQL", value: "postgresql"}
+        - {label: "MySQL", value: "mysql"}
+        - {label: "None", value: ""}
+        default: "PostgreSQL"
+      - name: "Managed Database Provider"
+        description: "Select the database engine that Prisma will connect to."
+        key: database_cloud
+        widget: radios
+        required: true
+        type: map
+        values:
+        - {label: "AWS RDS", value: "aws"}
+        - {label: "Azure Managed Database", value: "azure"}
+        default: "AWS RDS"
+    - name: AWS RDS Selection
+      technologies: [pipeline]
+      condition: "database_integration==true && database_cloud=='AWS RDS'"
+      vars:
+      - name: "AWS RDS"
+        description: "Select the AWS RDS instance that Prisma will connect to."
+        key: database_aws
+        widget: cy_inventory_resource
+        widget_config:
+          attribute: endpoint
+          filters:
+            type: aws_db_instance
+            project: ($ .project $)
+            environment: ($ .env $)
+        required: true
+        type: string
+    - name: Azure Managed Database Selection
+      technologies: [pipeline]
+      condition: "database_integration==true && database_cloud=='Azure Managed Database'"
+      vars:
+      - name: "Azure Managed Database"
+        description: "Select the Azure Managed Database that Prisma will connect to."
+        key: database_azure
+        widget: cy_inventory_resource
+        widget_config:
+          attribute: id
+          filters:
+            type: azurerm_postgresql_flexible_server
+            project: ($ .project $)
+            environment: ($ .env $)
+        required: true
+        type: string
+    - name: Database Name
+      technologies: [pipeline]
+      condition: "database_integration==true"
+      vars:
+      - name: "Database Name"
+        description: "Database name that Prisma will connect to."
+        key: database_name
+        widget: simple_text
+        required: true
+        type: string
+    - name: Environment Variables
+      technologies: [pipeline]
+      vars:
+      - name: "Environment Variables"
+        description: "Other environment variables to provide to your application."
+        key: app_env_vars
+        widget: text_area
+        required: true
+        type: string
+        default: |-
+          DATABASE_URL="postgresql://((($ .project $)-($ .env $)-database.username)):((($ .project $)-($ .env $)-database.password))@myendpoint:5432/mydb?schema=public"
+          ENV_VAR_1=VAL1
+          ENV_VAR_2=VAL2
+      - name: "Number of Replicas"
+        description: "The number of replicas to deploy in the Kubernetes Cluster."
+        key: app_replicas
+        widget: number
+        type: "integer"
+        default: 3
+        required: true
+
+    - name: Kubernetes Test Cluster
+      technologies: [pipeline]
+      vars:
+      - name: "Kubeconfig"
+        description: "The Kubeconfig to access your Kubernetes Cluster."
+        key: kubeconfig_content
+        widget: cy_cred
+        widget_config:
+          display_keys: true
+          cred_types:
+            - custom
+        type: string
+        default: ((($ .project $)-core-kubeconfig.kubeconfig))
+        required: true
