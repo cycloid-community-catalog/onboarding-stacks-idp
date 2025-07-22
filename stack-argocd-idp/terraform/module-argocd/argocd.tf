@@ -14,38 +14,40 @@ resource "helm_release" "argocd" {
   namespace        = kubernetes_namespace.argocd.id
   create_namespace = true
 
-  set {
-    name  = "global.domain"
-    value = "${var.cy_org}-${var.cy_project}-${var.cy_env}-argocd.5.104.98.15.nip.io"
-  }
-  set {
-    name  = "server.ingress.enabled"
-    value = true
-  }
-  set {
-    name  = "server.ingress.ingressClassName"
-    value = "nginx"
-  }
-  set {
-    name  = "configs.params.server.insecure"
-    value = true
-  }
-  set {
-    name  = "configs.secret.argocdServerAdminPassword"
-    value = random_password.argocd.result
-  }
-  set {
-    name  = "configs.repositories.private-repo.url"
-    value = var.argocd_git_url
-  }
-  set {
-    name  = "configs.credentialTemplates.private-repo.url"
-    value = var.argocd_git_url
-  }
-  set {
-    name  = "configs.credentialTemplates.private-repo.sshPrivateKey"
-    value = var.argocd_git_key
-  }
+  set = [
+    {
+      name  = "global.domain"
+      value = "${var.cy_org}-${var.cy_project}-${var.cy_env}-argocd.5.104.98.15.nip.io"
+    },
+    {
+      name  = "server.ingress.enabled"
+      value = true
+    },
+    {
+      name  = "server.ingress.ingressClassName"
+      value = "nginx"
+    },
+    {
+      name  = "configs.params.server.insecure"
+      value = true
+    },
+    {
+      name  = "configs.secret.argocdServerAdminPassword"
+      value = random_password.argocd.result
+    },
+    {
+      name  = "configs.repositories.private-repo.url"
+      value = var.argocd_git_url
+    },
+    {
+      name  = "configs.credentialTemplates.private-repo.url"
+      value = var.argocd_git_url
+    },
+    {
+      name  = "configs.credentialTemplates.private-repo.sshPrivateKey"
+      value = var.argocd_git_key
+    }
+  ]
 }
 
 data "kubernetes_service" "argocd_server" {
