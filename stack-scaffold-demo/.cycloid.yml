@@ -51,16 +51,16 @@ config:
         path: 'terraform/gitlab/main.tf'
         destination: '($ .config_root $)/terraform/gitlab/main.tf'
 
-  azuredevops:
-    name: 'Azure DevOps Repository Scaffolding'
-    description: 'Create an Azure DevOps repository and scaffold a new project with organization best practices.'
-    pipeline:
-      pipeline:
-        path: pipeline/pipeline.yml
-      variables:
-        path: pipeline/variables.sample.yml
-        destination: '($ .config_root $)/variables.yml'
-    terraform:
-      main:
-        path: 'terraform/azuredevops/main.tf'
-        destination: '($ .config_root $)/terraform/azuredevops/main.tf'
+  # azuredevops:
+  #   name: 'Azure DevOps Repository Scaffolding'
+  #   description: 'Create an Azure DevOps repository and scaffold a new project with organization best practices.'
+  #   pipeline:
+  #     pipeline:
+  #       path: pipeline/pipeline.yml
+  #     variables:
+  #       path: pipeline/variables.sample.yml
+  #       destination: '($ .config_root $)/variables.yml'
+  #   terraform:
+  #     main:
+  #       path: 'terraform/azuredevops/main.tf'
+  #       destination: '($ .config_root $)/terraform/azuredevops/main.tf'
