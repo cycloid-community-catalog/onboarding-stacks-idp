@@ -2,7 +2,7 @@
 # Configuration of the Cycloid stack
 version: '4'
 name: 'PostgreSQL Database'
-canonical: stack-postgresql-demo
+canonical: stack-postgresql-idp
 author: Cycloid
 description: |
   Deploys a PostgreSQL database.
