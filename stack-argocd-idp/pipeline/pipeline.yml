@@ -100,7 +100,7 @@ jobs:
             - |
               /usr/bin/merge-stack-and-config
               mkdir -p merged-stack/.kube && echo -e "${KUBECONFIG_CONTENT}" >merged-stack/.kube/config
-              #export K8S_EXTERNAL_IP=$(kubectl config view -o json | jq .clusters[0].cluster.server | gawk -F[/:] '{print $4}')
+              export K8S_EXTERNAL_IP=$(kubectl config view -o json | jq .clusters[0].cluster.server | gawk -F[/:] '{print $4}')
           inputs:
           - name: git_config-terraform
             path: "config"
@@ -146,7 +146,8 @@ jobs:
             - '-ec'
             - |
               /usr/bin/merge-stack-and-config
-              echo -e "${KUBECONFIG_CONTENT}" > merged-stack/kubeconfig
+              mkdir -p merged-stack/.kube && echo -e "${KUBECONFIG_CONTENT}" >merged-stack/.kube/config
+              export K8S_EXTERNAL_IP=$(kubectl config view -o json | jq .clusters[0].cluster.server | gawk -F[/:] '{print $4}')
           inputs:
           - name: git_config-terraform
             path: "config"
