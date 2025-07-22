@@ -7,7 +7,7 @@ provider "kubernetes" {
 }
 
 provider "github" {
-  token = var.github_pat.password
+  token = var.github_pat
 }
 
 provider "cycloid" {
