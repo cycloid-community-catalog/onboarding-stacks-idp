@@ -27,7 +27,7 @@ use_cases:
         key: github_pat
         widget: cy_cred
         widget_config:
-          cred_types: ["custom"]
+          cred_types: ["basic_auth"]
         type: string
-        default: "((github-pat.key))"
+        default: "((github-pat))"
         required: true
