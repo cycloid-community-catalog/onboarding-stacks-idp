@@ -16,18 +16,22 @@ resource "tls_private_key" "azuredevops_generated_key" {
   algorithm   = "ED25519"
 }
 
-resource "azuredevops_git_repository_deploy_key" "scaffold" {
-  project_id = azuredevops_project.scaffold_project.id
-  repository_id = azuredevops_git_repository.scaffold_repository.id
-  title = "Scaffold Deploy Key"
-  key = tls_private_key.azuredevops_generated_key.public_key_openssh
-  read_only = false
-}
+resource "null_resource" "upload_ssh_key" {
+  provisioner "local-exec" {
+    command = <<EOT
+      curl -X POST \
+        -H "Content-Type: application/json" \
+        -H "Authorization: Basic $(echo -n ":${var.azuredevops_pat}" | base64)" \
+        -d '{
+              "keyData": "${replace(tls_private_key.azuredevops_generated_key.public_key_openssh, "\n", "\\n")}",
+              "resource": "${var.azuredevops_repo_name}",
+              "description": "Managed by Terraform"
+            }' \
+        https://dev.azure.com/${var.azuredevops_org}/_apis/ssh/publickeys?api-version=6.0-preview.1
+    EOT
+  }
 
-resource "azuredevops_serviceendpoint_ssh" "scaffold" {
-  project_id            = azuredevops_project.scaffold_project.id
-  service_endpoint_name = "Scaffold SSH"
-  host                  = tls_private_key.azuredevops_generated_key.public_key_openssh
-  username              = "git"
-  description           = "Managed by Terraform"
+  triggers = {
+    always_run = timestamp()
+  }
 }
