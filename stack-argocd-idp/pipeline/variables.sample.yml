@@ -4,7 +4,7 @@
 
 #. kubeconfig_content (required): "((($ .org $)-($ .project $)-($ .env $)-kubeconfig.kubeconfig))"
 #+ Kubeconfig content from Cycloid vault.
-kubeconfig_content: "((($ .org $)-($ .project $)-($ .env $)-kubeconfig.kubeconfig))"
+kubeconfig_content: "((($ .project $)-($ .env $)-kubeconfig.kubeconfig))"
 
 #
 # GitHub
