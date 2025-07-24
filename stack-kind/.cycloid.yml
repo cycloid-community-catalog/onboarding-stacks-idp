@@ -1,7 +1,7 @@
 ---
 # Configuration of the Cycloid stack
 version: '4'
-name: 'Kubernetes Single Node Kind Cluster'
+name: 'Kind K8s Cluster'
 canonical: stack-kind-idp
 author: Cycloid
 description: |
