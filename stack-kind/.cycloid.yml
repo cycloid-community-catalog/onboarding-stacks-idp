@@ -1,0 +1,31 @@
+---
+# Configuration of the Cycloid stack
+version: '4'
+name: 'Kubernetes Single Node Kind Cluster'
+canonical: stack-kind-idp
+author: Cycloid
+description: |
+  Deploys a single node Kind Kubernetes cluster on an AWS EC2 instance using Terraform and Cloud-Init.
+image: |
+  https://cycloid-demo-stacks-logo.s3.eu-west-1.amazonaws.com/kubernetes.png
+keywords:
+  - kubernetes
+  - kind
+  - cloud-init
+  - ec2
+technologies:
+- technology: terraform
+  version: 1.8.3
+
+config:
+  default:
+    pipeline:
+      pipeline:
+        path: pipeline/pipeline.yml
+      variables:
+        path: pipeline/variables.sample.yml
+        destination: '($ .config_root $)/pipeline/variables.yml'
+    terraform:
+      main:
+        path: 'terraform/main.tf'
+        destination: '($ .config_root $)/terraform/main.tf'
