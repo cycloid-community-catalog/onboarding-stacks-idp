@@ -145,7 +145,7 @@ jobs:
                   sleep 1
                   aws ssm start-session --target ${INSTANCE_ID} \
                   --document-name AmazonEKS-ExecuteNonInteractiveCommand \
-                  --parameters 'command="cat /home/admin/.kube/public_ip_config"' | tail -n +3 | head -n -3  >kubeconfig
+                  --parameters 'command="cat /home/admin/.kube/config"' | tail -n +3 | head -n -3  >kubeconfig
                 done
 
                 if ! cy credential create --name "${PROJECT}-${ENV}-kubeconfig" --canonical "${PROJECT}-${ENV}-kubeconfig" custom --field-file kubeconfig=kubeconfig; then
