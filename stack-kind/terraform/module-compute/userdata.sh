@@ -20,6 +20,11 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
 sudo systemctl start docker
 sudo systemctl enable docker
 docker --version
+# Install Kubectl
+curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
+chmod +x ./kubectl
+sudo mv ./kubectl /usr/local/bin/kubectl
+kubectl version --client
 # Install Kind
 [ $(uname -m) = x86_64 ] && curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.29.0/kind-linux-amd64
 [ $(uname -m) = aarch64 ] && curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.29.0/kind-linux-arm64
@@ -27,10 +32,6 @@ chmod +x ./kind
 sudo mv ./kind /usr/local/bin/kind
 mkdir -p /home/${USERNAME}/.kube
 kind create cluster
-kind get clusters
-until ls /home/${USERNAME}/.kube/config >/dev/null; do sleep 1; done
-chmod 644 /home/${USERNAME}/.kube/config
-chown ${USERNAME}:${USERNAME} /home/${USERNAME}/.kube/config
 # Install Helm
 cd /tmp
 curl -sL https://get.helm.sh/helm-v3.17.1-linux-amd64.tar.gz | tar -xvz
