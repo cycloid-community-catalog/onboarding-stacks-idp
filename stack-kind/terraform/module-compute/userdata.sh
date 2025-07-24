@@ -26,17 +26,45 @@ chmod +x ./kubectl
 sudo mv ./kubectl /usr/local/bin/kubectl
 kubectl version --client
 # Install Kind
+sudo sysctl net.ipv6.conf.all.disable_ipv6
 [ $(uname -m) = x86_64 ] && curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.29.0/kind-linux-amd64
 [ $(uname -m) = aarch64 ] && curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.29.0/kind-linux-arm64
 chmod +x ./kind
 sudo mv ./kind /usr/local/bin/kind
-mkdir -p /home/${USERNAME}/.kube
-kind create cluster
+cat <<-EOF >kind-config.yaml
+# three node cluster with an ingress-ready control-plane node
+# and extra port mappings over 80/443 and 2 workers
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+- role: control-plane
+  kubeadmConfigPatches:
+  - |
+    kind: InitConfiguration
+    nodeRegistration:
+      kubeletExtraArgs:
+        node-labels: "ingress-ready=true"
+  extraPortMappings:
+  - containerPort: 80
+    hostPort: 80
+    protocol: TCP
+  - containerPort: 443
+    hostPort: 443
+    protocol: TCP
+- role: worker
+- role: worker
+EOF
+kind create cluster --config kind-config.yaml
+sudo mkdir -p /home/${USERNAME}/.kube
+sudo kind get kubeconfig > /home/${USERNAME}/.kube/config
+sudo chown ${USERNAME}:${USERNAME} /home/${USERNAME}/.kube/config
+sudo chmod 644 /home/${USERNAME}/.kube/config && sudo chmod 644 /home/${USERNAME}/.kube/config
+#kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
 # Install Helm
 cd /tmp
 curl -sL https://get.helm.sh/helm-v3.17.1-linux-amd64.tar.gz | tar -xvz
 sudo mv linux-amd64/helm /usr/bin/helm
 sudo chmod +x /usr/bin/helm
 rm -rf linux-amd64
-export KUBECONFIG=/home/${USERNAME}/.kube/config
+# Install Ingress Nginx Controller
 helm upgrade --set controller.hostPort.enabled=true --install ingress-nginx ingress-nginx --repo https://kubernetes.github.io/ingress-nginx --namespace ingress-nginx --create-namespace
