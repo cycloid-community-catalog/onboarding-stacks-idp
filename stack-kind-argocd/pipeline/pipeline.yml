@@ -18,6 +18,9 @@ resources:
     vars:
       aws_cred: ((aws_cred))
       aws_region: ((aws_region))
+      github_pat: ((github_pat))
+      cy_api_key: ((cy_api_key))
+      cy_api_url: ($ .api_url $)
       cy_org: ($ .org $)
       cy_project: ($ .project $)
       cy_env: ($ .env $)

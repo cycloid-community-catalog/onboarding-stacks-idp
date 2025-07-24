@@ -22,9 +22,15 @@ sudo systemctl enable docker
 docker --version
 # Install Kubectl
 curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
-chmod +x ./kubectl
 sudo mv ./kubectl /usr/local/bin/kubectl
+sudo chmod +x /usr/local/bin/kubectl
 kubectl version --client
+# Install Helm
+curl -sL https://get.helm.sh/helm-v3.17.1-linux-amd64.tar.gz | tar -xvz
+sudo mv ./linux-amd64/helm /usr/local/bin/helm
+sudo chmod +x /usr/local/bin/helm
+helm version
+rm -rf linux-amd64
 # Install Kind
 sudo sysctl net.ipv6.conf.all.disable_ipv6
 [ $(uname -m) = x86_64 ] && curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.29.0/kind-linux-amd64
@@ -59,12 +65,13 @@ sudo mkdir -p /home/${USERNAME}/.kube
 sudo kind get kubeconfig > /home/${USERNAME}/.kube/config
 sudo chown ${USERNAME}:${USERNAME} /home/${USERNAME}/.kube/config
 sudo chmod 644 /home/${USERNAME}/.kube/config && sudo chmod 644 /home/${USERNAME}/.kube/config
-#kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
-# Install Helm
-cd /tmp
-curl -sL https://get.helm.sh/helm-v3.17.1-linux-amd64.tar.gz | tar -xvz
-sudo mv linux-amd64/helm /usr/bin/helm
-sudo chmod +x /usr/bin/helm
-rm -rf linux-amd64
 # Install Ingress Nginx Controller
-helm upgrade --set controller.hostPort.enabled=true --install ingress-nginx ingress-nginx --repo https://kubernetes.github.io/ingress-nginx --namespace ingress-nginx --create-namespace
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
+#helm upgrade --set controller.hostPort.enabled=true --install ingress-nginx ingress-nginx --repo https://kubernetes.github.io/ingress-nginx --namespace ingress-nginx --create-namespace
+# Install ArgoCD
+kubectl create namespace argocd
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/${ARGOCD_VERSION}/manifests/install.yaml
+argocd login localhost:8080 --username admin --password $(argocd admin initial-password -n argocd)
+argocd account update-password --current-password $(argocd admin initial-password -n argocd) --new-password ${ARGOCD_ADMIN_PASSWORD}
+echo "${GIT_PRIVATE_KEY}" >/home/${USERNAME}/.ssh/git-argocd
+argocd repo add ${GIT_SSH_URL} --ssh-private-key-path /home/${USERNAME}/.ssh/git-argocd

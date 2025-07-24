@@ -43,7 +43,11 @@ resource "aws_instance" "ec2" {
   user_data_base64 = base64encode(templatefile(
     "${path.module}/userdata.sh",
     {
-      USERNAME    = var.vm_os_user
+      USERNAME = var.vm_os_user
+      ARGOCD_VERSION = var.argocd_version
+      ARGOCD_ADMIN_PASSWORD = var.argocd_admin_password
+      GIT_SSH_URL = var.git_ssh_url
+      GIT_PRIVATE_KEY = var.git_private_key
     }
   ))
 

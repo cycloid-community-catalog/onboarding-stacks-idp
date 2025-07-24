@@ -92,6 +92,34 @@ use_cases:
         type: string
         required: true
 
+    - name: ArgoCD
+      technologies: [terraform]
+      vars:
+      - name: "ArgoCD Version"
+        description: "Version of ArgoCD to deploy"
+        key: argocd_version
+        widget: simple_text
+        type: string
+        default: "v3.0.11"
+        required: true
+        validations: 
+        - regexp: "^v\\d+\\.\\d+\\.\\d+$" 
+          error_message: "Please enter a valid ArgoCD version such as v3.0.11"
+
+    - name: GitHub
+      technologies: [pipeline]
+      vars:
+      - name: "GitHub PAT"
+        description: "GitHub Personal Access Token allowing to create the new ArgoCD repository. The token must be in the format of 'ghp_<token>', stored in the password field and be created with the 'repo' scope."
+        key: github_pat
+        widget: cy_cred
+        widget_config:
+          display_keys: true
+          cred_types: ["basic_auth"]
+        type: string
+        default: "((github-pat.password))"
+        required: true
+
     - name: Day-2 Operations
       technologies: [pipeline]
       vars:

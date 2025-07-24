@@ -31,4 +31,20 @@ module "compute" {
   #. vpc_id_manual: ''
   #+ VPC where to deploy the resources
   vpc_id_manual = ""
+
+  #. argocd_version: ''
+  #+ ArgoCD version to deploy
+  argocd_version = ""
+
+  #. argocd_admin_password: ''
+  #+ ArgoCD admin password
+  argocd_admin_password = random_password.argocd_admin_password.result
+
+  #. git_ssh_url: ''
+  #+ SSH URL to access the Git repository
+  git_ssh_url = github_repository.argocd.ssh_clone_url
+
+  #. git_private_key: ''
+  #+ Private key to access the Git repository
+  git_private_key = tls_private_key.github_generated_key.private_key_openssh
 }

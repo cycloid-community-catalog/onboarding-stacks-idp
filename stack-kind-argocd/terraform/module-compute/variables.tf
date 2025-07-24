@@ -41,3 +41,22 @@ variable "vpc_id_inventory" {
 variable "vpc_id_manual" {
   description = "VPC where to deploy the resources"
 }
+
+variable "argocd_version" {
+  description = "ArgoCD version to deploy"
+  default     = "v3.0.11"
+}
+
+variable "argocd_admin_password" {
+  description = "ArgoCD admin password"
+  sensitive   = true
+}
+
+variable "git_ssh_url" {
+  description = "SSH URL to access the Git repository"
+}
+
+variable "git_private_key" {
+  description = "Private key to access the Git repository"
+  sensitive   = true
+}
