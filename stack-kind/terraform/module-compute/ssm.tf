@@ -1,5 +1,5 @@
 resource "aws_iam_role" "ssm-role" {
-  name        = "${var.cy_org}-${var.cy_project}-${var.cy_env}-${var.cy_component}"
+  name        = "${var.cy_project}-${var.cy_env}-${var.cy_component}"
   path        = "/"
 
   assume_role_policy = data.aws_iam_policy_document.assume-role.json
@@ -19,7 +19,7 @@ data "aws_iam_policy_document" "assume-role" {
 }
 
 resource "aws_iam_instance_profile" "ssm-profile" {
-  name = "${var.cy_org}-${var.cy_project}-${var.cy_env}-${var.cy_component}"
+  name = "${var.cy_project}-${var.cy_env}-${var.cy_component}"
   role = aws_iam_role.ssm-role.name
 }
 
