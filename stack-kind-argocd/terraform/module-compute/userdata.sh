@@ -79,7 +79,8 @@ kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/${
 sudo curl -sSL -o /usr/local/bin/argocd https://github.com/argoproj/argo-cd/releases/download/${ARGOCD_VERSION}/argocd-linux-amd64
 sudo chmod +x /usr/local/bin/argocd
 # Configure ArgoCD Ingress
-sleep 10
+kubectl delete -A ValidatingWebhookConfiguration ingress-nginx-admission
+sleep 5
 cat <<-EOF >argocd-server-ingress.yaml
 apiVersion: networking.k8s.io/v1
 kind: Ingress
