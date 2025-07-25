@@ -8,6 +8,8 @@ dpkg -i amazon-ssm-agent.deb
 systemctl status amazon-ssm-agent
 systemctl enable amazon-ssm-agent
 systemctl start amazon-ssm-agent
+# Enable IP forwarding to reach the validating webhook internally
+sudo sysctl -w net.ipv4.ip_forward=1
 # Install Docker
 until sudo apt-get update; do sleep 1; done
 sudo apt-get install git ca-certificates curl -y
@@ -77,7 +79,7 @@ kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/${
 sudo curl -sSL -o /usr/local/bin/argocd https://github.com/argoproj/argo-cd/releases/download/${ARGOCD_VERSION}/argocd-linux-amd64
 sudo chmod +x /usr/local/bin/argocd
 # Configure ArgoCD Ingress
-sudo sysctl -w net.ipv4.ip_forward=1 # Enable IP forwarding to reach the validating webhook internally
+sleep 10
 cat <<-EOF >argocd-server-ingress.yaml
 apiVersion: networking.k8s.io/v1
 kind: Ingress
