@@ -11,7 +11,6 @@ aws_cred: ((aws))
 aws_region: eu-west-1
 
 
-
 #
 # GitHub
 #
@@ -19,6 +18,19 @@ aws_region: eu-west-1
 #. github_pat (required): ((github-pat.password))
 #+ GitHub Personal Access Token allowing to create the new ArgoCD repository. The token must be in the format of 'ghp_<token>', stored in the password field and be created with the 'repo' scope.
 github_pat: ((github-pat.password))
+
+
+#
+# Mailjet Operations
+#
+
+#. mailjet_api_key (required): ''
+#+ Mailjet API key.
+mailjet_api_key: ((mailjet.api_key))
+
+#. mailjet_secret_key (required): ''
+#+ Mailjet secret key.
+mailjet_secret_key: ((mailjet.secret_key))
 
 
 #
