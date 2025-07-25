@@ -7,7 +7,7 @@ author: Cycloid
 description: |
   Deploys a single node Kind Kubernetes cluster with Core ArgoCD on an AWS EC2 instance using Terraform and Cloud-Init.
 image: |
-  https://cycloid-demo-stacks-logo.s3.eu-west-1.amazonaws.com/argocd.svg
+  https://cycloid-demo-stacks-logo.s3.eu-west-1.amazonaws.com/git-argocd.png
 keywords:
   - kubernetes
   - kind
