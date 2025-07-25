@@ -105,7 +105,7 @@ spec:
               name: https
 EOF
 sed -i "s/argocd.example.com/argocd.$(curl http://169.254.169.254/latest/meta-data/public-ipv4).nip.io/" argocd-server-ingress.yaml
-kubectl apply -f argocd-server-ingress.yaml
+sudo kubectl apply -f argocd-server-ingress.yaml
 # Configure ArgoCD
 argocd login "argocd.$(curl http://169.254.169.254/latest/meta-data/public-ipv4).nip.io" --username admin --password $(argocd admin initial-password -n argocd | head -1) --grpc-web --insecure
 argocd version
