@@ -65,6 +65,8 @@ sudo mkdir -p /home/${USERNAME}/.kube
 sudo kind get kubeconfig > /home/${USERNAME}/.kube/config
 sudo chown ${USERNAME}:${USERNAME} /home/${USERNAME}/.kube/config
 sudo chmod 644 /home/${USERNAME}/.kube/config && sudo chmod 644 /home/${USERNAME}/.kube/config
+export HOME=/home/${USERNAME}
+export KUBECONFIG=/home/${USERNAME}/.kube/config
 # Install Ingress Nginx Controller
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
 #helm upgrade --set controller.hostPort.enabled=true --install ingress-nginx ingress-nginx --repo https://kubernetes.github.io/ingress-nginx --namespace ingress-nginx --create-namespace
@@ -72,9 +74,9 @@ kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main
 kubectl create namespace argocd
 kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/${ARGOCD_VERSION}/manifests/install.yaml
 # Install ArgoCD CLI
-sudo curl -sSL -o /usr/local/bin/argocd https://github.com/argoproj/argo-cd/releases/download/${ARGOCD_VERSION}/argocd-linux-amd64
-sudo chmod +x /usr/local/bin/argocd
-argocd version
+#sudo curl -sSL -o /usr/local/bin/argocd https://github.com/argoproj/argo-cd/releases/download/${ARGOCD_VERSION}/argocd-linux-amd64
+#sudo chmod +x /usr/local/bin/argocd
+#argocd version
 # Configure ArgoCD Ingress
 cat <<-EOF >argocd-server-ingress.yaml
 apiVersion: networking.k8s.io/v1
@@ -101,7 +103,6 @@ spec:
               name: https
 EOF
 sed -i "s/argocd.example.com/argocd.$(curl http://169.254.169.254/latest/meta-data/public-ipv4).nip.io/" argocd-server-ingress.yaml
-sleep 10
 kubectl apply -f argocd-server-ingress.yaml
 # Configure ArgoCD
 argocd login "argocd.$(curl http://169.254.169.254/latest/meta-data/public-ipv4).nip.io" --username admin --password $(argocd admin initial-password -n argocd | head -1) --grpc-web --insecure
