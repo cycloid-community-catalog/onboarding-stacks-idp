@@ -72,14 +72,10 @@ kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main
 kubectl create namespace argocd
 kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/${ARGOCD_VERSION}/manifests/install.yaml
 # Install ArgoCD CLI
-curl -sSL -o /usr/local/bin/argocd https://github.com/argoproj/argo-cd/releases/download/${ARGOCD_VERSION}/argocd-linux-amd64
+sudo curl -sSL -o /usr/local/bin/argocd https://github.com/argoproj/argo-cd/releases/download/${ARGOCD_VERSION}/argocd-linux-amd64
 sudo chmod +x /usr/local/bin/argocd
 argocd version
-# Configure ArgoCD
-argocd login localhost:8080 --username admin --password $(argocd admin initial-password -n argocd)
-argocd account update-password --current-password $(argocd admin initial-password -n argocd) --new-password ${ARGOCD_ADMIN_PASSWORD}
-echo "${GIT_PRIVATE_KEY}" >/home/${USERNAME}/.ssh/git-argocd
-argocd repo add ${GIT_SSH_URL} --ssh-private-key-path /home/${USERNAME}/.ssh/git-argocd
+# Configure ArgoCD Ingress
 cat <<-EOF >argocd-server-ingress.yaml
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -89,6 +85,7 @@ metadata:
   annotations:
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
     nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
 spec:
   ingressClassName: nginx
   rules:
@@ -105,3 +102,8 @@ spec:
 EOF
 sed -i "s/argocd.example.com/argocd.$(curl http://169.254.169.254/latest/meta-data/public-ipv4).nip.io/" argocd-server-ingress.yaml
 kubectl apply -f argocd-server-ingress.yaml
+# Configure ArgoCD
+argocd login localhost --username admin --password $(argocd admin initial-password -n argocd | head -1)
+argocd account update-password --current-password $(argocd admin initial-password -n argocd | head -1) --new-password ${ARGOCD_ADMIN_PASSWORD}
+echo "${GIT_PRIVATE_KEY}" >/home/${USERNAME}/.ssh/git-argocd
+argocd repo add ${GIT_SSH_URL} --ssh-private-key-path /home/${USERNAME}/.ssh/git-argocd
