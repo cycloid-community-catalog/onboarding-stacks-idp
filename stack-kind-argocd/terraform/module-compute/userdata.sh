@@ -71,3 +71,47 @@ export HOME=/home/${USERNAME}
 export KUBECONFIG=/home/${USERNAME}/.kube/config
 # Install Ingress Nginx Controller
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
+# Install ArgoCD
+kubectl create namespace argocd
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/${ARGOCD_VERSION}/manifests/install.yaml
+# Install ArgoCD CLI
+sudo curl -sSL -o /usr/local/bin/argocd https://github.com/argoproj/argo-cd/releases/download/${ARGOCD_VERSION}/argocd-linux-amd64
+sudo chmod +x /usr/local/bin/argocd
+# Configure ArgoCD Ingress
+kubectl delete -A ValidatingWebhookConfiguration ingress-nginx-admission
+sleep 5
+cat <<-EOF >argocd-server-ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: argocd-server-ingress
+  namespace: argocd
+  annotations:
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: argocd.example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: argocd-server
+            port:
+              name: https
+EOF
+export ARGOCD_SERVER="argocd.$(curl http://169.254.169.254/latest/meta-data/public-ipv4).nip.io"
+sed -i "s/argocd.example.com/$ARGOCD_SERVER/" argocd-server-ingress.yaml
+sudo -u admin kubectl apply -f argocd-server-ingress.yaml
+# Configure ArgoCD
+export CURRENT_PASSWORD=$(argocd admin initial-password -n argocd | head -1)
+argocd login $ARGOCD_SERVER --username admin --password $CURRENT_PASSWORD --grpc-web --insecure
+#sudo -u admin argocd login "argocd.$(curl http://169.254.169.254/latest/meta-data/public-ipv4).nip.io" --username admin --password $(argocd admin initial-password -n argocd --server "argocd.$(curl http://169.254.169.254/latest/meta-data/public-ipv4).nip.io" | head -1) --grpc-web --insecure
+argocd version
+argocd account update-password --current-password $CURRENT_PASSWORD --new-password ${ARGOCD_ADMIN_PASSWORD} --grpc-web --insecure
+echo "${GIT_PRIVATE_KEY}" >/home/${USERNAME}/.ssh/git-argocd
+argocd repo add ${GIT_SSH_URL} --ssh-private-key-path /home/${USERNAME}/.ssh/git-argocd
