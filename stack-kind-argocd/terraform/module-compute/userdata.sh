@@ -113,7 +113,7 @@ kubectl apply -f argocd-server-ingress.yaml
 export ARGOCD_ADMIN_BCRYPT_PASSWORD="$(argocd account bcrypt --password ${ARGOCD_ADMIN_PASSWORD})"
 export ARGOCD_PASSWORD_MTIME=\'$(date +%FT%T%Z)\'
 kubectl -n argocd patch secret argocd-secret -p "{\"stringData\": {\"admin.password\": \"$ARGOCD_ADMIN_BCRYPT_PASSWORD\", \"admin.passwordMtime\": \"$ARGOCD_PASSWORD_MTIME\"}}"
-argocd login $ARGOCD_EXTERNAL_URL --username admin --password $ARGOCD_ADMIN_PASSWORD --grpc-web --insecure
+until argocd login $ARGOCD_EXTERNAL_URL --username admin --password $ARGOCD_ADMIN_PASSWORD --grpc-web --insecure; do sleep 5; done
 #sudo -u admin argocd login "argocd.$(curl http://169.254.169.254/latest/meta-data/public-ipv4).nip.io" --username admin --password $(argocd admin initial-password -n argocd --server "argocd.$(curl http://169.254.169.254/latest/meta-data/public-ipv4).nip.io" | head -1) --grpc-web --insecure
 argocd version
 #argocd account update-password --current-password $CURRENT_PASSWORD --new-password ${ARGOCD_ADMIN_PASSWORD} --grpc-web --insecure
