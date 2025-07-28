@@ -78,7 +78,7 @@ kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/${
 sudo curl -sSL -o /usr/local/bin/argocd https://github.com/argoproj/argo-cd/releases/download/${ARGOCD_VERSION}/argocd-linux-amd64
 sudo chmod +x /usr/local/bin/argocd
 # Configure ArgoCD Ingress
-#kubectl delete -A ValidatingWebhookConfiguration ingress-nginx-admission
+kubectl delete -A ValidatingWebhookConfiguration ingress-nginx-admission
 sleep 5
 cat <<-EOF >argocd-server-ingress.yaml
 apiVersion: networking.k8s.io/v1
@@ -106,7 +106,7 @@ spec:
 EOF
 export ARGOCD_EXTERNAL_URL="argocd.$(curl http://169.254.169.254/latest/meta-data/public-ipv4).nip.io"
 sed -i "s/argocd.example.com/$ARGOCD_EXTERNAL_URL/" argocd-server-ingress.yaml
-sudo -u admin kubectl apply -f argocd-server-ingress.yaml
+kubectl apply -f argocd-server-ingress.yaml
 # Configure ArgoCD
 export ARGOCD_SERVER=$(kubectl get service argocd-server -n argocd --output=jsonpath='{.status.loadBalancer.ingress[0].hostname}')
 export CURRENT_PASSWORD=$(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d; echo)
