@@ -36,10 +36,6 @@ module "compute" {
   #+ ArgoCD version to deploy
   argocd_version = ""
 
-  #. argocd_admin_password: ''
-  #+ ArgoCD admin password
-  argocd_admin_password = random_password.argocd_admin_password.result
-
   #. git_ssh_url: ''
   #+ SSH URL to access the Git repository
   git_ssh_url = github_repository.argocd.ssh_clone_url

@@ -28,7 +28,7 @@ resource "aws_instance" "ec2" {
   ami           = data.aws_ami.debian.id
   instance_type = var.vm_instance_type
   key_name      = aws_key_pair.key_pair.key_name
-  
+
   iam_instance_profile   = aws_iam_instance_profile.ssm-profile.name
   vpc_security_group_ids = [aws_security_group.ec2.id]
 
@@ -46,7 +46,7 @@ resource "aws_instance" "ec2" {
     {
       USERNAME = var.vm_os_user
       ARGOCD_VERSION = var.argocd_version
-      ARGOCD_ADMIN_PASSWORD = var.argocd_admin_password
+      ARGOCD_ADMIN_PASSWORD = random_password.argocd_admin_password.result
       GIT_SSH_URL = var.git_ssh_url
       GIT_PRIVATE_KEY = var.git_private_key
     }

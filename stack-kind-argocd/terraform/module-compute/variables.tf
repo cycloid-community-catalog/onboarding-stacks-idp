@@ -47,11 +47,6 @@ variable "argocd_version" {
   default     = "v3.0.11"
 }
 
-variable "argocd_admin_password" {
-  description = "ArgoCD admin password"
-  sensitive   = true
-}
-
 variable "git_ssh_url" {
   description = "SSH URL to access the Git repository"
 }

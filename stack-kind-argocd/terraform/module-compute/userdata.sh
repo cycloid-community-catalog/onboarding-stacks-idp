@@ -108,14 +108,10 @@ export ARGOCD_EXTERNAL_URL="argocd.$(curl http://169.254.169.254/latest/meta-dat
 sed -i "s/argocd.example.com/$ARGOCD_EXTERNAL_URL/" argocd-server-ingress.yaml
 kubectl apply -f argocd-server-ingress.yaml
 # Configure ArgoCD
-#export ARGOCD_SERVER=$(kubectl get service argocd-server -n argocd --output=jsonpath='{.status.loadBalancer.ingress[0].hostname}')
-#export CURRENT_PASSWORD=$(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d; echo)
 export ARGOCD_ADMIN_BCRYPT_PASSWORD="$(argocd account bcrypt --password ${ARGOCD_ADMIN_PASSWORD})"
 export ARGOCD_PASSWORD_MTIME=\'$(date +%FT%T%Z)\'
 kubectl -n argocd patch secret argocd-secret -p "{\"stringData\": {\"admin.password\": \"$ARGOCD_ADMIN_BCRYPT_PASSWORD\", \"admin.passwordMtime\": \"$ARGOCD_PASSWORD_MTIME\"}}"
 until argocd login $ARGOCD_EXTERNAL_URL --username admin --password $ARGOCD_ADMIN_PASSWORD --grpc-web --insecure; do sleep 5; done
-#sudo -u admin argocd login "argocd.$(curl http://169.254.169.254/latest/meta-data/public-ipv4).nip.io" --username admin --password $(argocd admin initial-password -n argocd --server "argocd.$(curl http://169.254.169.254/latest/meta-data/public-ipv4).nip.io" | head -1) --grpc-web --insecure
 argocd version
-#argocd account update-password --current-password $CURRENT_PASSWORD --new-password ${ARGOCD_ADMIN_PASSWORD} --grpc-web --insecure
 echo "${GIT_PRIVATE_KEY}" >/home/${USERNAME}/.ssh/git-argocd
 argocd repo add ${GIT_SSH_URL} --ssh-private-key-path /home/${USERNAME}/.ssh/git-argocd
