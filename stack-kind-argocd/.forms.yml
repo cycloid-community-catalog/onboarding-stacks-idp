@@ -38,7 +38,7 @@ use_cases:
         widget: dropdown
         type: string
         default: "t3a.small"
-        values_ref: https://cycloid-demo-stackforms-values.s3.eu-west-1.amazonaws.com/aws-instance-types.json
+        values_ref: https://cycloid-demo-stackforms-values.s3.eu-west-1.amazonaws.com/aws-ec2-instance-types.json
         required: true
 
       - name: "Disk size"
