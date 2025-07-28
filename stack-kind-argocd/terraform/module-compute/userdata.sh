@@ -105,10 +105,12 @@ spec:
             port:
               name: https
 EOF
+export PUBLIC_IP=$(curl http://169.254.169.254/latest/meta-data/public-ipv4)
 sed -i "s/argocd.example.com/argocd.$(curl http://169.254.169.254/latest/meta-data/public-ipv4).nip.io/" argocd-server-ingress.yaml
 sudo -u admin kubectl apply -f argocd-server-ingress.yaml
 # Configure ArgoCD
-sudo -u admin argocd login "argocd.$(curl http://169.254.169.254/latest/meta-data/public-ipv4).nip.io" --username admin --password $(argocd admin initial-password -n argocd | head -1) --grpc-web --insecure
+sudo -u admin argocd login localhost:8080 --name admin --password <secret:argocd-initial-admin-secret>
+#sudo -u admin argocd login "argocd.$(curl http://169.254.169.254/latest/meta-data/public-ipv4).nip.io" --username admin --password $(argocd admin initial-password -n argocd --server "argocd.$(curl http://169.254.169.254/latest/meta-data/public-ipv4).nip.io" | head -1) --grpc-web --insecure
 sudo -u admin argocd version
 sudo -u admin argocd account update-password --current-password $(argocd admin initial-password -n argocd | head -1) --new-password ${ARGOCD_ADMIN_PASSWORD} --grpc-web --insecure
 echo "${GIT_PRIVATE_KEY}" >/home/${USERNAME}/.ssh/git-argocd

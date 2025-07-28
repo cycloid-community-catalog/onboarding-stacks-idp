@@ -5,10 +5,10 @@ resource_types:
     repository: cycloid/terraform-resource
     tag: ((terraform_version))
 
-- name: http-api
-  type: docker-image
-  source:
-    repository: jgriff/http-resource
+# - name: http-api
+#   type: docker-image
+#   source:
+#     repository: jgriff/http-resource
 
 
 resources:
@@ -67,18 +67,18 @@ resources:
       - ($ .config_root $)/terraform/*
 
 # Mailjet Service to send emails
-- name: mailjet-send
-  type: http-api
-  icon: mail
-  source:
-    url: https://api.mailjet.com/v3.1/send
-    method: POST
-    username: ((mailjet_api_key))
-    password: ((mailjet_secret_key))
-    out_only: true
-    headers:
-      Accept: '*/*'
-      Content-Type: 'application/json'
+# - name: mailjet-send
+#   type: http-api
+#   icon: mail
+#   source:
+#     url: https://api.mailjet.com/v3.1/send
+#     method: POST
+#     username: ((mailjet_api_key))
+#     password: ((mailjet_secret_key))
+#     out_only: true
+#     headers:
+#       Accept: '*/*'
+#       Content-Type: 'application/json'
 
 
 groups:
@@ -130,9 +130,9 @@ jobs:
         params:
           terraform_source: merged-stack/
 
-      - put: mailjet-send
-        params:
-          file: mailjet-message.json
+      # - put: mailjet-send
+      #   params:
+      #     file: mailjet-message.json
 
 
   - name: run-operations
