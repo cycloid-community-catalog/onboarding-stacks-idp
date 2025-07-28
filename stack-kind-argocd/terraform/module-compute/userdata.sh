@@ -109,10 +109,10 @@ export ARGOCD_SERVER="argocd.$(curl http://169.254.169.254/latest/meta-data/publ
 sed -i "s/argocd.example.com/$ARGOCD_SERVER/" argocd-server-ingress.yaml
 sudo -u admin kubectl apply -f argocd-server-ingress.yaml
 # Configure ArgoCD
-sudo -u admin argocd login $ARGOCD_SERVER --name admin --password secret:argocd-initial-admin-secret
 export CURRENT_PASSWORD=$(sudo -u admin argocd admin initial-password -n argocd | head -1)
+argocd login $ARGOCD_SERVER --username admin --password $CURRENT_PASSWORD
 #sudo -u admin argocd login "argocd.$(curl http://169.254.169.254/latest/meta-data/public-ipv4).nip.io" --username admin --password $(argocd admin initial-password -n argocd --server "argocd.$(curl http://169.254.169.254/latest/meta-data/public-ipv4).nip.io" | head -1) --grpc-web --insecure
-sudo -u admin argocd version
-sudo -u admin argocd account update-password --current-password $CURRENT_PASSWORD --new-password ${ARGOCD_ADMIN_PASSWORD} --grpc-web --insecure
+argocd version
+argocd account update-password --current-password $CURRENT_PASSWORD --new-password ${ARGOCD_ADMIN_PASSWORD} --grpc-web --insecure
 echo "${GIT_PRIVATE_KEY}" >/home/${USERNAME}/.ssh/git-argocd
-sudo -u admin argocd repo add ${GIT_SSH_URL} --ssh-private-key-path /home/${USERNAME}/.ssh/git-argocd
+argocd repo add ${GIT_SSH_URL} --ssh-private-key-path /home/${USERNAME}/.ssh/git-argocd
