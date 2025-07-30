@@ -113,7 +113,7 @@ export ARGOCD_ADMIN_BCRYPT_PASSWORD="$(argocd account bcrypt --password ${ARGOCD
 export ARGOCD_PASSWORD_MTIME="'$(date +%FT%T%Z)'"
 kubectl -n argocd patch secret argocd-secret -p "{\"stringData\": {\"admin.password\": \"$ARGOCD_ADMIN_BCRYPT_PASSWORD\", \"admin.passwordMtime\": \"$ARGOCD_PASSWORD_MTIME\"}}"
 kubectl -n argocd delete pod -l app.kubernetes.io/name=argocd-server
-until argocd login $ARGOCD_EXTERNAL_URL --username admin --password $ARGOCD_ADMIN_PASSWORD --grpc-web --insecure; do sleep 5; done
+until argocd login $ARGOCD_EXTERNAL_URL --username admin --password ${ARGOCD_ADMIN_PASSWORD} --grpc-web --insecure; do sleep 5; done
 argocd version
 echo "${GIT_PRIVATE_KEY}" >/home/${USERNAME}/.ssh/git-argocd
 argocd repo add ${GIT_SSH_URL} --ssh-private-key-path /home/${USERNAME}/.ssh/git-argocd
