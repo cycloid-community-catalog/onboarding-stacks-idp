@@ -2,33 +2,45 @@
 # Registry
 #
 
-#. registry_repository (required): ''
+#. dockerhub_repository (required): ''
 #+ The repository path to use for the container images.
-registry_repository: "olivier2t/app-test-env"
+dockerhub_repository: "olivier2t/app-test-env"
 
-#. registry_username (required): ''
-#+ The username to access the registry.
-registry_username: "((dockerhub.username))"
-
-#. registry_password (required): ''
-#+ The password to access the registry.
-registry_password: "((dockerhub.password))"
+#. dockerhub_cred (required): ''
+#+ The credentials to access the registry.
+dockerhub_cred: "((dockerhub))"
 
 #
 # Application
 #
 
-#. git_url (required): ''
+#. app_git_url (required): ''
 #+ Public git URL where the application is stored.
-git_url: ""
+app_git_url: ""
 
-#. git_branch (required): ''
+#. app_git_branch (required): ''
 #+ Git branch where the application is stored.
-git_branch: ""
+app_git_branch: ""
 
-#. git_ssh_key (required): ''
+#. app_git_ssh_key (required): ''
 #+ The SSH private key to access the git repository.
-git_ssh_key: ""
+app_git_ssh_key: ""
+
+#
+# ArgoCD
+#
+
+#. argocd_git_url (required): ''
+#+ Git repository URL where the ArgoCD manifests are stored.
+argocd_git_url: ""
+
+#. argocd_git_branch (required): ''
+#+ Git branch where the ArgoCD manifests are stored.
+argocd_git_branch: ""
+
+#. argocd_git_ssh_key (required): ''
+#+ The SSH private key to access the git repository.
+argocd_git_ssh_key: ""
 
 #
 # Database
@@ -80,7 +92,7 @@ app_replicas: 3
 
 #. kubeconfig_content (required): ''
 #+ Kubeconfig content from Cycloid vault.
-kubeconfig_content: "((($ .project $)-kubeconfig.kubeconfig))"
+kubeconfig_content: "((($ .project $)-($ .env $)-kubeconfig.kubeconfig))"
 
 #
 # Default variables

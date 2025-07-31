@@ -1,13 +1,14 @@
 ---
 # Configuration of the Cycloid stack
 version: '4'
-name: 'Test Env on Kubernetes'
-canonical: 'stack-k8s-testenv-idp'
-description: 'Deploy an application test environment in a Kubernetes cluster.'
+name: 'Test Env with ArgoCD'
+canonical: 'stack-testenv-argocd-idp'
+description: 'Deploy an application test environment using ArgoCD.'
 author: 'Cycloid'
 image: 'https://cycloid-demo-stacks-logo.s3.eu-west-1.amazonaws.com/testenv.png'
 keywords:
 - 'kubernetes'
+- 'argocd'
 - 'application'
 - 'test'
 - 'provider:kubernetes'
@@ -23,3 +24,9 @@ config:
       variables:
         path: pipeline/variables.sample.yml
         destination: '($ .config_root $)/variables.yml'
+    templating:
+      var_path: '($ .config_root $)/vars/templating.json'
+      templates:
+      - paths:
+        - templating/
+        destination: ($ .config_root $)/templating/

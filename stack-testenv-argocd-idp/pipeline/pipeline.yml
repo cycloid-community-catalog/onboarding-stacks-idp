@@ -1,0 +1,161 @@
+resources:
+# The repo with our Dockerfile
+- name: git_app_code
+  type: git
+  icon: github-circle
+  source:
+    uri: ((app_git_url))
+    branch: ((app_git_branch))
+    private_key: ((app_git_ssh_key))
+
+# Where we will push the image
+- name: app_image
+  type: registry-image
+  icon: docker
+  source:
+    repository: ((dockerhub_repository))
+    username: ((((dockerhub_cred)).username))
+    password: ((((dockerhub_cred)).password))
+    tag: ((app_git_branch))
+
+# The repo with our ArgoCD manifests
+- name: git_argocd
+  type: git
+  icon: github-circle
+  source:
+    uri: ((argocd_git_url))
+    branch: ((argocd_git_branch))
+    private_key: ((argocd_git_ssh_key))
+
+# The config git where the geenrated ArgoCD manifests are stored
+- name: git_config
+  type: git
+  icon: github-circle
+  source:
+    uri: ($ .cr_url $)
+    branch: ($ .cr_branch $)
+    ($- if eq .cr_cred_type "basic_auth" $)
+    username: ((($ .cr_cred_path $).username))
+    password: ((($ .cr_cred_path $).password))
+    ($- end $)
+    ($- if eq .cr_cred_type "ssh" $)
+    private_key: ((($ .cr_cred_path $).ssh_key))
+    ($- end $)
+    paths:
+      - ($ .config_root $)/templating/*
+
+groups:
+- name: overview
+  jobs:
+    - build-and-push
+    - argocd-manifests
+
+- name: delete
+  jobs:
+    - delete-app
+
+
+jobs:
+- name: build-and-push
+  plan:
+  - get: git_app_code
+    trigger: true
+  - task: build-task-image
+    privileged: true
+    config:
+      platform: linux
+      image_resource:
+        type: registry-image
+        source:
+          repository: concourse/oci-build-task
+      inputs:
+      - name: git_app_code
+      outputs:
+      - name: image
+      params:
+        CONTEXT: git_app_code
+        DOCKERFILE: git_app_code/Dockerfile
+      caches:
+      - path: cache
+      run:
+        path: build
+  - put: app_image
+    params:
+      image: image/image.tar
+
+- name: argocd-manifests
+  serial: true
+  max_in_flight: 1
+  build_logs_to_retain: 10
+  plan:
+  - get: app_image
+    trigger: true
+    passed:
+      - build-and-push
+  - get: git_config
+    trigger: true
+    passed:
+      - build-and-push
+  - get: git_argocd
+  - task: argocd-manifests
+    config:
+      platform: linux
+      image_resource:
+        type: registry-image
+        source:
+          repository: olivier2t/toolkit
+          tag: latest
+      inputs:
+      - name: git_argocd
+      - name: git_config
+      - name: app_image
+      outputs:
+      - name: git_argocd
+      run:
+        path: /bin/bash
+        args:
+        - -ec
+        - |
+          echo "Generating ArgoCD manifests..."
+          mkdir -p git_argocd/($ .project $)-($ .env $)-($ .component $)
+          export K8S_EXTERNAL_IP = $(echo ${KUBECONFIG_CONTENT} | grep "server: https" | head -1 | grep -oE '((1?[0-9][0-9]?|2[0-4][0-9]|25[0-5])\.){3}(1?[0-9][0-9]?|2[0-4][0-9]|25[0-5])')
+          for file in git_config/templating/*; do
+            envsubst < $file > git_argocd/($ .project $)-($ .env $)-($ .component $)/$(basename $file)
+          done
+          cd git_argocd
+          git add .
+          git commit -m "Add ($ .project $)-($ .env $)-($ .component $) ArgoCD manifests"
+      params:
+        KUBECONFIG_CONTENT: ((kubeconfig_content))
+  - put: git_argocd
+    params:
+      repository: git_argocd
+
+
+- name: delete-app
+  serial: true
+  max_in_flight: 1
+  build_logs_to_retain: 10
+  plan:
+  - get: git_argocd
+  - task: delete-app
+    config:
+      platform: linux
+      image_resource:
+        type: registry-image
+        source:
+          repository: olivier2t/toolkit
+          tag: latest
+      run:
+        path: /bin/bash
+        args:
+        - -ec
+        - |
+          echo "Deleting..."
+          rm -rf git_argocd/($ .project $)-($ .env $)-($ .component $)
+          cd git_argocd
+          git add .
+          git commit -m "Delete ($ .project $)-($ .env $)-($ .component $) ArgoCD manifests"
+  - put: git_argocd
+    params:
+      repository: git_argocd
