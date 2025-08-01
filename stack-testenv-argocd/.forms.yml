@@ -144,7 +144,7 @@ use_cases:
         required: true
 
     - name: Kubernetes Cluster
-      technologies: [pipeline, templating]
+      technologies: [pipeline]
       vars:
       - name: "Kubeconfig"
         description: "The Kubeconfig to access your Kubernetes Cluster."
