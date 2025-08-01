@@ -204,6 +204,9 @@ use_cases:
         required: true
         type: string
         default: "olivier2t/app-test-env"
+    - name: DockerHub Credentials
+      technologies: [pipeline]
+      vars:
       - name: "DockerHub Credentials"
         description: "The DockerHub credentials to access the registry."
         key: dockerhub_cred
