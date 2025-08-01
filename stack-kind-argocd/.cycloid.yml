@@ -1,13 +1,11 @@
 ---
 # Configuration of the Cycloid stack
 version: '4'
-name: 'Kind with ArgoCD'
-canonical: stack-kind-argocd
+name: Kind
+canonical: stack-kind
 author: Cycloid
-description: |
-  Deploy ArgoCD on a Kubernetes cluster and create its GitHub repository.
-image: |
-  https://cycloid-demo-stacks-logo.s3.eu-west-1.amazonaws.com/argocd.svg
+description: "Deploy ArgoCD on a Kubernetes cluster and create its GitHub repository."
+image: "https://cycloid-demo-stacks-logo.s3.eu-west-1.amazonaws.com/argocd.svg"
 keywords:
   - kubernetes
   - argocd
