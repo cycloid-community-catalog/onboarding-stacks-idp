@@ -1,19 +1,17 @@
 ---
 # Configuration of the Cycloid stack
 version: '4'
-name: 'Kind K8s with ArgoCD'
+name: 'Kind with ArgoCD'
 canonical: stack-kind-argocd
 author: Cycloid
 description: |
-  Deploys a single node Kind Kubernetes cluster with Core ArgoCD on an AWS EC2 instance using Terraform and Cloud-Init.
+  Deploy ArgoCD on a Kubernetes cluster and create its GitHub repository.
 image: |
-  https://cycloid-demo-stacks-logo.s3.eu-west-1.amazonaws.com/git-argocd.png
+  https://cycloid-demo-stacks-logo.s3.eu-west-1.amazonaws.com/argocd.svg
 keywords:
   - kubernetes
-  - kind
   - argocd
-  - cloud-init
-  - ec2
+  - provider:kubernetes
 technologies:
 - technology: terraform
   version: 1.8.3
