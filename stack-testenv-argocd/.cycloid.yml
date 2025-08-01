@@ -30,8 +30,8 @@ config:
       - paths:
         - templating/argocd.yml
         destination: ($ .config_root $)/templating/argocd.yml
-        destination_type: file
+        destination_is_file: true
       - paths:
         - templating/testenv.yml
         destination: ($ .config_root $)/templating/testenv.yml
-        destination_type: file
+        destination_is_file: true
