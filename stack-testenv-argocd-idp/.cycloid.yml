@@ -2,7 +2,7 @@
 # Configuration of the Cycloid stack
 version: '4'
 name: 'Test Env with ArgoCD'
-canonical: 'stack-testenv-argocd-idp'
+canonical: 'stack-testenv-argocd'
 description: 'Deploy an application test environment using ArgoCD.'
 author: 'Cycloid'
 image: 'https://cycloid-demo-stacks-logo.s3.eu-west-1.amazonaws.com/testenv.png'
