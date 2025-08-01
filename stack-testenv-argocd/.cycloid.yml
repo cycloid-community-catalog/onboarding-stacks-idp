@@ -16,6 +16,25 @@ technologies:
 - technology: terraform
   version: 1.8.3
 
+# config:
+#   default:
+#     pipeline:
+#       pipeline:
+#         path: pipeline/pipeline.yml
+#       variables:
+#         path: pipeline/variables.sample.yml
+#         destination: '($ .config_root $)/variables.yml'
+#     templating:
+#       var_path: '($ .config_root $)/vars/templating.json'
+#       templates:
+#       - paths:
+#         - templating/argocd.yml
+#         destination: ($ .config_root $)/templating/argocd.yml
+#         destination_is_file: true
+#       - paths:
+#         - templating/testenv.yml
+#         destination: ($ .config_root $)/templating/testenv.yml
+#         destination_is_file: true
 config:
   default:
     pipeline:
@@ -25,13 +44,18 @@ config:
         path: pipeline/variables.sample.yml
         destination: '($ .config_root $)/variables.yml'
     templating:
-      var_path: '($ .config_root $)/vars/templating.json'
+      var_path: ($ .config_root $)/cy_vars/file.json
       templates:
       - paths:
-        - templating/argocd.yml
-        destination: ($ .config_root $)/templating/argocd.yml
-        destination_is_file: true
+        - source_templates/main.tmpl
+        - common/
+        destination: ($ .config_root $)/dest_file.yml
+        - helpers:
+          - parts/
+          - common.tmpl
+        config:
+          destination_is_file: true
       - paths:
-        - templating/testenv.yml
-        destination: ($ .config_root $)/templating/testenv.yml
-        destination_is_file: true
+        - source-folder/
+        - common/
+        destination: ($ .config_root $)/dest-folder/
