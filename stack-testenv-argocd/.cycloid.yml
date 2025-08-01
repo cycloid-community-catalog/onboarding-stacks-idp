@@ -44,18 +44,10 @@ config:
         path: pipeline/variables.sample.yml
         destination: '($ .config_root $)/variables.yml'
     templating:
-      var_path: ($ .config_root $)/cy_vars/file.json
+      var_path: ($ .config_root $)/vars/file.json
       templates:
       - paths:
-        - source_templates/main.tmpl
-        - common/
-        destination: ($ .config_root $)/dest_file.yml
-        - helpers:
-          - parts/
-          - common.tmpl
+        - templating/
+        destination: ($ .config_root $)/templating/
         config:
           destination_is_file: true
-      - paths:
-        - source-folder/
-        - common/
-        destination: ($ .config_root $)/dest-folder/
