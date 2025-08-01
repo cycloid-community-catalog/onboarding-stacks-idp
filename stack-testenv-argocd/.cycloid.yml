@@ -44,10 +44,10 @@ config:
         path: pipeline/variables.sample.yml
         destination: '($ .config_root $)/variables.yml'
     templating:
-      var_path: ($ .config_root $)/vars/file.json
+      var_path: ($ .config_root $)/cy_vars/file.json
       templates:
       - paths:
         - templating/
-        destination: ($ .config_root $)/templating/
+        destination: ($ .config_root $)/templating/dest_file.yml
         config:
           destination_is_file: true
