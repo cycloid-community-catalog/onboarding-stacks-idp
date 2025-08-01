@@ -44,7 +44,7 @@ config:
         path: pipeline/variables.sample.yml
         destination: '($ .config_root $)/pipeline/variables.yml'
     templating:
-      var_path: ($ .config_root $)/vars/templating.json
+      # var_path: ($ .config_root $)/vars/templating.json
       templates:
       - paths:
         - templating/
