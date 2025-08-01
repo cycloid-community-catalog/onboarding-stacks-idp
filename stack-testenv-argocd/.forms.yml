@@ -180,6 +180,9 @@ use_cases:
         values: ["main", "master"]
         default: "main"
         required: true
+    - name: ArgoCD Git Repository SSH Key
+      technologies: [pipeline]
+      vars:
       - name: "ArgoCD Git Repository SSH Key"
         description: "The ArgoCD Git Repository SSH Key to access the git repository."
         key: argocd_git_ssh_key
