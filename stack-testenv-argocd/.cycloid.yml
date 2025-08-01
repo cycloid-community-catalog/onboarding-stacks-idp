@@ -28,5 +28,10 @@ config:
       var_path: '($ .config_root $)/vars/templating.json'
       templates:
       - paths:
-        - templating/
-        destination: ($ .config_root $)/templating/
+        - templating/argocd.yml
+        destination: ($ .config_root $)/templating/argocd.yml
+        destination_type: file
+      - paths:
+        - templating/testenv.yml
+        destination: ($ .config_root $)/templating/testenv.yml
+        destination_type: file
