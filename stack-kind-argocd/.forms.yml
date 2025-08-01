@@ -102,9 +102,9 @@ use_cases:
         type: string
         default: "v3.0.11"
         required: true
-        validations: 
-        - regexp: "^v\\d+\\.\\d+\\.\\d+$" 
-          error_message: "Please enter a valid ArgoCD version such as v3.0.11"
+        # validations: 
+        # - regexp: "^v\\d+\\.\\d+\\.\\d+$" 
+        #   error_message: "Please enter a valid ArgoCD version such as v3.0.11"
 
     - name: GitHub
       technologies: [pipeline]
