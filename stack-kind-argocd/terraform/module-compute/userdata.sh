@@ -118,4 +118,3 @@ argocd version
 echo "${GIT_PRIVATE_KEY}" >/home/${USERNAME}/.ssh/git-argocd
 argocd repo add ${GIT_SSH_URL} --ssh-private-key-path /home/${USERNAME}/.ssh/git-argocd
 argocd app create app-of-apps --repo ${GIT_SSH_URL} --path . --dest-namespace default --dest-server https://kubernetes.default.svc --directory-recurse --sync-policy auto --auto-prune
-argocd app sync app-of-apps
