@@ -82,7 +82,7 @@ use_cases:
           cred_types:
             - basic_auth
         type: string
-        default: "((github-pat.pasword))"
+        default: "((github-pat.password))"
         required: true
       - name: "organization"
         description: "This is the organization that will be used to read the application repository."
