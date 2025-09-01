@@ -42,10 +42,10 @@ config:
     description: 'Automatically create a testenv for each new pull request. This is usually done automatically when a new software project is created.'
     pipeline:
       pipeline:
-        path: pipeline/pr/pipeline.yml
+        path: pipeline/pr-monitor/pipeline.yml
       variables:
-        path: pipeline/pr/variables.sample.yml
-        destination: '($ .config_root $)/pipeline/pr/variables.yml'
+        path: pipeline/pr-monitor/variables.sample.yml
+        destination: '($ .config_root $)/pipeline/pr-monitor/variables.yml'
 
   testenv:
     name: 'Test Environment (Automatic)'
