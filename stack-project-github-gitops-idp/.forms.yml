@@ -17,7 +17,7 @@ use_cases:
           cred_types:
             - basic_auth
         type: string
-        default: "((github-pat))"
+        default: "((github-pat.password))"
         required: true
       - name: "GitHub Organization"
         description: "This is the organization that will be used to create the repository."
