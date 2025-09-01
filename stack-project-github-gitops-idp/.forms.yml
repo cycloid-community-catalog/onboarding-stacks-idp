@@ -66,6 +66,33 @@ use_cases:
         default: "Simple NodeJS WebApp"
 
 
+- name: pr
+  sections:
+  - name: GitHub Configuration
+    groups:
+    - name: GitHub Access
+      technologies: [pipeline]
+      vars:
+      - name: "GitHub Personal Access Token"
+        description: "GitHub Personal Access Token with repo scope to read the application repository."
+        key: github_pat
+        widget: cy_cred
+        widget_config:
+          display_keys: false
+          cred_types:
+            - basic_auth
+        type: string
+        default: "((github-pat))"
+        required: true
+      - name: "GitHub Organization"
+        description: "This is the organization that will be used to read the application repository."
+        key: github_organization
+        widget: simple_text
+        type: string
+        default: "cycloid-demo"
+        required: true
+
+
 - name: testenv
   sections:
   - name: config
