@@ -12,8 +12,8 @@ resources:
     icon: github-circle
     source:
       disable_ci_skip: false
-      repository: "((github_organization $))/($ .org $)-($ .project $)"
-      access_token: ((github_pat))
+      repository: "((github_organization))/($ .org $)-($ .project $)"
+      access_token: "((github_pat))"
 
 groups:
   - name: pull-requests
