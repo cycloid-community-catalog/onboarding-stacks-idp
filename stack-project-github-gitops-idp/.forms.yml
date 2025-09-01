@@ -147,7 +147,8 @@ use_cases:
         required: true
 
     - name: ArgoCD Git Repository
-      technologies: [pipeline, templating]
+      # technologies: [pipeline, templating]
+      technologies: [pipeline]
       vars:
       - name: "ArgoCD Git Repository"
         description: "The ArgoCD Git Repository to send the manifests to."
@@ -183,7 +184,8 @@ use_cases:
         default: "((($ .project $)-($ .env $)-git-ssh.ssh_key))"
 
     - name: DockerHub Registry
-      technologies: [pipeline, templating]
+      # technologies: [pipeline, templating]
+      technologies: [pipeline]
       vars:
       - name: "DockerHub Repository"
         description: "The DockerHub repository to store your application images."
