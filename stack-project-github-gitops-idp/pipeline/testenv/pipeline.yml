@@ -48,7 +48,7 @@ groups:
 - name: overview
   jobs:
     - build-and-push
-    - manifests
+    # - manifests
 
 - name: delete
   jobs:
@@ -83,53 +83,53 @@ jobs:
     params:
       image: image/image.tar
 
-- name: manifests
-  serial: true
-  max_in_flight: 1
-  build_logs_to_retain: 10
-  plan:
-  - get: app_image
-    trigger: true
-    passed:
-      - build-and-push
-  - get: git_config
-    trigger: true
-    passed:
-      - build-and-push
-  - get: git_manifests
-  - task: manifests
-    config:
-      platform: linux
-      image_resource:
-        type: registry-image
-        source:
-          repository: olivier2t/toolkit
-          tag: latest
-      inputs:
-      - name: git_manifests
-      - name: git_config
-      - name: app_image
-      outputs:
-      - name: git_manifests
-      run:
-        path: /bin/bash
-        args:
-        - -ec
-        - |
-          echo "Generating manifests..."
-          mkdir -p git_manifests/($ .project $)-($ .env $)-($ .component $)
-          export K8S_EXTERNAL_IP = $(echo ${KUBECONFIG_CONTENT} | grep "server: https" | head -1 | grep -oE '((1?[0-9][0-9]?|2[0-4][0-9]|25[0-5])\.){3}(1?[0-9][0-9]?|2[0-4][0-9]|25[0-5])')
-          for file in git_config/templating/*; do
-            envsubst < $file > git_manifests/($ .project $)-($ .env $)-($ .component $)/$(basename $file)
-          done
-          cd git_manifests
-          git add .
-          git commit -m "Add ($ .project $)-($ .env $)-($ .component $) manifests"
-      params:
-        KUBECONFIG_CONTENT: ((kubeconfig_content))
-  - put: git_manifests
-    params:
-      repository: git_manifests
+# - name: manifests
+#   serial: true
+#   max_in_flight: 1
+#   build_logs_to_retain: 10
+#   plan:
+#   - get: app_image
+#     trigger: true
+#     passed:
+#       - build-and-push
+#   - get: git_config
+#     trigger: true
+#     passed:
+#       - build-and-push
+#   - get: git_manifests
+#   - task: manifests
+#     config:
+#       platform: linux
+#       image_resource:
+#         type: registry-image
+#         source:
+#           repository: olivier2t/toolkit
+#           tag: latest
+#       inputs:
+#       - name: git_manifests
+#       - name: git_config
+#       - name: app_image
+#       outputs:
+#       - name: git_manifests
+#       run:
+#         path: /bin/bash
+#         args:
+#         - -ec
+#         - |
+#           echo "Generating manifests..."
+#           mkdir -p git_manifests/($ .project $)-($ .env $)-($ .component $)
+#           export K8S_EXTERNAL_IP = $(echo ${KUBECONFIG_CONTENT} | grep "server: https" | head -1 | grep -oE '((1?[0-9][0-9]?|2[0-4][0-9]|25[0-5])\.){3}(1?[0-9][0-9]?|2[0-4][0-9]|25[0-5])')
+#           for file in git_config/templating/*; do
+#             envsubst < $file > git_manifests/($ .project $)-($ .env $)-($ .component $)/$(basename $file)
+#           done
+#           cd git_manifests
+#           git add .
+#           git commit -m "Add ($ .project $)-($ .env $)-($ .component $) manifests"
+#       params:
+#         KUBECONFIG_CONTENT: ((kubeconfig_content))
+#   - put: git_manifests
+#     params:
+#       repository: git_manifests
 
 
 - name: delete-app
