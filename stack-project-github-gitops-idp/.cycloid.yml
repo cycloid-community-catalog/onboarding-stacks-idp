@@ -1,11 +1,11 @@
 ---
 # Configuration of the Cycloid stack
 version: '4'
-name: 'GitOps Software Project (GitHub)'
+name: 'GitHub Software Project'
 canonical: stack-project-github-gitops-idp
 author: Cycloid
 description: |
-  Create a GitHub repository and scaffold a new project with my organization best practices and security rules. Deploy a Kind cluster with ArgoCD to manage the project test environments in a GitOps way.
+  Create a GitHub repository and scaffold a new project with my organization best practices and security rules. Manage the project test environments in a GitOps way.
 image: |
   https://cycloid-demo-stacks-logo.s3.eu-west-1.amazonaws.com/git.png
 keywords:
