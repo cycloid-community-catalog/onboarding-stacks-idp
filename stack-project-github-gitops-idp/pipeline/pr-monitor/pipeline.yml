@@ -70,7 +70,7 @@ jobs:
                     --stack-ref "$stack_self" --use-case "testenv" \
                     -V "config.application.app_git_url=${GH_SSH_URL}" \
                     -V "config.application.app_git_branch=${GH_BRANCH}" \
-                    -V "config.application.app_git_ssh_key="((($ .project $)-($ .env $)-app-git-ssh))" \
+                    -V "config.application.app_git_ssh_key="((($ .project $)-($ .env $)-app-git-ssh.ssh_key))" \
                     -o yaml
 
                   if [ $? -eq 0 ]; then
