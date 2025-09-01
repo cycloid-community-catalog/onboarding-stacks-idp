@@ -38,8 +38,8 @@ config:
         destination: '($ .config_root $)/terraform/main.tf'
 
   pr:
-    name: 'Pull Request'
-    description: 'Automatically create a testenv for each new pull request.'
+    name: 'Pull Request (Automatic)'
+    description: 'Automatically create a testenv for each new pull request. This is usually done automatically when a new software project is created.'
     pipeline:
       pipeline:
         path: pipeline/pr/pipeline.yml
@@ -48,8 +48,8 @@ config:
         destination: '($ .config_root $)/pipeline/pr/variables.yml'
 
   testenv:
-    name: 'Test Environment'
-    description: 'Deploy an Application Test Environment using ArgoCD manifests.'
+    name: 'Test Environment (Automatic)'
+    description: 'Deploy an Application Test Environment using ArgoCD manifests. This is usually done automatically when a new pull request is created.'
     pipeline:
       pipeline:
         path: pipeline/testenv/pipeline.yml
