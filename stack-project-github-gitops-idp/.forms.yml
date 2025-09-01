@@ -142,7 +142,7 @@ use_cases:
           display_keys: true
           cred_types:
             - custom
-        type: stringæ
+        type: string
         default: ((($ .project $)-($ .env $)-kubeconfig.kubeconfig))
         required: true
 
