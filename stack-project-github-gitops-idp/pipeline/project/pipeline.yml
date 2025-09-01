@@ -169,73 +169,73 @@ jobs:
           GIT_DEST_KEY: ((git_dest_key))
           PROJECT: ($ .project $)
 
-      # - task: create-kind-argocd-component
-      #   config:
-      #     platform: linux
-      #     image_resource:
-      #       type: registry-image
-      #       source:
-      #         repository: cycloid/cycloid-toolkit
-      #         tag: latest
-      #     run:
-      #       path: bash
-      #       args:
-      #         - "-ec"
-      #         - |
-      #           echo "fetching required stacks..."
-      #           STACKS="$(cy stack list -o json)"
-      #           stack_kind_argocd="$(echo "$STACKS" | jq -r '.[] | select(.canonical == "stack-kind-argocd") | .ref')"
-      #           echo "stack_kind_argocd: $stack_kind_argocd"
+      - task: create-pr-monitor-component
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source:
+              repository: cycloid/cycloid-toolkit
+              tag: latest
+          run:
+            path: bash
+            args:
+              - "-ec"
+              - |
+                echo "fetching required stacks..."
+                STACKS="$(cy stack list -o json)"
+                stack_self="$(echo "$STACKS" | jq -r '.[] | select(.canonical == "($ .stack $)") | .ref')"
+                echo "stack: $stack_self"
 
-      #           echo "  Create Component Kind ArgoCD Cluster"
-      #           MAX_RETRIES=30
-      #           COUNT=0
-      #           while [ $COUNT -lt $MAX_RETRIES ]; do
-      #             set +e
-      #             cy component create --update \
-      #               --project "$CY_PROJECT" --env "${CY_ENV}" \
-      #               --component "kind-argocd-cluster" \
-      #               --name "Kind ArgoCD Cluster" \
-      #               --stack-ref "$stack_kind_argocd" --use-case "default" \
-      #               -o yaml
+                echo "  Create PR Monitor Component"
+                MAX_RETRIES=30
+                COUNT=0
+                while [ $COUNT -lt $MAX_RETRIES ]; do
+                  set +e
+                  cy component create --update \
+                    --project "$CY_PROJECT" --env "${CY_ENV}" \
+                    --component "pr-monitor" \
+                    --name "PR Monitor" \
+                    --stack-ref "$stack_self" --use-case "pr" \
+                    -o yaml
 
-      #             if [ $? -eq 0 ]; then
-      #               echo "Component created successfully."
-      #               break
-      #             fi
+                  if [ $? -eq 0 ]; then
+                    echo "Component created successfully."
+                    break
+                  fi
 
-      #             COUNT=$((COUNT + 1))
-      #             echo "Attempt $COUNT failed... retrying"
+                  COUNT=$((COUNT + 1))
+                  echo "Attempt $COUNT failed... retrying"
 
-      #             sleep 1
-      #           done
+                  sleep 1
+                done
 
-      #           echo "  Create Environment for the test environments"
-      #           MAX_RETRIES=30
-      #           COUNT=0
-      #           while [ $COUNT -lt $MAX_RETRIES ]; do
-      #             set +e
-      #             cy environment create --update \
-      #               --project "$CY_PROJECT" --env "testenvs" \
-      #               --name "Test Environments"
+                echo "  Create Environment for staging"
+                MAX_RETRIES=30
+                COUNT=0
+                while [ $COUNT -lt $MAX_RETRIES ]; do
+                  set +e
+                  cy environment create --update \
+                    --project "$CY_PROJECT" --env "staging" \
+                    --name "Staging"
 
-      #             if [ $? -eq 0 ]; then
-      #               echo "Environment created successfully."
-      #               break
-      #             fi
+                  if [ $? -eq 0 ]; then
+                    echo "Environment created successfully."
+                    break
+                  fi
 
-      #             COUNT=$((COUNT + 1))
-      #             echo "Attempt $COUNT failed... retrying"
+                  COUNT=$((COUNT + 1))
+                  echo "Attempt $COUNT failed... retrying"
 
-      #             sleep 1
-      #           done
+                  sleep 1
+                done
 
-      #     params:
-      #       CY_API_KEY: ((cy_api_key))
-      #       CY_API_URL: ($ .api_url $)
-      #       CY_ORG: ($ .org $)
-      #       CY_PROJECT: ($ .project $)
-      #       CY_ENV: ($ .env $)
+          params:
+            CY_API_KEY: ((cy_api_key))
+            CY_API_URL: ($ .api_url $)
+            CY_ORG: ($ .org $)
+            CY_PROJECT: ($ .project $)
+            CY_ENV: ($ .env $)
 
 
 

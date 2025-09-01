@@ -56,8 +56,8 @@ jobs:
 
                 echo "fetching required stacks..."
                 STACKS="$(cy stack list -o json)"
-                stack_project_github_gitops_idp="$(echo "$STACKS" | jq -r '.[] | select(.canonical == "($ .stack $)") | .ref')"
-                echo "stack_project_github_gitops_idp: $stack_project_github_gitops_idp"
+                stack_self="$(echo "$STACKS" | jq -r '.[] | select(.canonical == "($ .stack $)") | .ref')"
+                echo "stack: $stack_self"
 
                 echo "  Create Component GitOps Test Environment"
                 MAX_RETRIES=30
@@ -67,7 +67,7 @@ jobs:
                   cy component create --update \
                     --project "$CY_PROJECT" --env "testenvs" \
                     --component "pr_${GH_PR}" \
-                    --stack-ref "$stack_project_github_gitops_idp" --use-case "testenv" \
+                    --stack-ref "$stack_self" --use-case "testenv" \
                     -V "config.application.app_git_url=${GH_SSH_URL}" \
                     -V "config.application.app_git_branch=${GH_BRANCH}" \
                     -V "config.application.app_git_ssh_key="((($ .project $)-app-git-ssh))" \
