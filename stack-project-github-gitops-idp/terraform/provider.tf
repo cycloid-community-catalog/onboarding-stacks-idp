@@ -6,5 +6,5 @@ provider "cycloid" {
 
 provider "github" {
   owner = var.github_organization
-  token = var.github_pat.password
+  token = var.github_pat
 }
