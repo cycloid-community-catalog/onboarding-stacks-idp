@@ -25,7 +25,7 @@ technologies:
 config:
   project:
     name: 'Project Initialization'
-    description: 'Initialize a new Software Project by scaffolding a new GitHub repository with organization best practices and deploy a Kind cluster with ArgoCD to manage the project test environments.'
+    description: 'Initialize a new Software Project by scaffolding a new GitHub repository with organization best practices.'
     pipeline:
       pipeline:
         path: pipeline/project/pipeline.yml
