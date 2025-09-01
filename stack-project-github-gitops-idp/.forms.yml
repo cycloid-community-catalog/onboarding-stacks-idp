@@ -66,25 +66,25 @@ use_cases:
         default: "Simple NodeJS WebApp"
 
 
-- name: pr
+- name: pr-monitor
   sections:
-  - name: GitHub Configuration
+  - name: config
     groups:
-    - name: GitHub Access
+    - name: github
       technologies: [pipeline]
       vars:
-      - name: "GitHub Personal Access Token"
+      - name: "pat"
         description: "GitHub Personal Access Token with repo scope to read the application repository."
         key: github_pat
         widget: cy_cred
         widget_config:
-          display_keys: false
+          display_keys: true
           cred_types:
             - basic_auth
         type: string
         default: "((github-pat))"
         required: true
-      - name: "GitHub Organization"
+      - name: "organization"
         description: "This is the organization that will be used to read the application repository."
         key: github_organization
         widget: simple_text

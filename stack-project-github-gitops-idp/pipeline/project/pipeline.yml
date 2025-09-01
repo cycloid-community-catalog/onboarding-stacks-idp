@@ -197,6 +197,8 @@ jobs:
                     --component "pr-monitor" \
                     --name "PR Monitor" \
                     --stack-ref "$stack_self" --use-case "pr" \
+                    -V "config.github.pat=((github_pat))" \
+                    -V "config.github.organization=((github_organization))" \
                     -o yaml
 
                   if [ $? -eq 0 ]; then

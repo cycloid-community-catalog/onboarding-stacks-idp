@@ -37,7 +37,7 @@ config:
         path: 'terraform/main.tf'
         destination: '($ .config_root $)/terraform/main.tf'
 
-  pr:
+  pr-monitor:
     name: 'Pull Request (Automatic)'
     description: 'Automatically create a testenv for each new pull request. This is usually done automatically when a new software project is created.'
     pipeline:
