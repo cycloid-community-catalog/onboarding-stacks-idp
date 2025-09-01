@@ -1,0 +1,104 @@
+resource_types:
+  - name: github-pr
+    type: registry-image
+    source:
+      repository: seraf/github-pr-resource
+      tag: latest
+
+resources:
+  # Github PR
+  - name: github_pull-request
+    type: github-pr
+    icon: github-circle
+    source:
+      disable_ci_skip: false
+      repository: "((github_organization $))/($ .org $)-($ .project $)"
+      access_token: ((github_pat))
+
+groups:
+  - name: pull-requests
+    jobs:
+      - create-dedicated-env
+
+jobs:
+  # Create dedicated environment for the pull-request
+  - name: create-dedicated-env
+    max_in_flight: 1
+    build_logs_to_retain: 20
+    plan:
+      - in_parallel:
+          - get: github_pull-request
+            trigger: true
+            version: every
+            params:
+              integration_tool: checkout
+
+      - task: check-and-create
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source:
+              repository: cycloid/cycloid-toolkit
+              tag: develop
+          inputs:
+            - name: github_pull-request
+          run:
+            path: sh
+            args:
+              - -ec
+              - |
+                # Gather information to create a testenv
+                export GH_PR=$(cat github_pull-request/.git/resource/metadata.json | jq '.[] | select( .name | contains("pr")) | .value' -r)
+                export GH_BRANCH=$(cat github_pull-request/.git/resource/metadata.json | jq '.[] | select( .name | contains("head_name")) | .value' -r)
+                export GH_SSH_URL=$(cat github_pull-request/.git/resource/metadata.json | jq '.[] | select( .name | contains("ssh_clone_url")) | .value' -r)
+                cat github_pull-request/.git/resource/metadata.json | jq '.[]
+
+                echo "fetching required stacks..."
+                STACKS="$(cy stack list -o json)"
+                stack_project_github_gitops_idp="$(echo "$STACKS" | jq -r '.[] | select(.canonical == "($ .stack $)") | .ref')"
+                echo "stack_project_github_gitops_idp: $stack_project_github_gitops_idp"
+
+                echo "  Create Component GitOps Test Environment"
+                MAX_RETRIES=30
+                COUNT=0
+                while [ $COUNT -lt $MAX_RETRIES ]; do
+                  set +e
+                  cy component create --update \
+                    --project "$CY_PROJECT" --env "testenvs" \
+                    --component "pr_${GH_PR}" \
+                    --stack-ref "$stack_project_github_gitops_idp" --use-case "testenv" \
+                    -V "config.application.app_git_url=${GH_SSH_URL}" \
+                    -V "config.application.app_git_branch=${GH_BRANCH}" \
+                    -V "config.application.app_git_ssh_key="((($ .project $)-app-git-ssh))" \
+                    -o yaml
+
+                  if [ $? -eq 0 ]; then
+                    echo "Component created successfully."
+                    break
+                  fi
+
+                  COUNT=$((COUNT + 1))
+                  echo "Attempt $COUNT failed... retrying"
+
+                  sleep 1
+                done
+
+                # Construct the github message
+                echo "A dedicated Cycloid env have been created under ($ .console_url $)/organizations/${ORGANIZATION}/projects/${TARGET_PROJECT}/environments/$TARGET_ENV/components/${TARGET_COMPONENT}/overview" > pull-request-comment/comment.txt
+          outputs:
+            - name: pull-request-comment
+        params:
+          CY_ORG: ($ .organization $)
+          CY_PROJECT: ($ .project $)
+          CY_ENV: ($ .env $)
+          CY_API_KEY: ((custom_api-key-admin.key))
+          CY_API_URL: ($ .api_url $)
+
+        on_success:
+          put: github_pull-request
+          params:
+            path: github_pull-request
+            comment_file: pull-request-comment/comment.txt
+          get_params:
+            integration_tool: checkout
