@@ -52,11 +52,11 @@ jobs:
                 export GH_PR=$(cat github_pull-request/.git/resource/metadata.json | jq '.[] | select( .name | contains("pr")) | .value' -r)
                 export GH_BRANCH=$(cat github_pull-request/.git/resource/metadata.json | jq '.[] | select( .name | contains("head_name")) | .value' -r)
                 export GH_SSH_URL=$(cat github_pull-request/.git/resource/metadata.json | jq '.[] | select( .name | contains("ssh_clone_url")) | .value' -r)
-                cat github_pull-request/.git/resource/metadata.json | jq '.[]
+                cat github_pull-request/.git/resource/metadata.json | jq '.[]'
 
                 echo "fetching required stacks..."
                 STACKS="$(cy stack list -o json)"
-                stack_self="$(echo "$STACKS" | jq -r '.[] | select(.canonical == "($ .stack $)") | .ref')"
+                stack_self="$(echo $STACKS | jq -r '.[] | select(.canonical == "($ .stack $)") | .ref')"
                 echo "stack: $stack_self"
 
                 echo "  Create Component GitOps Test Environment"

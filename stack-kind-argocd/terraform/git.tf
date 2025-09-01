@@ -18,10 +18,10 @@ resource "github_repository_deploy_key" "argocd" {
 }
 
 resource "cycloid_credential" "ssh_key" {
-  name                   = "${var.cy_project}-${var.cy_env}-git-argocd"
+  name                   = "${var.cy_project}-${var.cy_env}-argocd-git-ssh"
   description            = "SSH Key Pair used to access ArgoCD GitHub repo."
-  path                   = "${var.cy_project}-${var.cy_env}-git-argocd"
-  canonical              = "${var.cy_project}-${var.cy_env}-git-argocd"
+  path                   = "${var.cy_project}-${var.cy_env}-argocd-git-ssh"
+  canonical              = "${var.cy_project}-${var.cy_env}-argocd-git-ssh"
 
   type = "ssh"
   body = {

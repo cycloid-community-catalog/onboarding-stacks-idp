@@ -131,7 +131,7 @@ use_cases:
         default: "((($ .project $)-($ .env $)-app-git-ssh.ssh_key))"
         required: true
 
-    - name: Kubernetes Cluster
+    - name: kubernetes
       technologies: [pipeline]
       vars:
       - name: "Kubeconfig"
@@ -146,7 +146,7 @@ use_cases:
         default: ((($ .project $)-($ .env $)-kubeconfig.kubeconfig))
         required: true
 
-    - name: ArgoCD Git Repository
+    - name: argocd
       # technologies: [pipeline, templating]
       technologies: [pipeline]
       vars:
@@ -160,6 +160,7 @@ use_cases:
             type: github_repository
             project: ($ .project $)
         required: true
+        default: "($ .project $)-($ .env $)-git-ssh.ssh_url"
         type: string
       - name: "ArgoCD Git Branch"
         description: "The ArgoCD Git Branch to send the manifests to."
@@ -181,9 +182,9 @@ use_cases:
           cred_types:
             - ssh
         type: string
-        default: "((($ .project $)-($ .env $)-git-ssh.ssh_key))"
+        default: "((($ .project $)-($ .env $)-argocd-git-ssh.ssh_key))"
 
-    - name: DockerHub Registry
+    - name: dockerhub
       # technologies: [pipeline, templating]
       technologies: [pipeline]
       vars:
