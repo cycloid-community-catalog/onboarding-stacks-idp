@@ -169,7 +169,7 @@ jobs:
           GIT_DEST_KEY: ((git_dest_key))
           PROJECT: ($ .project $)
 
-      - task: create-pr-monitor-component
+      - task: create-pr-monitor
         config:
           platform: linux
           image_resource:
@@ -196,7 +196,7 @@ jobs:
                     --project "$CY_PROJECT" --env "${CY_ENV}" \
                     --component "pr-monitor" \
                     --name "PR Monitor" \
-                    --stack-ref "$stack_self" --use-case "pr" \
+                    --stack-ref "$stack_self" --use-case "pr-monitor" \
                     -V "config.github.pat=((github_pat))" \
                     -V "config.github.organization=((github_organization))" \
                     -o yaml
