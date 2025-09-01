@@ -39,9 +39,9 @@ git_source_path: "simple-counter"
 #+ The url of the destination scaffolded git repo.
 git_dest_url: "git@github.com:cycloid-demo/($ .project $)-($ .env $).git"
 
-#. git_dest_key (required): ((($ .project $)-($ .env $)-git-ssh.ssh_key))
+#. git_dest_key (required): ((($ .project $)-($ .env $)-app-git-ssh.ssh_key))
 #+ The ssh key of the destination scaffolded git repo.
-git_dest_key: ((($ .project $)-($ .env $)-git-ssh.ssh_key))
+git_dest_key: ((($ .project $)-($ .env $)-app-git-ssh.ssh_key))
 
 
 #
