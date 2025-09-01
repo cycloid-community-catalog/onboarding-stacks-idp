@@ -128,7 +128,7 @@ use_cases:
           cred_types:
             - ssh
         type: string
-        default: "((($ .project $)-($ .env $)-git-ssh.ssh_key))"
+        default: "((($ .project $)-($ .env $)-app-git-ssh.ssh_key))"
         required: true
 
     - name: Kubernetes Cluster
