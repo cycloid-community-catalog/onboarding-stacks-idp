@@ -28,21 +28,21 @@ resources:
     private_key: ((manifests_git_ssh_key))
 
 # The config git where the geenrated manifests are stored
-- name: git_config
-  type: git
-  icon: github-circle
-  source:
-    uri: ($ .cr_url $)
-    branch: ($ .cr_branch $)
-    ($- if eq .cr_cred_type "basic_auth" $)
-    username: ((($ .cr_cred_path $).username))
-    password: ((($ .cr_cred_path $).password))
-    ($- end $)
-    ($- if eq .cr_cred_type "ssh" $)
-    private_key: ((($ .cr_cred_path $).ssh_key))
-    ($- end $)
-    paths:
-      - ($ .config_root $)/*
+# - name: git_config
+#   type: git
+#   icon: github-circle
+#   source:
+#     uri: ($ .cr_url $)
+#     branch: ($ .cr_branch $)
+#     ($- if eq .cr_cred_type "basic_auth" $)
+#     username: ((($ .cr_cred_path $).username))
+#     password: ((($ .cr_cred_path $).password))
+#     ($- end $)
+#     ($- if eq .cr_cred_type "ssh" $)
+#     private_key: ((($ .cr_cred_path $).ssh_key))
+#     ($- end $)
+#     paths:
+#       - ($ .config_root $)/*
 
 groups:
 - name: overview
@@ -95,10 +95,10 @@ jobs:
     trigger: true
     passed:
       - build-and-push
-  - get: git_config
-    trigger: true
-    passed:
-      - build-and-push
+  # - get: git_config
+  #   trigger: true
+  #   passed:
+  #     - build-and-push
   - get: git_manifests
   - task: manifests
     config:
@@ -110,7 +110,7 @@ jobs:
           tag: latest
       inputs:
       - name: git_manifests
-      - name: git_config
+      # - name: git_config
       - name: app_image
       outputs:
       - name: git_manifests
