@@ -199,14 +199,22 @@ use_cases:
       - name: "DockerHub Username"
         description: "The DockerHub username to access the registry."
         key: dockerhub_username
-        widget: simple_text
+        widget: cy_cred
+        widget_config:
+          display_keys: true
+          cred_types:
+            - basic_auth
         required: true
         type: string
         default: "((dockerhub.username))"
       - name: "DockerHub Password"
         description: "The DockerHub password to access the registry."
         key: dockerhub_password
-        widget: simple_text
+        widget: cy_cred
+        widget_config:
+          display_keys: true
+          cred_types:
+            - basic_auth
         required: true
         type: string
         default: "((dockerhub.password))"
