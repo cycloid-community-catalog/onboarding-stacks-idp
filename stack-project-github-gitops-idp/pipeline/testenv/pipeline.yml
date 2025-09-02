@@ -97,8 +97,6 @@ jobs:
       - build-and-push
   - get: git_config_templates
     trigger: true
-    passed:
-      - build-and-push
   - get: git_manifests
   - task: manifests
     config:
