@@ -48,7 +48,7 @@ groups:
 - name: overview
   jobs:
     - build-and-push
-    - manifests
+    - generate-manifests
 
 - name: delete
   jobs:
@@ -57,6 +57,9 @@ groups:
 
 jobs:
 - name: build-and-push
+  serial: true
+  max_in_flight: 1
+  build_logs_to_retain: 10
   plan:
   - get: git_app_code
     trigger: true
@@ -83,7 +86,7 @@ jobs:
     params:
       image: image/image.tar
 
-- name: manifests
+- name: generate-manifests
   serial: true
   max_in_flight: 1
   build_logs_to_retain: 10
