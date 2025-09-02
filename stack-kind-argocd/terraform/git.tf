@@ -1,5 +1,5 @@
 resource "github_repository" "argocd" {
-  name        = "${var.cy_project}-argocd"
+  name        = "${var.cy_org}-${var.cy_project}-argocd"
   description = "ArgoCD repo managed by Cycloid in ${var.cy_project} project in ${var.cy_org} org"
 
   visibility = "private"
@@ -11,17 +11,17 @@ resource "tls_private_key" "github_generated_key" {
 }
 
 resource "github_repository_deploy_key" "argocd" {
-  title      = "${var.cy_project}"
+  title      = "${var.cy_org}-${var.cy_project}-argocd"
   repository = github_repository.argocd.name
   key        = tls_private_key.github_generated_key.public_key_openssh
   read_only  = false
 }
 
 resource "cycloid_credential" "ssh_key" {
-  name                   = "${var.cy_project}-${var.cy_env}-argocd-git-ssh"
+  name                   = "${var.cy_org}-${var.cy_project}-argocd-git-ssh"
   description            = "SSH Key Pair used to access ArgoCD GitHub repo."
-  path                   = "${var.cy_project}-${var.cy_env}-argocd-git-ssh"
-  canonical              = "${var.cy_project}-${var.cy_env}-argocd-git-ssh"
+  path                   = "${var.cy_org}-${var.cy_project}-argocd-git-ssh"
+  canonical              = "${var.cy_org}-${var.cy_project}-argocd-git-ssh"
 
   type = "ssh"
   body = {

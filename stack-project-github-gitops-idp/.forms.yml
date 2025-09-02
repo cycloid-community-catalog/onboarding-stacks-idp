@@ -109,6 +109,7 @@ use_cases:
           filters:
             type: github_repository
             project: ($ .project $)
+        default: "($ .org $)-($ .project $)"
         required: true
         type: string
       - name: "Application Git Branch or Tag"
@@ -128,7 +129,7 @@ use_cases:
           cred_types:
             - ssh
         type: string
-        default: "((($ .project $)-($ .env $)-app-git-ssh.ssh_key))"
+        default: "((($ .project $)-app-git-ssh.ssh_key))"
         required: true
 
     - name: kubernetes
@@ -143,7 +144,7 @@ use_cases:
           cred_types:
             - custom
         type: string
-        default: ((($ .project $)-($ .env $)-kubeconfig.kubeconfig))
+        default: ((($ .org $)-($ .project $)-kubeconfig.kubeconfig))
         required: true
 
     - name: argocd
@@ -160,7 +161,7 @@ use_cases:
             type: github_repository
             project: ($ .project $)
         required: true
-        default: "($ .project $)-($ .env $)-git-ssh.ssh_url"
+        default: "($ .org $)-($ .project $)-argocd-git-ssh.ssh_url"
         type: string
       - name: "ArgoCD Git Branch"
         description: "The ArgoCD Git Branch to send the manifests to."
@@ -182,7 +183,7 @@ use_cases:
           cred_types:
             - ssh
         type: string
-        default: "((($ .project $)-($ .env $)-argocd-git-ssh.ssh_key))"
+        default: "((($ .project $)-argocd-git-ssh.ssh_key))"
 
     - name: dockerhub
       # technologies: [pipeline, templating]
