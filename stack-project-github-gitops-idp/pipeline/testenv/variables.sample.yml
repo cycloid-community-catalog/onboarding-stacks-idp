@@ -6,9 +6,14 @@
 #+ The repository path to use for the container images.
 dockerhub_repository: "olivier2t/app-test-env"
 
-#. dockerhub_cred (required): ''
-#+ The credentials to access the registry.
-dockerhub_cred: "((dockerhub))"
+#. dockerhub_username (required): ''
+#+ The username to access the registry.
+dockerhub_username: ""
+
+#. dockerhub_password (required): ''
+#+ The password to access the registry.
+dockerhub_password: ""
+
 
 #
 # Application

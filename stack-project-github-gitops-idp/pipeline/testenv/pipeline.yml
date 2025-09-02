@@ -14,8 +14,8 @@ resources:
   icon: docker
   source:
     repository: ((dockerhub_repository))
-    username: ((((dockerhub_cred)).username))
-    password: ((((dockerhub_cred)).password))
+    username: ((dockerhub_username))
+    password: ((dockerhub_password))
     tag: ((app_git_branch))
 
 # The repo with our manifests
