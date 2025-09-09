@@ -51,7 +51,8 @@ jobs:
                 # Gather information to create a testenv
                 export GH_PR=$(cat github_pull-request/.git/resource/metadata.json | jq '.[] | select( .name | contains("pr")) | .value' -r)
                 export GH_BRANCH=$(cat github_pull-request/.git/resource/metadata.json | jq '.[] | select( .name | contains("head_name")) | .value' -r)
-                export GH_SSH_URL=$(cat github_pull-request/.git/resource/metadata.json | jq '.[] | select( .name | contains("ssh_clone_url")) | .value' -r)
+                export GH_URL_REPO=$(cat github_pull-request/.git/resource/metadata.json | jq '.[] | select( .name | contains("ssh_clone_url")) | .value' -r | sed 's/https:\/\/github.com\///g' | sed 's/\/pull.*$//g)
+                export GH_SSH_URL=$(echo "git@github.com:${GH_URL_REPO}.git")
                 cat github_pull-request/.git/resource/metadata.json | jq '.[]'
 
                 echo "fetching required stacks..."
