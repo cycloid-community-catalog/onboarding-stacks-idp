@@ -38,7 +38,7 @@ module "compute" {
 
   #. git_ssh_url: ''
   #+ SSH URL to access the Git repository
-  git_ssh_url = github_repository.argocd.ssh_clone_url
+  git_ssh_url = github_repository.manifests.ssh_clone_url
 
   #. git_private_key: ''
   #+ Private key to access the Git repository
