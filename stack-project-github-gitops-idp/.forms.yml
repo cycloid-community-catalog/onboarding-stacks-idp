@@ -103,13 +103,7 @@ use_cases:
       - name: "Application Git URL"
         description: "Git URL where the application is stored."
         key: app_git_url
-        widget: cy_inventory_resource
-        widget_config:
-          attribute: ssh_clone_url
-          filters:
-            type: github_repository
-            project: ($ .project $)
-        default: "($ .org $)-($ .project $)"
+        widget: simple_text
         required: true
         type: string
       - name: "Application Git Branch or Tag"
