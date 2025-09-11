@@ -29,7 +29,7 @@ app_git_branch: ""
 
 #. app_git_ssh_key (required): ''
 #+ The SSH private key to access the git repository.
-app_git_ssh_key: "((($ .project $)-($ .env $)-app-git-ssh.ssh_key))"
+app_git_ssh_key: "((($ .project $)-app-git-ssh.ssh_key))"
 
 #
 # Manifests
