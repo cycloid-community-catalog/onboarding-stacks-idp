@@ -37,15 +37,15 @@ app_git_ssh_key: "((($ .project $)-app-git-ssh.ssh_key))"
 
 #. manifests_git_url (required): ''
 #+ Git repository URL where the manifests are stored.
-manifests_git_url: ""
+manifests_git_url: "git@github.com:cycloid-demo/($ .project $)-($ .env $)-manifests.git"
 
 #. manifests_git_branch (required): ''
 #+ Git branch where the manifests are stored.
-manifests_git_branch: ""
+manifests_git_branch: "main"
 
 #. manifests_git_ssh_key (required): ''
 #+ The SSH private key to access the git repository.
-manifests_git_ssh_key: ""
+manifests_git_ssh_key: "((($ .project $)-($ .env $)-manifests-git-ssh.ssh_key))"
 
 #
 # Application
