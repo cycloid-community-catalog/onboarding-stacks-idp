@@ -114,17 +114,17 @@ use_cases:
         values: ["develop", "main", "master", "v1.0.0"]
         default: "main"
         required: true
-      - name: "SSH Key"
-        description: "The SSH private key to access the git repository."
-        key: app_git_ssh_key
-        widget: cy_cred
-        widget_config:
-          display_keys: true
-          cred_types:
-            - ssh
-        type: string
-        default: "((($ .project $)-app-git-ssh.ssh_key))"
-        required: true
+      # - name: "SSH Key"
+      #   description: "The SSH private key to access the git repository."
+      #   key: app_git_ssh_key
+      #   widget: cy_cred
+      #   widget_config:
+      #     display_keys: true
+      #     cred_types:
+      #       - ssh
+      #   type: string
+      #   default: "((($ .project $)-app-git-ssh.ssh_key))"
+      #   required: true
 
     - name: kubernetes
       technologies: [pipeline]
