@@ -51,9 +51,13 @@ jobs:
                 # Gather information to create a testenv
                 export GH_PR=$(cat github_pull-request/.git/resource/metadata.json | jq '.[] | select( .name | contains("pr")) | .value' -r)
                 export GH_BRANCH=$(cat github_pull-request/.git/resource/metadata.json | jq '.[] | select( .name | contains("head_name")) | .value' -r)
-                export GH_URL_REPO=$(cat github_pull-request/.git/resource/metadata.json | jq '.[] | select( .name | contains("ssh_clone_url")) | .value' -r | sed 's/https:\/\/github.com\///g' | sed 's/\/pull.*$//g)
-                export GH_SSH_URL=$(echo "git@github.com:${GH_URL_REPO}.git")
+                export GH_URL=$(cat github_pull-request/.git/resource/metadata.json | jq '.[] | select( .name | contains("url")) | .value' -r)
+                export GH_URL_REPO=$(echo $GH_URL | sed 's/https:\/\/github.com\///g' | sed 's/\/pull.*$//g')
+                export GH_SSH_URL="git@github.com:${GH_URL_REPO}.git"
                 cat github_pull-request/.git/resource/metadata.json | jq '.[]'
+                echo "GH_URL: $GH_URL"
+                echo "GH_URL_REPO: $GH_URL_REPO"
+                echo "GH_SSH_URL: $GH_SSH_URL"
 
                 echo "fetching required stacks..."
                 STACKS="$(cy stack list -o json)"
@@ -69,7 +73,7 @@ jobs:
                     --project "$CY_PROJECT" --env "$CY_ENV" \
                     --component "pr_${GH_PR}" \
                     --stack-ref "$stack_self" --use-case "testenv" \
-                    -V "config.application.app_git_url=${GH_SSH_URL}" \
+                    -V "config.application.app_git_url=($ .org $)-($ .project $)" \
                     -V "config.application.app_git_branch=${GH_BRANCH}" \
                     -o yaml
 
