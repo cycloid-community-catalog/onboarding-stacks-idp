@@ -1,17 +1,17 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: ${PROJECT}-${ENV}-${COMPONENT}
+  name: ($ .project $)-($ .env $)-($ .component $)
   namespace: argocd
 spec:
   project: default
   source:
-    repoURL: ${var.cy_project}-${var.cy_env}-manifests
-    targetRevision: main
-    path: ${PROJECT}-${ENV}-${COMPONENT}
+    repoURL: ($ .argocd_git_url $)
+    targetRevision: ($ .argocd_git_branch $)
+    path: ($ .project $)-($ .env $)-($ .component $)
   destination:
     server: https://kubernetes.default.svc
-    namespace: ${PROJECT}-${ENV}-${COMPONENT}
+    namespace: ($ .project $)-($ .env $)-($ .component $)
   syncPolicy:
     automated:
       prune: true

@@ -145,6 +145,11 @@ jobs:
           git commit -m "Add ($ .project $)-($ .env $)-($ .component $) manifests"
       params:
         KUBECONFIG_CONTENT: ((kubeconfig_content))
+        PROJECT: ($ .project $)
+        ENV: ($ .env $)
+        COMPONENT: ($ .component $)
+        DH_REPO: ((dockerhub_repository))
+        APP_REPLICAS: 3
   - put: git_manifests
     params:
       repository: git_manifests
