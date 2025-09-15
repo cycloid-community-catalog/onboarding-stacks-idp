@@ -141,6 +141,8 @@ jobs:
             envsubst < $file > git_manifests/($ .project $)-($ .env $)-($ .component $)/$(basename $file)
           done
           cd git_manifests
+          git config --global user.email "noreply@cycloid.io"
+          git config --global user.name "Cycloid Platform"
           git add .
           git commit -m "Add ($ .project $)-($ .env $)-($ .component $) manifests"
       params:
