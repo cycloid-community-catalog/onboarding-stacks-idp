@@ -135,8 +135,8 @@ jobs:
           echo "Generating manifests..."
           mkdir -p git_manifests/($ .project $)-($ .env $)-($ .component $)
           export K8S_EXTERNAL_IP=$(echo ${KUBECONFIG_CONTENT} | grep "server: https" | head -1 | grep -oE '((1?[0-9][0-9]?|2[0-4][0-9]|25[0-5])\.){3}(1?[0-9][0-9]?|2[0-4][0-9]|25[0-5])')
-          for file in git_stack_templates/templating/*; do
-            ls -la git_stack_templates/*
+          ls -la ($ .stack_path $)/templating/*
+          for file in ($ .stack_path $)/templating/*; do
             echo "Processing $file"
             envsubst < $file > git_manifests/($ .project $)-($ .env $)-($ .component $)/$(basename $file)
           done
