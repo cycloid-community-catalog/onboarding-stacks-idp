@@ -173,14 +173,7 @@ jobs:
                   --document-name AmazonEKS-ExecuteNonInteractiveCommand \
                   --parameters 'command="cat /home/admin/.kube/config"' | tail -n +3 | head -n -3  >kubeconfig
                 done
-
-                if ! cy credential create --name "${PROJECT}-${ENV}-kubeconfig" --canonical "${PROJECT}-${ENV}-kubeconfig" custom --field-file kubeconfig=kubeconfig; then
-                  echo "Error: cy returned code $?. Trying to update it."
-                  if ! cy credential update --name "${PROJECT}-${ENV}-kubeconfig" --canonical "${PROJECT}-${ENV}-kubeconfig" custom --field-file kubeconfig=kubeconfig; then
-                      echo "Error: cy returned code $?"
-                      exit 1
-                  fi
-                fi
+                cy credential create --update --name "${PROJECT}-${ENV}-kubeconfig" --canonical "${PROJECT}-${ENV}-kubeconfig" custom --field-file kubeconfig=kubeconfig
           inputs:
           - name: tfstate
             path: tfstate
