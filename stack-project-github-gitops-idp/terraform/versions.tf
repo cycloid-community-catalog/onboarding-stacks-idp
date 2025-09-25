@@ -4,7 +4,7 @@ terraform {
   required_providers {
     cycloid = {
       source = "cycloidio/cycloid"
-      version = ">= 0.0.20"
+      version = ">= 0.0.23"
     }
     github = {
       source  = "integrations/github"
