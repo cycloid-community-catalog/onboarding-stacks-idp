@@ -138,7 +138,7 @@ use_cases:
           cred_types:
             - custom
         type: string
-        default: ((($ .org $)-($ .project $)-kubeconfig.kubeconfig))
+        default: ((($ .project $)-($ .env $)-kubeconfig.kubeconfig))
         required: true
 
     # - name: manifests
