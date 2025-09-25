@@ -12,7 +12,7 @@ resources:
     icon: github-circle
     source:
       disable_ci_skip: false
-      repository: "((github_organization))/($ .org $)-($ .project $)"
+      repository: "((github_organization))/($ .project $)-($ .env $)-app"
       access_token: "((github_pat))"
 
 groups:
