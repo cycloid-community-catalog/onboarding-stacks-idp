@@ -65,16 +65,16 @@ spec:
     - hosts:
         - ${PROJECT}-${ENV}-${COMPONENT}.${K8S_EXTERNAL_IP}.nip.io
       secretName: ${PROJECT}-${ENV}-${COMPONENT}-tls
----
-apiVersion: cert-manager.io/v1
-kind: Certificate
-metadata:
-  name: ${PROJECT}-${ENV}-${COMPONENT}
-  namespace: ${PROJECT}-${ENV}-${COMPONENT}
-spec:
-  secretName: ${PROJECT}-${ENV}-${COMPONENT}-tls
-  issuerRef:
-    name: ssl-issuer
-    kind: ClusterIssuer
-  dnsNames:
-    - ${PROJECT}-${ENV}-${COMPONENT}.${K8S_EXTERNAL_IP}.nip.io
+# ---
+# apiVersion: cert-manager.io/v1
+# kind: Certificate
+# metadata:
+#   name: ${PROJECT}-${ENV}-${COMPONENT}
+#   namespace: ${PROJECT}-${ENV}-${COMPONENT}
+# spec:
+#   secretName: ${PROJECT}-${ENV}-${COMPONENT}-tls
+#   issuerRef:
+#     name: ssl-issuer
+#     kind: ClusterIssuer
+#   dnsNames:
+#     - ${PROJECT}-${ENV}-${COMPONENT}.${K8S_EXTERNAL_IP}.nip.io
