@@ -1,0 +1,80 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ${PROJECT}-${ENV}-${COMPONENT}
+---
+# Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ${PROJECT}-${ENV}-${COMPONENT}
+  namespace: ${PROJECT}-${ENV}-${COMPONENT}
+spec:
+  replicas: ${APP_REPLICAS}
+  selector:
+    matchLabels:
+      app: ${PROJECT}-${ENV}-${COMPONENT}
+  template:
+    metadata:
+      labels:
+        app: ${PROJECT}-${ENV}-${COMPONENT}
+    spec:
+      containers:
+        - name: ${PROJECT}-${ENV}-${COMPONENT}
+          image: ${DH_REPO}:${PROJECT}-${ENV}-${COMPONENT}
+          ports:
+            - containerPort: 8080
+          imagePullPolicy: Always
+---
+# Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: ${PROJECT}-${ENV}-${COMPONENT}
+  namespace: ${PROJECT}-${ENV}-${COMPONENT}
+spec:
+  selector:
+    app: ${PROJECT}-${ENV}-${COMPONENT}
+  ports:
+    - port: 80
+      targetPort: 8080
+---
+# Ingress
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ${PROJECT}-${ENV}-${COMPONENT}
+  namespace: ${PROJECT}-${ENV}-${COMPONENT}
+  annotations:
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: ${PROJECT}-${ENV}-${COMPONENT}.${K8S_EXTERNAL_IP}.nip.io
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: ${PROJECT}-${ENV}-${COMPONENT}
+                port:
+                  number: 80
+  tls:
+    - hosts:
+        - ${PROJECT}-${ENV}-${COMPONENT}.${K8S_EXTERNAL_IP}.nip.io
+      secretName: ${PROJECT}-${ENV}-${COMPONENT}-tls
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: ${PROJECT}-${ENV}-${COMPONENT}
+  namespace: ${PROJECT}-${ENV}-${COMPONENT}
+spec:
+  secretName: ${PROJECT}-${ENV}-${COMPONENT}-tls
+  issuerRef:
+    name: ssl-issuer
+    kind: ClusterIssuer
+  dnsNames:
+    - ${PROJECT}-${ENV}-${COMPONENT}.${K8S_EXTERNAL_IP}.nip.io

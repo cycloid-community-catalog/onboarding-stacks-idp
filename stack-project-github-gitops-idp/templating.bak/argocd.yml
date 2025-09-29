@@ -6,7 +6,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: ${PROJECT}-${ENV}-manifests
+    repoURL: ${var.cy_project}-${var.cy_env}-manifests
     targetRevision: main
     path: ${PROJECT}-${ENV}-${COMPONENT}
   destination:
