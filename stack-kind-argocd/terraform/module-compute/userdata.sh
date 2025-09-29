@@ -72,8 +72,6 @@ export HOME=/home/${USERNAME}
 export KUBECONFIG=/home/${USERNAME}/.kube/config
 # Install Ingress Nginx Controller
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
-# Install Cert-Manager
-kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.13.1/cert-manager.yaml
 # Install ArgoCD
 kubectl create namespace argocd
 kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/${ARGOCD_VERSION}/manifests/install.yaml
