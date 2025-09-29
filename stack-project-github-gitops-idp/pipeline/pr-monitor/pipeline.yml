@@ -71,7 +71,7 @@ jobs:
                   set +e
                   cy component create --update \
                     --project "$CY_PROJECT" --env "$CY_ENV" \
-                    --component "pr_${GH_PR}" \
+                    --component "pr${GH_PR}" \
                     --stack-ref "$stack_self" --use-case "testenv" \
                     -V "config.application.app_git_url=${GH_SSH_URL}" \
                     -V "config.application.app_git_branch=${GH_BRANCH}" \
