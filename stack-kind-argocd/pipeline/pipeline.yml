@@ -174,7 +174,7 @@ jobs:
                   --document-name AmazonEKS-ExecuteNonInteractiveCommand \
                   --parameters 'command="cat /home/admin/.kube/config"' | tail -n +3 | head -n -3  >kubeconfig
                 done
-                sed -i "s/127.0.0.1/${PUBLIC_IP}/" kubeconfig
+                sed -i "s/127.0.0.1/${PUBLIC_IP}/g" kubeconfig
                 cy credential create --update --name "${PROJECT}-${ENV}-kubeconfig" --canonical "${PROJECT}-${ENV}-kubeconfig" custom --field-file kubeconfig=kubeconfig
           inputs:
           - name: tfstate
