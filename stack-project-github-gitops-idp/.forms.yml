@@ -5,6 +5,44 @@ use_cases:
   sections:
   - name: GitHub Configuration
     groups:
+    - name: Repository Configuration
+      technologies: [pipeline]
+      vars:
+      - name: "Development Stack"
+        description: "Select a scaffolding template according to your desired development stack."
+        key: git_source_path
+        widget: dropdown
+        required: true
+        type: map
+        values:
+        - {label: "REST API using Express and Prisma Client", value: "express"}
+        - {label: "REST API using Fastify and Prisma Client", value: "fastify"}
+        - {label: "REST API using hapi and Prisma Client", value: "hapi"}
+        - {label: "REST API using Koa and Prisma Client", value: "koa"}
+        - {label: "REST API using NestJS and Prisma Client", value: "nest"}
+        - {label: "Web app using Next.js and Prisma Client", value: "nextjs"}
+        - {label: "Fullstack app with Nuxt using Vue and Prisma Client", value: "nuxt"}
+        - {label: "Web app using React Router 7 and Prisma ORM", value: "react-router-7"}
+        - {label: "Simple NodeJS WebApp", value: "simple-counter"}
+        default: "Simple NodeJS WebApp"
+      - name: "Repository Description"
+        description: "Description for the GitHub repository"
+        key: github_repo_description
+        widget: simple_text
+        type: string
+        default: "Scaffolded project for ($ .project $) in ($ .env $) environment"
+        required: false
+      - name: "Repository Visibility"
+        description: "Visibility level of the GitHub repository"
+        key: github_repo_visibility
+        widget: dropdown
+        type: map
+        required: true
+        default: "Private"
+        values:
+        - {label: "Private", value: "private"}
+        - {label: "Public", value: "public"}
+
     - name: GitHub Access
       technologies: [pipeline]
       vars:
@@ -26,44 +64,6 @@ use_cases:
         type: string
         default: "cycloid-demo"
         required: true
-
-    - name: Repository Configuration
-      technologies: [pipeline]
-      vars:
-      - name: "Repository Description"
-        description: "Description for the GitHub repository"
-        key: github_repo_description
-        widget: simple_text
-        type: string
-        default: "Scaffolded project for ($ .project $) in ($ .env $) environment"
-        required: false
-      - name: "Repository Visibility"
-        description: "Visibility level of the GitHub repository"
-        key: github_repo_visibility
-        widget: dropdown
-        type: map
-        required: true
-        default: "Private"
-        values:
-        - {label: "Private", value: "private"}
-        - {label: "Public", value: "public"}
-      - name: "Development Stack"
-        description: "Select a scaffolding template according to your desired development stack."
-        key: git_source_path
-        widget: dropdown
-        required: true
-        type: map
-        values:
-        - {label: "REST API using Express and Prisma Client", value: "express"}
-        - {label: "REST API using Fastify and Prisma Client", value: "fastify"}
-        - {label: "REST API using hapi and Prisma Client", value: "hapi"}
-        - {label: "REST API using Koa and Prisma Client", value: "koa"}
-        - {label: "REST API using NestJS and Prisma Client", value: "nest"}
-        - {label: "Web app using Next.js and Prisma Client", value: "nextjs"}
-        - {label: "Fullstack app with Nuxt using Vue and Prisma Client", value: "nuxt"}
-        - {label: "Web app using React Router 7 and Prisma ORM", value: "react-router-7"}
-        - {label: "Simple NodeJS WebApp", value: "simple-counter"}
-        default: "Simple NodeJS WebApp"
 
 
 - name: pr-monitor
