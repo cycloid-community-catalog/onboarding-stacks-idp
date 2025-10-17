@@ -76,7 +76,7 @@ use_cases:
         key: argocd_version
         widget: simple_text
         type: string
-        default: "v3.0.11"
+        default: "v3.1.8"
         required: true
         validations: 
         - regexp: "^v\\d+\\.\\d+\\.\\d+$" 
