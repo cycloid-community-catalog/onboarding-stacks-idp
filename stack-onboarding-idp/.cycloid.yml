@@ -1,0 +1,32 @@
+---
+# Configuration of the Cycloid stack
+version: '4'
+name: 'Softaware Project Onboarding'
+canonical: stack-onboarding-idp
+author: Cycloid
+description: |
+  Onboard a new software project by creating a new Cycloid Organization, Projects and Environments to manage it, deploy a Kubernetes ArgoCD cluster to deploy the application and invite the team members with the RBAC roles they need to manage the project.
+image: |
+  https://cycloid-demo-stacks-logo.s3.eu-west-1.amazonaws.com/git-argocd.png
+keywords:
+  - kubernetes
+  - kind
+  - argocd
+  - cloud-init
+  - ec2
+technologies:
+- technology: terraform
+  version: 1.8.3
+
+config:
+  default:
+    pipeline:
+      pipeline:
+        path: pipeline/pipeline.yml
+      variables:
+        path: pipeline/variables.sample.yml
+        destination: '($ .config_root $)/pipeline/variables.yml'
+    terraform:
+      main:
+        path: 'terraform/main.tf'
+        destination: '($ .config_root $)/terraform/main.tf'

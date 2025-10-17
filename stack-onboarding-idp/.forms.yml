@@ -1,0 +1,186 @@
+---
+version: "2"
+use_cases:
+- name: default
+  sections:
+  - name: Softaware Project Onboarding
+    groups:
+    - name: Cycloid New Organization
+      technologies: [pipeline]
+      vars:
+      - name: "Cycloid organization to create"
+        description: "Child Cycloid organization name to create."
+        key: cy_child_org
+        widget: simple_text
+        type: string
+        default: ""
+        validations: 
+        - regexp: "^[a-zA-Z0-9-]+$"
+          error_message: "Please enter a valid Cycloid organization name. It can only contain letters, numbers and hyphens."
+        required: true
+      - name: "Cycloid API key"
+        description: "Cycloid organization API key allowing to create and manage child organizations."
+        key: cy_api_key
+        widget: cy_cred
+        widget_config:
+          display_keys: true
+          cred_types:
+            - custom
+        type: string
+        default: "((idp-api-key.key))"
+        required: true
+      - name: "GitHub PAT"
+        description: "GitHub Personal Access Token allowing to scaffold application git repositoryand create ArgoCD git repository."
+        key: github_pat
+        widget: cy_cred
+        widget_config:
+          display_keys: true
+          cred_types: ["custom"]
+        type: string
+        default: "((github-pat.token))"
+        required: true
+
+    - name: Team Members
+      technologies: [pipeline]
+      vars:
+      - name: "CCP/CSP Team members"
+        description: "CCP/CSP team members to invite to the new software project."
+        key: team_members_ccp_csp
+        widget: dropdown
+        type: array
+        default: []
+        required: true
+        values:
+        - {label: "Olivier de Turckheim", value: "olivier.deturckheim@cycloid.io"}
+        - {label: "Gaël Lambert", value: "gael.lambert@cycloid.io"}
+        - {label: "Frédéric Barras Hampel", value: "frederic.hampel@cycloid.io"}
+        - {label: "Florian Lambert", value: "florian.lambert@cycloid.io"}
+        - {label: "Vincent Mazières", value: "vincent.mazieres@cycloid.io"}
+        - {label: "Sébastien Roux", value: "sebastien.roux@cycloid.io"}
+        - {label: "Guillaume Lambert", value: "guillaume.lambert@cycloid.io"}
+        - {label: "Laurent Malraux", value: "laurent.malraux@cycloid.io"}
+        - {label: "Thomas Billot", value: "thomas.billot@cycloid.io"}
+        - {label: "Gauthier Gaudet", value: "gauthier.gaudet@cycloid.io"}
+        - {label: "Aurélien Le Louarn", value: "aurelien.lelouarn@cycloid.io"}
+        - {label: "Cyril Bousquet", value: "cyril.bousquet@cycloid.io"}
+        - {label: "Guillaume Dupont", value: "guillaume.dupont@cycloid.io"}
+        - {label: "Mathieu Chambon", value: "mathieu.chambon@cycloid.io"}
+        - {label: "Mickaël Faure", value: "mickael.faure@cycloid.io"}
+        - {label: "Nicolas Lacroix", value: "nicolas.lacroix@cycloid.io"}
+        - {label: "Maxime Valette", value: "maxime.valette@cycloid.io"}
+        - {label: "Mathieu Duval", value: "mathieu.duval@cycloid.io"}
+        - {label: "Antoine Martin", value: "antoine.martin@cycloid.io"}
+        - {label: "Baptiste Caille", value: "baptiste.caille@cycloid.io"}
+        - {label: "Quentin Charpentier", value: "quentin.charpentier@cycloid.io"}
+        - {label: "Rémi Robillard", value: "remi.robillard@cycloid.io"}
+        - {label: "Simon Léon", value: "simon.leon@cycloid.io"}
+        - {label: "Guillaume Seguin", value: "guillaume.seguin@cycloid.io"}
+        - {label: "Thibault Boucard", value: "thibault.boucard@cycloid.io"}
+        - {label: "Vincent Hautier", value: "vincent.hautier@cycloid.io"}
+        - {label: "Florian Lauby", value: "florian.lauby@cycloid.io"}
+        - {label: "Nicolas Le Bras", value: "nicolas.lebras@cycloid.io"}
+        - {label: "Jérémy Leblanc", value: "jeremy.leblanc@cycloid.io"}
+        - {label: "Cédric Serafin", value: "cedric.serafin@cycloid.io"}
+        - {label: "Guillaume Leclerc", value: "guillaume.leclerc@cycloid.io"}
+        - {label: "Nicolas Morel", value: "nicolas.morel@cycloid.io"}
+        - {label: "Romain Bouffard", value: "romain.bouffard@cycloid.io"}
+        - {label: "Thomas Guigou", value: "thomas.guigou@cycloid.io"}
+        - {label: "Théo Lelievre", value: "theo.lelievre@cycloid.io"}
+        - {label: "Hugo Maccario", value: "hugo.maccario@cycloid.io"}
+        widget_config:
+          multiselect: true
+
+      - name: "SODS Team members"
+        description: "SODS team members to invite to the new software project."
+        key: team_members_sods
+        widget: dropdown
+        type: array
+        default: []
+        required: true
+        values:
+        - {label: "Olivier de Turckheim", value: "olivier.deturckheim@cycloid.io"}
+        - {label: "Gaël Lambert", value: "gael.lambert@cycloid.io"}
+        - {label: "Frédéric Barras Hampel", value: "frederic.hampel@cycloid.io"}
+        - {label: "Florian Lambert", value: "florian.lambert@cycloid.io"}
+        - {label: "Vincent Mazières", value: "vincent.mazieres@cycloid.io"}
+        - {label: "Sébastien Roux", value: "sebastien.roux@cycloid.io"}
+        - {label: "Guillaume Lambert", value: "guillaume.lambert@cycloid.io"}
+        - {label: "Laurent Malraux", value: "laurent.malraux@cycloid.io"}
+        - {label: "Thomas Billot", value: "thomas.billot@cycloid.io"}
+        - {label: "Gauthier Gaudet", value: "gauthier.gaudet@cycloid.io"}
+        - {label: "Aurélien Le Louarn", value: "aurelien.lelouarn@cycloid.io"}
+        - {label: "Cyril Bousquet", value: "cyril.bousquet@cycloid.io"}
+        - {label: "Guillaume Dupont", value: "guillaume.dupont@cycloid.io"}
+        - {label: "Mathieu Chambon", value: "mathieu.chambon@cycloid.io"}
+        - {label: "Mickaël Faure", value: "mickael.faure@cycloid.io"}
+        - {label: "Nicolas Lacroix", value: "nicolas.lacroix@cycloid.io"}
+        - {label: "Maxime Valette", value: "maxime.valette@cycloid.io"}
+        - {label: "Mathieu Duval", value: "mathieu.duval@cycloid.io"}
+        - {label: "Antoine Martin", value: "antoine.martin@cycloid.io"}
+        - {label: "Baptiste Caille", value: "baptiste.caille@cycloid.io"}
+        - {label: "Quentin Charpentier", value: "quentin.charpentier@cycloid.io"}
+        - {label: "Rémi Robillard", value: "remi.robillard@cycloid.io"}
+        - {label: "Simon Léon", value: "simon.leon@cycloid.io"}
+        - {label: "Guillaume Seguin", value: "guillaume.seguin@cycloid.io"}
+        - {label: "Thibault Boucard", value: "thibault.boucard@cycloid.io"}
+        - {label: "Vincent Hautier", value: "vincent.hautier@cycloid.io"}
+        - {label: "Florian Lauby", value: "florian.lauby@cycloid.io"}
+        - {label: "Nicolas Le Bras", value: "nicolas.lebras@cycloid.io"}
+        - {label: "Jérémy Leblanc", value: "jeremy.leblanc@cycloid.io"}
+        - {label: "Cédric Serafin", value: "cedric.serafin@cycloid.io"}
+        - {label: "Guillaume Leclerc", value: "guillaume.leclerc@cycloid.io"}
+        - {label: "Nicolas Morel", value: "nicolas.morel@cycloid.io"}
+        - {label: "Romain Bouffard", value: "romain.bouffard@cycloid.io"}
+        - {label: "Thomas Guigou", value: "thomas.guigou@cycloid.io"}
+        - {label: "Théo Lelievre", value: "theo.lelievre@cycloid.io"}
+        - {label: "Hugo Maccario", value: "hugo.maccario@cycloid.io"}
+        widget_config:
+          multiselect: true
+
+      - name: "CSDS Team members"
+        description: "CSDS team members to invite to the new software project."
+        key: team_members_csds
+        widget: dropdown
+        type: array
+        default: []
+        required: true
+        values:
+        - {label: "Olivier de Turckheim", value: "olivier.deturckheim@cycloid.io"}
+        - {label: "Gaël Lambert", value: "gael.lambert@cycloid.io"}
+        - {label: "Frédéric Barras Hampel", value: "frederic.hampel@cycloid.io"}
+        - {label: "Florian Lambert", value: "florian.lambert@cycloid.io"}
+        - {label: "Vincent Mazières", value: "vincent.mazieres@cycloid.io"}
+        - {label: "Sébastien Roux", value: "sebastien.roux@cycloid.io"}
+        - {label: "Guillaume Lambert", value: "guillaume.lambert@cycloid.io"}
+        - {label: "Laurent Malraux", value: "laurent.malraux@cycloid.io"}
+        - {label: "Thomas Billot", value: "thomas.billot@cycloid.io"}
+        - {label: "Gauthier Gaudet", value: "gauthier.gaudet@cycloid.io"}
+        - {label: "Aurélien Le Louarn", value: "aurelien.lelouarn@cycloid.io"}
+        - {label: "Cyril Bousquet", value: "cyril.bousquet@cycloid.io"}
+        - {label: "Guillaume Dupont", value: "guillaume.dupont@cycloid.io"}
+        - {label: "Mathieu Chambon", value: "mathieu.chambon@cycloid.io"}
+        - {label: "Mickaël Faure", value: "mickael.faure@cycloid.io"}
+        - {label: "Nicolas Lacroix", value: "nicolas.lacroix@cycloid.io"}
+        - {label: "Maxime Valette", value: "maxime.valette@cycloid.io"}
+        - {label: "Mathieu Duval", value: "mathieu.duval@cycloid.io"}
+        - {label: "Antoine Martin", value: "antoine.martin@cycloid.io"}
+        - {label: "Baptiste Caille", value: "baptiste.caille@cycloid.io"}
+        - {label: "Quentin Charpentier", value: "quentin.charpentier@cycloid.io"}
+        - {label: "Rémi Robillard", value: "remi.robillard@cycloid.io"}
+        - {label: "Simon Léon", value: "simon.leon@cycloid.io"}
+        - {label: "Guillaume Seguin", value: "guillaume.seguin@cycloid.io"}
+        - {label: "Thibault Boucard", value: "thibault.boucard@cycloid.io"}
+        - {label: "Vincent Hautier", value: "vincent.hautier@cycloid.io"}
+        - {label: "Florian Lauby", value: "florian.lauby@cycloid.io"}
+        - {label: "Nicolas Le Bras", value: "nicolas.lebras@cycloid.io"}
+        - {label: "Jérémy Leblanc", value: "jeremy.leblanc@cycloid.io"}
+        - {label: "Cédric Serafin", value: "cedric.serafin@cycloid.io"}
+        - {label: "Guillaume Leclerc", value: "guillaume.leclerc@cycloid.io"}
+        - {label: "Nicolas Morel", value: "nicolas.morel@cycloid.io"}
+        - {label: "Romain Bouffard", value: "romain.bouffard@cycloid.io"}
+        - {label: "Thomas Guigou", value: "thomas.guigou@cycloid.io"}
+        - {label: "Théo Lelievre", value: "theo.lelievre@cycloid.io"}
+        - {label: "Hugo Maccario", value: "hugo.maccario@cycloid.io"}
+        widget_config:
+          multiselect: true
+
