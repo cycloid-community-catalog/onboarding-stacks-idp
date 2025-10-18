@@ -89,6 +89,10 @@ resource "cycloid_credential" "s3-cycloid" {
     access_key = aws_iam_access_key.child_org.id
     secret_key = aws_iam_access_key.child_org.secret
   }
+
+  depends_on = [
+    cycloid_organization.child_org
+  ]
 }
 
 resource "cycloid_external_backend" "tf_external_backend" {

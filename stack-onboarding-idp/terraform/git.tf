@@ -41,6 +41,10 @@ resource "cycloid_credential" "git-ssh" {
   body = {
     ssh_key = chomp(tls_private_key.github_generated_key.private_key_openssh)
   }
+
+  depends_on = [
+    cycloid_organization.child_org
+  ]
 }
 
 #
@@ -51,6 +55,10 @@ resource "cycloid_catalog_repository" "idp_repo" {
   url                    = var.github_url_idp
   branch                 = var.github_branch_idp
   organization_canonical = cycloid_organization.child_org.organization_canonical
+
+  depends_on = [
+    cycloid_organization.child_org
+  ]
 }
 
 resource "cycloid_catalog_repository" "catalog_repo" {
@@ -61,6 +69,7 @@ resource "cycloid_catalog_repository" "catalog_repo" {
   organization_canonical = cycloid_organization.child_org.organization_canonical
 
   depends_on = [
+    cycloid_organization.child_org,
     cycloid_credential.git-ssh
   ]
 }
@@ -74,6 +83,7 @@ resource "cycloid_config_repository" "config_repo" {
   organization_canonical = cycloid_organization.child_org.organization_canonical
 
   depends_on = [
+    cycloid_organization.child_org,
     cycloid_credential.git-ssh
   ]
 }
