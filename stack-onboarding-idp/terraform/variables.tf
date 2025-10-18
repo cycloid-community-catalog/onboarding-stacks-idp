@@ -4,6 +4,10 @@ variable "cy_project" {}
 variable "cy_env" {}
 variable "cy_component" {}
 
+variable "cy_child_org" {
+  description = "Cycloid child organization name"
+}
+
 # AWS variables
 variable "aws_cred" {
   description = "Contains AWS access_key and secret_key"
