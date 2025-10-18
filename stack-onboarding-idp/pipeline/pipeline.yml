@@ -16,6 +16,8 @@ resources:
     backend_config:
       address: '($ .api_url $)/inventory?jwt=($ .inventory_jwt $)'
     vars:
+      aws_cred: ((aws_cred))
+      aws_region: ((aws_region))
       cy_child_org: ((cy_child_org))
       team_members_ccp_csp: ((team_members_ccp_csp))
       team_members_sods: ((team_members_sods))

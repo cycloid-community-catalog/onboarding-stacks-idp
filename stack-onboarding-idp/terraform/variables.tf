@@ -18,6 +18,16 @@ variable "github_pat" {
   description = "GitHub Personal Access Token allowing to create the new ArgoCD repository. The token must be in the format of 'ghp_<token>', stored in the password field and be created with the 'repo' scope."
 }
 
+variable "github_url_idp" {
+  description = "GitHub URL for the IDP stacks"
+  default     = "https://github.com/cycloid-community-catalog/onboarding-stacks-idp.git"
+}
+
+variable "github_branch_idp" {
+  description = "GitHub branch for the IDP stacks"
+  default     = "master"
+}
+
 # Cycloid
 variable "cy_api_url" {
   type        = string

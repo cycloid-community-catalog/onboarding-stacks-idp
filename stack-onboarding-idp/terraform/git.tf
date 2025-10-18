@@ -1,3 +1,6 @@
+#
+# Cycloid GitHub repository
+#
 resource "github_repository" "idp-git" {
   name        = "${var.cy_child_org}-cycloid"
   description = "Repo for ${var.cy_child_org} IDP organization"
@@ -37,4 +40,31 @@ resource "cycloid_credential" "ssh_key" {
   body = {
     ssh_key = chomp(tls_private_key.github_generated_key.private_key_openssh)
   }
+}
+
+#
+# Stacks and Config
+#
+resource "cycloid_catalog_repository" "idp_repo" {
+  name                   = "Internal Developer Portal Catalog Repository"
+  url                    = var.github_url_idp
+  branch                 = var.github_branch_idp
+  organization_canonical = var.cy_child_org
+}
+
+resource "cycloid_catalog_repository" "catalog_repo" {
+  name                   = "Your Catalog Repository"
+  url                    = github_repository.idp-git.ssh_url
+  branch                 = github_branch.stacks.name
+  credential_canonical   = cycloid_credential.git-ssh.canonical
+  organization_canonical = var.cy_child_org
+}
+
+resource "cycloid_config_repository" "config_repo" {
+  name                   = "Your Config Repository"
+  url                    = github_repository.idp-git.ssh_url
+  branch                 = github_branch.config.name
+  credential_canonical   = cycloid_credential.git-ssh.canonical
+  default                = true
+  organization_canonical = var.cy_child_org
 }

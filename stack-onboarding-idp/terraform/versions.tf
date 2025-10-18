@@ -12,8 +12,5 @@ terraform {
     cycloid = {
       source = "cycloidio/cycloid"
     }
-    random = {
-      source = "hashicorp/random"
-    }
   }
 }

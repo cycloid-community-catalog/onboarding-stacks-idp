@@ -25,6 +25,3 @@ provider "cycloid" {
   jwt                    = var.cy_api_key
   url                    = var.cy_api_url
 }
-
-provider "random" {
-}
