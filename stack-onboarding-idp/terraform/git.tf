@@ -35,7 +35,7 @@ resource "cycloid_credential" "git-ssh" {
   description            = "SSH Key Pair used to access stacks and config Cycloid GitHub repository for ${var.cy_child_org} IDP organization."
   path                   = "${var.cy_child_org}-cycloid-git-ssh"
   canonical              = "${var.cy_child_org}-cycloid-git-ssh"
-  organization_canonical = var.cy_child_org
+  organization_canonical = cycloid_organization.child_org.organization_canonical
 
   type = "ssh"
   body = {
@@ -50,7 +50,7 @@ resource "cycloid_catalog_repository" "idp_repo" {
   name                   = "Internal Developer Portal Catalog Repository"
   url                    = var.github_url_idp
   branch                 = var.github_branch_idp
-  organization_canonical = var.cy_child_org
+  organization_canonical = cycloid_organization.child_org.organization_canonical
 }
 
 resource "cycloid_catalog_repository" "catalog_repo" {
@@ -58,7 +58,11 @@ resource "cycloid_catalog_repository" "catalog_repo" {
   url                    = github_repository.idp-git.ssh_clone_url
   branch                 = github_branch.stacks.branch
   credential_canonical   = cycloid_credential.git-ssh.canonical
-  organization_canonical = var.cy_child_org
+  organization_canonical = cycloid_organization.child_org.organization_canonical
+
+  depends_on = [
+    cycloid_credential.git-ssh
+  ]
 }
 
 resource "cycloid_config_repository" "config_repo" {
@@ -67,5 +71,9 @@ resource "cycloid_config_repository" "config_repo" {
   branch                 = github_branch.config.branch
   credential_canonical   = cycloid_credential.git-ssh.canonical
   default                = true
-  organization_canonical = var.cy_child_org
+  organization_canonical = cycloid_organization.child_org.organization_canonical
+
+  depends_on = [
+    cycloid_credential.git-ssh
+  ]
 }
