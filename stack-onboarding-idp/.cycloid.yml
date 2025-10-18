@@ -1,7 +1,7 @@
 ---
 # Configuration of the Cycloid stack
 version: '4'
-name: 'Softaware Project Onboarding'
+name: 'Software Project Onboarding'
 canonical: stack-onboarding-idp
 author: Cycloid
 description: |

@@ -1,4 +1,17 @@
 #
+# Cloud Provider
+#
+
+#. aws_cred (required): ((aws-demo-account))
+#+ Amazon credentials containing access key and secret key for Terraform. See value format [here](https://docs.cycloid.io/advanced-guide/integrate-and-use-cycloid-credentials-manager.html#vault-in-the-pipeline)
+aws_cred: ((aws-demo-account))
+
+#. aws_default_region (required): us-east-1
+#+ AWS region to use for Terraform.
+aws_region: us-east-1
+
+
+#
 # Cycloid Organization
 #
 
