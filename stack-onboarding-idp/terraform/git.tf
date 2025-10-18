@@ -30,7 +30,7 @@ resource "github_repository_deploy_key" "idp-git" {
   read_only  = false
 }
 
-resource "cycloid_credential" "ssh_key" {
+resource "cycloid_credential" "git-ssh" {
   name                   = "${var.cy_child_org}-cycloid-git-ssh"
   description            = "SSH Key Pair used to access stacks and config Cycloid GitHub repository for ${var.cy_child_org} IDP organization."
   path                   = "${var.cy_child_org}-cycloid-git-ssh"
@@ -54,16 +54,16 @@ resource "cycloid_catalog_repository" "idp_repo" {
 
 resource "cycloid_catalog_repository" "catalog_repo" {
   name                   = "Your Catalog Repository"
-  url                    = github_repository.idp-git.ssh_url
-  branch                 = github_branch.stacks.name
+  url                    = github_repository.idp-git.ssh_clone_url
+  branch                 = github_branch.stacks.branch
   credential_canonical   = cycloid_credential.git-ssh.canonical
   organization_canonical = var.cy_child_org
 }
 
 resource "cycloid_config_repository" "config_repo" {
   name                   = "Your Config Repository"
-  url                    = github_repository.idp-git.ssh_url
-  branch                 = github_branch.config.name
+  url                    = github_repository.idp-git.ssh_clone_url
+  branch                 = github_branch.config.branch
   credential_canonical   = cycloid_credential.git-ssh.canonical
   default                = true
   organization_canonical = var.cy_child_org
