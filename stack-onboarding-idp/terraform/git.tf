@@ -33,8 +33,8 @@ resource "github_repository_deploy_key" "idp-git" {
 resource "cycloid_credential" "git-ssh" {
   name                   = "${var.cy_child_org}-cycloid-git-ssh"
   description            = "SSH Key Pair used to access stacks and config Cycloid GitHub repository for ${var.cy_child_org} IDP organization."
-  path                   = "${var.cy_child_org}-cycloid-git-ssh"
-  canonical              = "${var.cy_child_org}-cycloid-git-ssh"
+  path                   = "${cycloid_organization.child_org.organization_canonical}-cycloid-git-ssh"
+  canonical              = "${cycloid_organization.child_org.organization_canonical}-cycloid-git-ssh"
   organization_canonical = cycloid_organization.child_org.organization_canonical
 
   type = "ssh"
