@@ -59,7 +59,7 @@ resource "cycloid_config_repository" "config_repo" {
 
 resource "cycloid_credential" "git-ssh" {
   name                   = "${var.cy_child_org_canonical}-cycloid-git-ssh"
-  description            = "SSH Key Pair used to access stacks and config Cycloid GitHub repository for ${var.cy_child_org} IDP organization."
+  description            = "SSH Key Pair used to access stacks and config Cycloid GitHub repository for ${var.cy_child_org_canonical} IDP organization."
   path                   = "${var.cy_child_org_canonical}-cycloid-git-ssh"
   canonical              = "${var.cy_child_org_canonical}-cycloid-git-ssh"
   organization_canonical = var.cy_child_org_canonical
