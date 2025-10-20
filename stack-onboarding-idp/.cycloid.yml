@@ -20,7 +20,7 @@ technologies:
 
 config:
   organization:
-    name: 'Create Cycloid Organization'
+    name: '1. Create Cycloid Organization'
     description: |
       Create the Cycloid organization and necessary resources such as git repositories, IAM users, S3 bucket, and provision service catalogs and a Terraform backend.
     pipeline:
@@ -34,9 +34,9 @@ config:
         path: 'terraform/organization/main.tf'
         destination: '($ .config_root $)/terraform/organization/main.tf'
   members:
-    name: 'Invite Team Members'
+    name: '2. Invite Team Members'
     description: |
-      Invite the team members with the RBAC roles they need to manage the software project.
+      Invite the team members with the RBAC roles they need to manage the software project. It is required to create the Cycloid organization beforehand.
     pipeline:
       pipeline:
         path: pipeline/pipeline.yml
