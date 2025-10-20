@@ -30,23 +30,6 @@ resource "github_repository_deploy_key" "idp-git" {
   read_only  = false
 }
 
-resource "cycloid_credential" "git-ssh" {
-  name                   = "${var.cy_child_org}-cycloid-git-ssh"
-  description            = "SSH Key Pair used to access stacks and config Cycloid GitHub repository for ${var.cy_child_org} IDP organization."
-  path                   = "${cycloid_organization.child_org.organization_canonical}-cycloid-git-ssh"
-  canonical              = "${cycloid_organization.child_org.organization_canonical}-cycloid-git-ssh"
-  organization_canonical = cycloid_organization.child_org.organization_canonical
-
-  type = "ssh"
-  body = {
-    ssh_key = chomp(tls_private_key.github_generated_key.private_key_openssh)
-  }
-
-  depends_on = [
-    cycloid_organization.child_org
-  ]
-}
-
 #
 # Stacks and Config
 #
@@ -54,36 +37,35 @@ resource "cycloid_catalog_repository" "idp_repo" {
   name                   = "Internal Developer Portal Catalog Repository"
   url                    = var.github_url_idp
   branch                 = var.github_branch_idp
-  organization_canonical = cycloid_organization.child_org.organization_canonical
-
-  depends_on = [
-    cycloid_organization.child_org
-  ]
+  organization_canonical = var.cy_child_org
 }
 
 resource "cycloid_catalog_repository" "catalog_repo" {
   name                   = "Your Catalog Repository"
   url                    = github_repository.idp-git.ssh_clone_url
-  branch                 = github_branch.stacks.branch
+  branch                 = github_branch.stacks.name
   credential_canonical   = cycloid_credential.git-ssh.canonical
-  organization_canonical = cycloid_organization.child_org.organization_canonical
-
-  depends_on = [
-    cycloid_organization.child_org,
-    cycloid_credential.git-ssh
-  ]
+  organization_canonical = var.cy_child_org
 }
 
 resource "cycloid_config_repository" "config_repo" {
   name                   = "Your Config Repository"
   url                    = github_repository.idp-git.ssh_clone_url
-  branch                 = github_branch.config.branch
+  branch                 = github_branch.config.name
   credential_canonical   = cycloid_credential.git-ssh.canonical
   default                = true
-  organization_canonical = cycloid_organization.child_org.organization_canonical
+  organization_canonical = var.cy_child_org
+}
 
-  depends_on = [
-    cycloid_organization.child_org,
-    cycloid_credential.git-ssh
-  ]
+resource "cycloid_credential" "git-ssh" {
+  name                   = "${var.cy_child_org}-cycloid-git-ssh"
+  description            = "SSH Key Pair used to access stacks and config Cycloid GitHub repository for ${var.cy_child_org} IDP organization."
+  path                   = "${var.cy_child_org}-cycloid-git-ssh"
+  canonical              = "${var.cy_child_org}-cycloid-git-ssh"
+  organization_canonical = var.cy_child_org
+
+  type = "ssh"
+  body = {
+    ssh_key = chomp(tls_private_key.github_generated_key.private_key_openssh)
+  }
 }

@@ -1,22 +1,22 @@
 ---
 version: "2"
 use_cases:
-- name: default
+- name: organization
   sections:
-  - name: Softaware Project Onboarding
+  - name: Software Project Onboarding
     groups:
     - name: Cycloid New Organization
       technologies: [pipeline]
       vars:
-      - name: "Cycloid organization to create"
-        description: "Child Cycloid organization name to create."
-        key: cy_child_org
+      - name: "Cycloid organization canonical name to create"
+        description: "Child Cycloid organization canonical name to create."
+        key: cy_child_org_canonical
         widget: simple_text
         type: string
         default: ""
         validations: 
-        - regexp: "^[a-zA-Z0-9-]+$"
-          error_message: "Please enter a valid Cycloid organization name. It can only contain letters, numbers and hyphens."
+        - regexp: "^[a-z0-9-]+$"
+          error_message: "Please enter a valid Cycloid organization canonical name. It can only contain lowercase letters, numbers and hyphens."
         required: true
       - name: "Cycloid API key"
         description: "Cycloid organization API key allowing to create and manage child organizations."
@@ -62,6 +62,10 @@ use_cases:
           error_message: "Please enter a valid AWS region such as us-east-3"
         required: true
 
+- name: members
+  sections:
+  - name: Software Project Onboarding
+    groups:
     - name: Team Members
       technologies: [pipeline]
       vars:

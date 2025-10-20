@@ -16,13 +16,16 @@ resources:
     backend_config:
       address: '($ .api_url $)/inventory?jwt=($ .inventory_jwt $)'
     vars:
+($- if eq .use_case "organization" $)
       aws_cred: ((aws_cred))
-      aws_region: ((aws_region))
-      cy_child_org: ((cy_child_org))
+      github_pat: ((github_pat))
+($- else if eq .use_case "members" $)
       team_members_ccp_csp: ((team_members_ccp_csp))
       team_members_sods: ((team_members_sods))
       team_members_csds: ((team_members_csds))
-      github_pat: ((github_pat))
+($- end $)
+      cy_child_org_canonical: ((cy_child_org_canonical))
+      aws_region: ((aws_region))
       cy_api_key: ((cy_api_key))
       cy_api_url: ($ .api_url $)
       cy_org: ($ .org $)
@@ -46,7 +49,7 @@ resources:
     private_key: ((($ .scs_cred_path $).ssh_key))
     ($- end $)
     paths:
-      - ($ .stack_path $)/terraform/*
+      - ($ .stack_path $)/terraform/($ .use_case $)/*
 
 # The Terraform config (will be merged with the stack)
 - name: git_config-terraform
@@ -63,7 +66,7 @@ resources:
     private_key: ((($ .cr_cred_path $).ssh_key))
     ($- end $)
     paths:
-      - ($ .config_root $)/terraform/*
+      - ($ .config_root $)/terraform/($ .use_case $)/*
 
 
 groups:
@@ -88,6 +91,32 @@ jobs:
         - get: git_config-terraform
           trigger: true
 
+($- if eq .use_case "organization" $)
+      - task: create-organization
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source:
+              repository: cycloid/cycloid-toolkit
+              tag: latest
+          run:
+            path: /bin/bash
+            args:
+            - -c
+            - |
+              cy organization create --name ${CHILD_ORG} --parent-canonical ${ORG} >output 2>&1
+              if [[ "$?" != "0" ]]; then
+                  echo "Unable to create organization ${CHILD_ORG}"
+                  echo "Error: $? - $(cat output)"
+              fi
+          params:
+            CHILD_ORG: ((cy_child_org_canonical))
+            ORG: ($ .organization $)
+            CY_API_URL: ($ .api_url $)
+            CY_API_KEY: ((cy_api_key))
+($- end $)
+
       - task: merge-stack-and-config
         config:
           platform: linux
@@ -107,8 +136,8 @@ jobs:
           - name: merged-stack
             path: "merged-stack"
         params:
-          CONFIG_PATH: ($ .config_root $)/terraform
-          STACK_PATH: ($ .stack_path $)/terraform
+          CONFIG_PATH: ($ .config_root $)/terraform/($ .use_case $)
+          STACK_PATH: ($ .stack_path $)/terraform/($ .use_case $)
 
       - put: tfstate
         params:
@@ -146,8 +175,8 @@ jobs:
           - name: merged-stack
             path: "merged-stack"
         params:
-          CONFIG_PATH: ($ .config_root $)/terraform
-          STACK_PATH: ($ .stack_path $)/terraform
+          CONFIG_PATH: ($ .config_root $)/terraform/($ .use_case $)
+          STACK_PATH: ($ .stack_path $)/terraform/($ .use_case $)
 
       - put: tfstate
         params:

@@ -5,7 +5,7 @@ variable "cy_env" {}
 variable "cy_component" {}
 
 variable "cy_child_org" {
-  description = "Cycloid child organization name"
+  description = "Cycloid child organization canonical name"
 }
 
 # AWS variables

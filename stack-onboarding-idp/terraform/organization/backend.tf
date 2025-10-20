@@ -4,7 +4,7 @@
 module "s3_bucket" {
   source = "terraform-aws-modules/s3-bucket/aws"
 
-  bucket = "${cycloid_organization.child_org.organization_canonical}-terraform-remote-state"
+  bucket = "${var.cy_child_org}-terraform-remote-state"
   
   # To allow destruction of a non-empty bucket
   force_destroy = true
@@ -80,7 +80,7 @@ resource "aws_iam_user_policy" "child_org" {
 resource "cycloid_credential" "s3-cycloid" {
   name                   = "s3-cycloid"
   description            = "AWS IAM user credential allowing access to an S3 bucket used as Terraform backend for your Cycloid organization."
-  organization_canonical = cycloid_organization.child_org.organization_canonical
+  organization_canonical = var.cy_child_org
   path                   = "s3-cycloid"
   canonical              = "s3-cycloid"
 
@@ -89,14 +89,10 @@ resource "cycloid_credential" "s3-cycloid" {
     access_key = aws_iam_access_key.child_org.id
     secret_key = aws_iam_access_key.child_org.secret
   }
-
-  depends_on = [
-    cycloid_organization.child_org
-  ]
 }
 
 resource "cycloid_external_backend" "tf_external_backend" {
-  organization_canonical = cycloid_organization.child_org.organization_canonical
+  organization_canonical = var.cy_child_org
   credential_canonical = cycloid_credential.s3-cycloid.canonical
   default = true
   purpose = "remote_tfstate"

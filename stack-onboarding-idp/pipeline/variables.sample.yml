@@ -15,9 +15,9 @@ aws_region: us-east-1
 # Cycloid Organization
 #
 
-#. cy_child_org (required): "((($ .org $)-($ .project $)-($ .env $)-kubeconfig.kubeconfig))"
-#+ Cycloid child organization name to create.
-cy_child_org: "((($ .project $)-($ .env $)-kubeconfig.kubeconfig))"
+#. cy_child_org_canonical (required): ""
+#+ Cycloid child organization canonical name to create.
+cy_child_org_canonical: ""
 
 
 #
