@@ -4,7 +4,7 @@ variable "cy_project" {}
 variable "cy_env" {}
 variable "cy_component" {}
 
-variable "cy_child_org" {
+variable "cy_child_org_canonical" {
   description = "Cycloid child organization canonical name"
 }
 
