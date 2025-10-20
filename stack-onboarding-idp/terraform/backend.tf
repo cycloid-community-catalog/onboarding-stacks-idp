@@ -4,7 +4,7 @@
 module "s3_bucket" {
   source = "terraform-aws-modules/s3-bucket/aws"
 
-  bucket = "${var.cy_child_org}-terraform-remote-state"
+  bucket = "${cycloid_organization.child_org.organization_canonical}-terraform-remote-state"
   
   # To allow destruction of a non-empty bucket
   force_destroy = true
