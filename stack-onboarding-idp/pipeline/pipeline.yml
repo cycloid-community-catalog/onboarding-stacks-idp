@@ -105,11 +105,46 @@ jobs:
             args:
             - -c
             - |
+              set +e
               cy organization create --name ${CHILD_ORG} --parent-canonical ${ORG} >output 2>&1
               if [[ "$?" != "0" ]]; then
                   echo "Unable to create organization ${CHILD_ORG}"
                   echo "Error: $? - $(cat output)"
               fi
+
+              for projiter in "Infrastructure" "Application"
+              do
+                MAX_RETRIES=30
+                COUNT=0
+                while [ $COUNT -lt $MAX_RETRIES ]; do
+                  set +e
+                  cy project create --project "${projiter,,}" --name "${projiter}" --org "${CHILD_ORG}" --update
+                  if [ $? -eq 0 ]; then
+                    echo "Project ${projiter} created successfully."
+                    break
+                  fi
+                  COUNT=$((COUNT + 1))
+                  echo "Attempt $COUNT failed... retrying"
+                  sleep 1
+                done
+
+                for enviter in "OTH-DEV" "PPE" "PRD"
+                do
+                  MAX_RETRIES=30
+                  COUNT=0
+                  while [ $COUNT -lt $MAX_RETRIES ]; do
+                    set +e
+                    cy environment create --project "${projiter,,}" --env "${enviter,,}" --name "${enviter}" --org "${CHILD_ORG}" --update
+                    if [ $? -eq 0 ]; then
+                      echo "Environment ${enviter} created successfully."
+                      break
+                    fi
+                    COUNT=$((COUNT + 1))
+                    echo "Attempt $COUNT failed... retrying"
+                    sleep 1
+                  done
+                done
+              done
           params:
             CHILD_ORG: ((cy_child_org_canonical))
             ORG: ($ .organization $)
