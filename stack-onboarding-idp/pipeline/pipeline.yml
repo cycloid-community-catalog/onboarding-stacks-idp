@@ -111,7 +111,55 @@ jobs:
                   echo "Unable to create organization ${CHILD_ORG}"
                   echo "Error: $? - $(cat output)"
               fi
+          params:
+            CHILD_ORG: ((cy_child_org_canonical))
+            ORG: ($ .organization $)
+            CY_API_URL: ($ .api_url $)
+            CY_API_KEY: ((cy_api_key))
+($- end $)
 
+      - task: merge-stack-and-config
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source:
+              repository: cycloid/cycloid-toolkit
+              tag: latest
+          run:
+            path: /usr/bin/merge-stack-and-config
+          inputs:
+          - name: git_config-terraform
+            path: "config"
+          - name: git_stack-terraform
+            path: "stack"
+          outputs:
+          - name: merged-stack
+            path: "merged-stack"
+        params:
+          CONFIG_PATH: ($ .config_root $)/terraform/($ .use_case $)
+          STACK_PATH: ($ .stack_path $)/terraform/($ .use_case $)
+
+      - put: tfstate
+        params:
+          terraform_source: merged-stack/
+
+
+($- if eq .use_case "organization" $)
+      - task: create-projects
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source:
+              repository: cycloid/cycloid-toolkit
+              tag: latest
+          run:
+            path: /bin/bash
+            args:
+            - -c
+            - |
+              set +e
               for projiter in "Infrastructure" "Application"
               do
                 MAX_RETRIES=30
@@ -151,32 +199,6 @@ jobs:
             CY_API_URL: ($ .api_url $)
             CY_API_KEY: ((cy_api_key))
 ($- end $)
-
-      - task: merge-stack-and-config
-        config:
-          platform: linux
-          image_resource:
-            type: registry-image
-            source:
-              repository: cycloid/cycloid-toolkit
-              tag: latest
-          run:
-            path: /usr/bin/merge-stack-and-config
-          inputs:
-          - name: git_config-terraform
-            path: "config"
-          - name: git_stack-terraform
-            path: "stack"
-          outputs:
-          - name: merged-stack
-            path: "merged-stack"
-        params:
-          CONFIG_PATH: ($ .config_root $)/terraform/($ .use_case $)
-          STACK_PATH: ($ .stack_path $)/terraform/($ .use_case $)
-
-      - put: tfstate
-        params:
-          terraform_source: merged-stack/
 
 
   - name: destroy
