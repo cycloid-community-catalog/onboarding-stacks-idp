@@ -24,17 +24,17 @@ cy_child_org_canonical: ""
 # Team members
 #
 
-#. team_members_ccp_csp (required): []
-#+ CCP/CSP team members to invite to the new software project.
-team_members_ccp_csp: []
+#. team_members_infrastructure (required): []
+#+ Infrastructure team members to invite to the new software project.
+team_members_infrastructure: []
 
-#. team_members_sods (required): []
-#+ SODS team members to invite to the new software project.
-team_members_sods: []
+#. team_members_application (required): []
+#+ Application team members to invite to the new software project.
+team_members_application: []
 
-#. team_members_csds (required): []
-#+ CSDS team members to invite to the new software project.
-team_members_csds: []
+#. team_members_integration (required): []
+#+ Integration team members to invite to the new software project.
+team_members_integration: []
 
 
 #

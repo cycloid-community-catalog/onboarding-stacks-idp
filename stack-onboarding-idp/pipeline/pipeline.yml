@@ -20,9 +20,9 @@ resources:
       aws_cred: ((aws_cred))
       github_pat: ((github_pat))
 ($- else if eq .use_case "members" $)
-      team_members_ccp_csp: ((team_members_ccp_csp))
-      team_members_sods: ((team_members_sods))
-      team_members_csds: ((team_members_csds))
+      team_members_infrastructure: ((team_members_infrastructure))
+      team_members_application: ((team_members_application))
+      team_members_integration: ((team_members_integration))
 ($- end $)
       cy_child_org_canonical: ((cy_child_org_canonical))
       aws_region: ((aws_region))
@@ -262,6 +262,30 @@ jobs:
                 -H "Content-type: application/vnd.cycloid.io.v1+json" \
                 -H "authorization: Bearer ${CY_API_KEY}" \
                 -d '{
+                  "name": "Integration",
+                  "canonical": "integration",
+                  "description": "Role to deploy the application in PPE and PRD environments",
+                  "rules": [
+                    {
+                      "action": "organization:service_catalog:*",
+                      "effect": "allow",
+                      "resources": [
+                        "organization:myidporg:service_catalog:myidporg:stack-postgresql-idp"
+                      ]
+                    },
+                    {
+                      "action": "organization:project:*",
+                      "effect": "allow",
+                      "resources": [
+                        "organization:myidporg:project:application"
+                      ]
+                    }
+                  ]
+                }' "${CY_API_URL}/organizations/${CHILD_ORG}/roles" | jq .
+              curl -X POST \
+                -H "Content-type: application/vnd.cycloid.io.v1+json" \
+                -H "authorization: Bearer ${CY_API_KEY}" \
+                -d '{
                   "name": "Infrastructure",
                   "canonical": "infrastructure",
                   "owner": "($ .project_owner $)",
@@ -280,6 +304,18 @@ jobs:
                   "roles_canonical": [
                     "list-all",
                     "application"
+                  ]
+                }' "${CY_API_URL}/organizations/${CHILD_ORG}/teams" | jq .
+              curl -X POST \
+                -H "Content-type: application/vnd.cycloid.io.v1+json" \
+                -H "authorization: Bearer ${CY_API_KEY}" \
+                -d '{
+                  "name": "Integration",
+                  "canonical": "integration",
+                  "owner": "($ .project_owner $)",
+                  "roles_canonical": [
+                    "list-all",
+                    "integration"
                   ]
                 }' "${CY_API_URL}/organizations/${CHILD_ORG}/teams" | jq .
           params:

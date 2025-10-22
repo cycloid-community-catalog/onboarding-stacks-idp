@@ -71,7 +71,7 @@ use_cases:
       vars:
       - name: "CCP/CSP Team members"
         description: "CCP/CSP team members to invite to the new software project."
-        key: team_members_ccp_csp
+        key: team_members_infrastructure
         widget: dropdown
         type: array
         default: []
@@ -118,7 +118,7 @@ use_cases:
 
       - name: "SODS Team members"
         description: "SODS team members to invite to the new software project."
-        key: team_members_sods
+        key: team_members_application
         widget: dropdown
         type: array
         default: []
@@ -165,7 +165,7 @@ use_cases:
 
       - name: "CSDS Team members"
         description: "CSDS team members to invite to the new software project."
-        key: team_members_csds
+        key: team_members_integration
         widget: dropdown
         type: array
         default: []
