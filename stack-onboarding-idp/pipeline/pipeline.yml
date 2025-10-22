@@ -16,14 +16,11 @@ resources:
     backend_config:
       address: '($ .api_url $)/inventory?jwt=($ .inventory_jwt $)'
     vars:
-($- if eq .use_case "organization" $)
       aws_cred: ((aws_cred))
       github_pat: ((github_pat))
-($- else if eq .use_case "members" $)
       team_members_infrastructure: ((team_members_infrastructure))
       team_members_application: ((team_members_application))
       team_members_integration: ((team_members_integration))
-($- end $)
       cy_child_org_canonical: ((cy_child_org_canonical))
       aws_region: ((aws_region))
       cy_api_key: ((cy_api_key))
@@ -91,7 +88,6 @@ jobs:
         - get: git_config-terraform
           trigger: true
 
-($- if eq .use_case "organization" $)
       - task: create-organization
         config:
           platform: linux
@@ -116,7 +112,6 @@ jobs:
             ORG: ($ .organization $)
             CY_API_URL: ($ .api_url $)
             CY_API_KEY: ((cy_api_key))
-($- end $)
 
       - task: merge-stack-and-config
         config:
@@ -145,7 +140,6 @@ jobs:
           terraform_source: merged-stack/
 
 
-($- if eq .use_case "organization" $)
       - task: create-projects
         config:
           platform: linux
@@ -323,7 +317,6 @@ jobs:
             ORG: ($ .organization $)
             CY_API_URL: ($ .api_url $)
             CY_API_KEY: ((cy_api_key))
-($- end $)
 
 
   - name: destroy
