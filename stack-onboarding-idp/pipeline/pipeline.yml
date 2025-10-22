@@ -193,6 +193,57 @@ jobs:
                   done
                 done
               done
+              curl -X POST \
+                -H "Content-type: application/vnd.cycloid.io.v1+json" \
+                -H "authorization: Bearer ${CY_API_KEY}" \
+                -d '{
+                  "name": "List All",
+                  "canonical": "list-all",
+                  "description": "Role to list all resources",
+                  "rules": [
+                    {
+                        "action": "**:list",
+                        "effect": "allow",
+                        "resources": []
+                    }
+                  ]
+                }' "${CY_API_URL}/organizations/${CHILD_ORG}/roles" | jq .
+              curl -X POST \
+                -H "Content-type: application/vnd.cycloid.io.v1+json" \
+                -H "authorization: Bearer ${CY_API_KEY}" \
+                -d '{
+                  "name": "Infrastructure",
+                  "canonical": "infrastructure",
+                  "description": "Role to access the infrastructure stacks and projects",
+                  "rules": [
+                    {
+                      "action": "organization:service_catalog:*",
+                      "effect": "allow",
+                      "resources": [
+                        "organization:myidporg:service_catalog:myidporg:stack-kind-argocd"
+                      ]
+                    },
+                    {
+                      "action": "organization:project:*",
+                      "effect": "allow",
+                      "resources": [
+                        "organization:myidporg:project:infrastructure"
+                      ]
+                    }
+                  ]
+                }' "${CY_API_URL}/organizations/${CHILD_ORG}/roles" | jq .
+              curl -X POST \
+                -H "Content-type: application/vnd.cycloid.io.v1+json" \
+                -H "authorization: Bearer ${CY_API_KEY}" \
+                -d '{
+                  "name": "Infrastructure",
+                  "canonical": "infrastructure",
+                  "owner": "($ .project_owner $)",
+                  "roles_canonical": [
+                    "list-all",
+                    "infrastructure"
+                  ]
+                }' "${CY_API_URL}/organizations/${CHILD_ORG}/teams" | jq .
           params:
             CHILD_ORG: ((cy_child_org_canonical))
             ORG: ($ .organization $)
