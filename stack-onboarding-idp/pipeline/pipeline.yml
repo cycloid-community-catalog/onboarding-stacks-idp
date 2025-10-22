@@ -220,7 +220,8 @@ jobs:
                       "action": "organization:service_catalog:*",
                       "effect": "allow",
                       "resources": [
-                        "organization:myidporg:service_catalog:myidporg:stack-kind-argocd"
+                        "organization:myidporg:service_catalog:myidporg:stack-kind-argocd",
+                        "organization:myidporg:service_catalog:myidporg:stack-postgresql-idp"
                       ]
                     },
                     {
@@ -236,12 +237,49 @@ jobs:
                 -H "Content-type: application/vnd.cycloid.io.v1+json" \
                 -H "authorization: Bearer ${CY_API_KEY}" \
                 -d '{
+                  "name": "Application",
+                  "canonical": "application",
+                  "description": "Role to access the application stacks and projects",
+                  "rules": [
+                    {
+                      "action": "organization:service_catalog:*",
+                      "effect": "allow",
+                      "resources": [
+                        "organization:myidporg:service_catalog:myidporg:stack-project-github-gitops-idp",
+                        "organization:myidporg:service_catalog:myidporg:stack-postgresql-idp"
+                      ]
+                    },
+                    {
+                      "action": "organization:project:*",
+                      "effect": "allow",
+                      "resources": [
+                        "organization:myidporg:project:application"
+                      ]
+                    }
+                  ]
+                }' "${CY_API_URL}/organizations/${CHILD_ORG}/roles" | jq .
+              curl -X POST \
+                -H "Content-type: application/vnd.cycloid.io.v1+json" \
+                -H "authorization: Bearer ${CY_API_KEY}" \
+                -d '{
                   "name": "Infrastructure",
                   "canonical": "infrastructure",
                   "owner": "($ .project_owner $)",
                   "roles_canonical": [
                     "list-all",
                     "infrastructure"
+                  ]
+                }' "${CY_API_URL}/organizations/${CHILD_ORG}/teams" | jq .
+              curl -X POST \
+                -H "Content-type: application/vnd.cycloid.io.v1+json" \
+                -H "authorization: Bearer ${CY_API_KEY}" \
+                -d '{
+                  "name": "Application",
+                  "canonical": "application",
+                  "owner": "($ .project_owner $)",
+                  "roles_canonical": [
+                    "list-all",
+                    "application"
                   ]
                 }' "${CY_API_URL}/organizations/${CHILD_ORG}/teams" | jq .
           params:
