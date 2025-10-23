@@ -303,11 +303,12 @@ jobs:
                 }' "${CY_API_URL}/organizations/${CHILD_ORG}/teams" | jq .
               for member in "${TEAM_MEMBERS_INFRASTRUCTURE}"
               do
+                echo "Inviting ${member} to the Infrastructure team"
                 curl -X POST \
                   -H "Content-type: application/vnd.cycloid.io.v1+json" \
                   -H "authorization: Bearer ${CY_API_KEY}" \
                   -d '{
-                    "username": '"${member}"',
+                    "username": "'"${member}"'",
                   }' "${CY_API_URL}/organizations/${CHILD_ORG}/teams/infrastructure/members" | jq .
               done
           params:
