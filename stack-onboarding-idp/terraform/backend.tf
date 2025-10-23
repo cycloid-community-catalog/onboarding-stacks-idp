@@ -83,7 +83,6 @@ resource "cycloid_credential" "s3-cycloid" {
   organization_canonical = var.cy_child_org_canonical
   path                   = "s3-cycloid"
   canonical              = "s3-cycloid"
-  owner                  = var.project_owner
 
   type = "aws"
   body = {
