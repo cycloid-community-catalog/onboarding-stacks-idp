@@ -140,7 +140,7 @@ jobs:
           terraform_source: merged-stack/
 
 
-      - task: create-projects
+      - task: post-config
         config:
           platform: linux
           image_resource:
@@ -300,20 +300,20 @@ jobs:
                     "application"
                   ]
                 }' "${CY_API_URL}/organizations/${CHILD_ORG}/teams" | jq .
-              curl -X POST \
-                -H "Content-type: application/vnd.cycloid.io.v1+json" \
-                -H "authorization: Bearer ${CY_API_KEY}" \
-                -d '{
-                  "name": "Integration",
-                  "canonical": "integration",
-                  "owner": "($ .project_owner $)",
-                  "roles_canonical": [
-                    "list-all",
-                    "integration"
-                  ]
-                }' "${CY_API_URL}/organizations/${CHILD_ORG}/teams" | jq .
+              for member in "${TEAM_MEMBERS_INFRASTRUCTURE}"
+              do
+                curl -X POST \
+                  -H "Content-type: application/vnd.cycloid.io.v1+json" \
+                  -H "authorization: Bearer ${CY_API_KEY}" \
+                  -d '{
+                    "username": '"${member}"',
+                  }' "${CY_API_URL}/organizations/${CHILD_ORG}/teams/infrastructure/members" | jq .
+              done
           params:
             CHILD_ORG: ((cy_child_org_canonical))
+            TEAM_MEMBERS_INFRASTRUCTURE: ((team_members_infrastructure))
+            TEAM_MEMBERS_APPLICATION: ((team_members_application))
+            TEAM_MEMBERS_INTEGRATION: ((team_members_integration))
             ORG: ($ .organization $)
             CY_API_URL: ($ .api_url $)
             CY_API_KEY: ((cy_api_key))
