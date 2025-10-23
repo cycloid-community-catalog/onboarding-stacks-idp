@@ -83,6 +83,7 @@ resource "cycloid_credential" "s3-cycloid" {
   organization_canonical = var.cy_child_org_canonical
   path                   = "s3-cycloid"
   canonical              = "s3-cycloid"
+  owner                  = ($ .project_owner $)
 
   type = "aws"
   body = {
@@ -105,8 +106,9 @@ resource "cycloid_external_backend" "tf_external_backend" {
   organization_canonical = var.cy_child_org_canonical
   credential_canonical = cycloid_credential.s3-cycloid.canonical
   default = true
+  owner   = ($ .project_owner $)
   purpose = "remote_tfstate"
-  engine = "aws_storage"
+  engine  = "aws_storage"
   aws_storage = {
     bucket = "${var.cy_child_org_canonical}-terraform-remote-state"
     region = var.aws_region
