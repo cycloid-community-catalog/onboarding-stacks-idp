@@ -21,6 +21,7 @@ resources:
       team_members_infrastructure: ((team_members_infrastructure))
       team_members_application: ((team_members_application))
       team_members_integration: ((team_members_integration))
+      project_owner: ($ .project_owner $)
       cy_child_org_canonical: ((cy_child_org_canonical))
       aws_region: ((aws_region))
       cy_api_key: ((cy_api_key))

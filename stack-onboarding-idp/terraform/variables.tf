@@ -48,6 +48,11 @@ variable "team_members_integration" {
   type        = list(string)
 }
 
+variable "project_owner" {
+  description = "Project owner to set for the new project resources."
+  type        = string
+}
+
 # Cycloid
 variable "cy_api_url" {
   type        = string
