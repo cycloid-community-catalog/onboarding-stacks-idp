@@ -18,9 +18,9 @@ resources:
     vars:
       aws_cred: ((aws_cred))
       github_pat: ((github_pat))
-      team_members_infrastructure: ((team_members_infrastructure))
-      team_members_application: ((team_members_application))
-      team_members_integration: ((team_members_integration))
+      # team_members_infrastructure: ((team_members_infrastructure))
+      # team_members_application: ((team_members_application))
+      # team_members_integration: ((team_members_integration))
       project_owner: ($ .project_owner $)
       cy_child_org_canonical: ((cy_child_org_canonical))
       aws_region: ((aws_region))
@@ -307,9 +307,16 @@ jobs:
                 curl -X POST \
                   -H "Content-type: application/vnd.cycloid.io.v1+json" \
                   -H "authorization: Bearer ${CY_API_KEY}" \
-                  -d '{
-                    "username": "'"${member}"'",
-                  }' "${CY_API_URL}/organizations/${CHILD_ORG}/teams/infrastructure/members" | jq .
+                  -d "{
+                    \"email\": \"${member}\",
+                    \"role_canonical\": \"infrastructure\"
+                  }" "${CY_API_URL}/organizations/${CHILD_ORG}/members" | jq .
+                curl -X POST \
+                  -H "Content-type: application/vnd.cycloid.io.v1+json" \
+                  -H "authorization: Bearer ${CY_API_KEY}" \
+                  -d "{
+                    \"username\": \"${member}\",
+                  }" "${CY_API_URL}/organizations/${CHILD_ORG}/teams/infrastructure/members" | jq .
               done
           params:
             CHILD_ORG: ((cy_child_org_canonical))

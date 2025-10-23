@@ -33,20 +33,20 @@ variable "github_branch_idp" {
 }
 
 # Members
-variable "team_members_infrastructure" {
-  description = "Infrastructure team members to invite to the new software project."
-  type        = list(string)
-}
+# variable "team_members_infrastructure" {
+#   description = "Infrastructure team members to invite to the new software project."
+#   type        = list(string)
+# }
 
-variable "team_members_application" {
-  description = "Application team members to invite to the new software project."
-  type        = list(string)
-}
+# variable "team_members_application" {
+#   description = "Application team members to invite to the new software project."
+#   type        = list(string)
+# }
 
-variable "team_members_integration" {
-  description = "Integration team members to invite to the new software project."
-  type        = list(string)
-}
+# variable "team_members_integration" {
+#   description = "Integration team members to invite to the new software project."
+#   type        = list(string)
+# }
 
 variable "project_owner" {
   description = "Project owner to set for the new project resources."
