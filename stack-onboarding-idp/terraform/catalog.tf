@@ -56,7 +56,6 @@ resource "cycloid_config_repository" "config_repo" {
   branch                 = github_branch.config.branch
   credential_canonical   = cycloid_credential.git-ssh.canonical
   default                = true
-  owner                  = var.project_owner
   organization_canonical = var.cy_child_org_canonical
 }
 
