@@ -233,23 +233,10 @@ jobs:
                 done
               done
 
-              ROLE_CAN="list-all"
-              BASE_ROLE='{
-                "name": "List All",
-                "canonical": "'$ROLE_CAN'"
-                "description": "Role to list all resources",
-                "rules": [
-                  {
-                    "action": "**:list",
-                    "effect": "allow",
-                    "resources": []
-                  }
-                ]
-              }'
-              curl -X POST "${CY_API_URL}/organizations/${CHILD_ORG}/roles" \
+              curl -X POST "${CY_API_URL}/organizations/${CHILD_ORG}/roles"\
                 -H "Content-type: application/vnd.cycloid.io.v1+json" \
                 -H "authorization: Bearer ${CY_API_KEY}" \
-                --data-raw "$BASE_ROLE" | jq .
+                --data-raw '{ "name": "List All", "canonical": "list-all", "description": "Role to list all resources", "rules": [ { "action": "**:list", "effect": "allow", "resources": [] } ] }' | jq .
 
               ROLE_CAN="infrastructure"
               BASE_ROLE='{
@@ -274,10 +261,10 @@ jobs:
                   }
                 ]
               }'
-              curl -X POST "${CY_API_URL}/organizations/${CHILD_ORG}/roles" \
+              curl -X POST \
                 -H "Content-type: application/vnd.cycloid.io.v1+json" \
                 -H "authorization: Bearer ${CY_API_KEY}" \
-                --data-raw "$BASE_ROLE" | jq .
+                --data-raw "$BASE_ROLE" "${CY_API_URL}/organizations/${CHILD_ORG}/roles" | jq .
 
 
               ROLE_CAN="application"
@@ -303,12 +290,12 @@ jobs:
                   }
                 ]
               }'
-              curl -X POST "${CY_API_URL}/organizations/${CHILD_ORG}/roles" \
+              curl -X POST \
                 -H "Content-type: application/vnd.cycloid.io.v1+json" \
                 -H "authorization: Bearer ${CY_API_KEY}" \
-                --data-raw "$BASE_ROLE" | jq .
+                --data-raw "$BASE_ROLE" "${CY_API_URL}/organizations/${CHILD_ORG}/roles" | jq .
 
-              curl -X POST "${CY_API_URL}/organizations/${CHILD_ORG}/teams" \
+              curl -X POST \
                 -H "Content-type: application/vnd.cycloid.io.v1+json" \
                 -H "authorization: Bearer ${CY_API_KEY}" \
                 -d '{
@@ -319,9 +306,9 @@ jobs:
                     "list-all",
                     "infrastructure"
                   ]
-                }' | jq .
+                }' "${CY_API_URL}/organizations/${CHILD_ORG}/teams" | jq .
 
-              curl -X POST "${CY_API_URL}/organizations/${CHILD_ORG}/teams" \
+              curl -X POST \
                 -H "Content-type: application/vnd.cycloid.io.v1+json" \
                 -H "authorization: Bearer ${CY_API_KEY}" \
                 -d '{
@@ -332,7 +319,7 @@ jobs:
                     "list-all",
                     "application"
                   ]
-                }' | jq .
+                }' "${CY_API_URL}/organizations/${CHILD_ORG}/teams" | jq .
 
               for member in "${TEAM_MEMBERS_INFRASTRUCTURE}"
               do
@@ -341,14 +328,14 @@ jobs:
                   "email": "'"${member}"'",
                   "role_canonical": "infrastructure"
                 }'
-                curl -X POST "${CY_API_URL}/organizations/${CHILD_ORG}/members" \
+                curl -X POST \
                   -H "Content-type: application/vnd.cycloid.io.v1+json" \
                   -H "authorization: Bearer ${CY_API_KEY}" \
-                  --data-raw "$MEMBER_ROLE" | jq .
-                curl -X POST "${CY_API_URL}/organizations/${CHILD_ORG}/teams/infrastructure/members" \
+                  --data-raw "$MEMBER_ROLE" "${CY_API_URL}/organizations/${CHILD_ORG}/members" | jq .
+                curl -X POST \
                   -H "Content-type: application/vnd.cycloid.io.v1+json" \
                   -H "authorization: Bearer ${CY_API_KEY}" \
-                  --data-raw "{ "username": "'"${member}"'" }" | jq .
+                  --data-raw "{ "username": "'"${member}"'" }" "${CY_API_URL}/organizations/${CHILD_ORG}/teams/infrastructure/members" | jq .
               done
           params:
             CHILD_ORG: ((cy_child_org_canonical))
