@@ -73,7 +73,9 @@ use_cases:
         default: []
         required: true
         values:
-        - {label: "Olivier de Turckheim", value: "olivier.deturckheim@cycloid.io"}
+        - {label: "Olivier Infrastructure", value: "olivier+infra@cycloid.io"}
+        - {label: "Olivier Developer", value: "olivier+dev@cycloid.io"}
+        - {label: "Olivier Integrator", value: "olivier+integrator@cycloid.io"}
         - {label: "Gaël Lambert", value: "gael.lambert@cycloid.io"}
         - {label: "Frédéric Barras Hampel", value: "frederic.hampel@cycloid.io"}
         - {label: "Florian Lambert", value: "florian.lambert@cycloid.io"}
@@ -120,7 +122,9 @@ use_cases:
         default: []
         required: true
         values:
-        - {label: "Olivier de Turckheim", value: "olivier.deturckheim@cycloid.io"}
+        - {label: "Olivier Infrastructure", value: "olivier+infra@cycloid.io"}
+        - {label: "Olivier Developer", value: "olivier+dev@cycloid.io"}
+        - {label: "Olivier Integrator", value: "olivier+integrator@cycloid.io"}
         - {label: "Gaël Lambert", value: "gael.lambert@cycloid.io"}
         - {label: "Frédéric Barras Hampel", value: "frederic.hampel@cycloid.io"}
         - {label: "Florian Lambert", value: "florian.lambert@cycloid.io"}
@@ -167,7 +171,9 @@ use_cases:
         default: []
         required: true
         values:
-        - {label: "Olivier de Turckheim", value: "olivier.deturckheim@cycloid.io"}
+        - {label: "Olivier Infrastructure", value: "olivier+infra@cycloid.io"}
+        - {label: "Olivier Developer", value: "olivier+dev@cycloid.io"}
+        - {label: "Olivier Integrator", value: "olivier+integrator@cycloid.io"}
         - {label: "Gaël Lambert", value: "gael.lambert@cycloid.io"}
         - {label: "Frédéric Barras Hampel", value: "frederic.hampel@cycloid.io"}
         - {label: "Florian Lambert", value: "florian.lambert@cycloid.io"}
