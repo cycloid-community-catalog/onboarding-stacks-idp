@@ -160,7 +160,7 @@ jobs:
               COUNT=0
               while [ $COUNT -lt $MAX_RETRIES ]; do
                 set +e
-                cy config-repository create --branch config --cred git-ssh --name idp-config --url "git@github.com:cycloid-demo/${CHILD_ORG}-cycloid.git" --org "${CHILD_ORG}" --update
+                cy config-repository create --branch config --cred ${CHILD_ORG}-cycloid-git-ssh --name idp-config --url "git@github.com:cycloid-demo/${CHILD_ORG}-cycloid.git" --org "${CHILD_ORG}" --update
                 if [ $? -eq 0 ]; then
                   echo "Config Repository created successfully."
                   break
@@ -175,7 +175,7 @@ jobs:
               COUNT=0
               while [ $COUNT -lt $MAX_RETRIES ]; do
                 set +e
-                cy catalog-repository create --branch stacks --cred git-ssh --name idp-stacks --url "git@github.com:cycloid-demo/${CHILD_ORG}-cycloid.git" --org "${CHILD_ORG}" --update
+                cy catalog-repository create --branch stacks --cred ${CHILD_ORG}-cycloid-git-ssh --name idp-stacks --url "git@github.com:cycloid-demo/${CHILD_ORG}-cycloid.git" --org "${CHILD_ORG}" --update
                 if [ $? -eq 0 ]; then
                   echo "Catalog Repository created successfully."
                   break
