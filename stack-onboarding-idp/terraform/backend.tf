@@ -101,18 +101,18 @@ resource "time_sleep" "wait_30_seconds" {
   create_duration = "30s"
 }
 
-resource "cycloid_external_backend" "tf_external_backend" {
-  organization_canonical = var.cy_child_org_canonical
-  credential_canonical = cycloid_credential.s3-cycloid.canonical
-  default = true
-  purpose = "remote_tfstate"
-  engine  = "aws_storage"
-  aws_storage = {
-    bucket = "${var.cy_child_org_canonical}-terraform-remote-state"
-    region = var.aws_region
-    endpoint = "https://s3.${var.aws_region}.amazonaws.com"
-    s3_force_path_style = false
-    skip_verify_ssl = true
-  }
-  depends_on = [time_sleep.wait_30_seconds]
-}
+# resource "cycloid_external_backend" "tf_external_backend" {
+#   organization_canonical = var.cy_child_org_canonical
+#   credential_canonical = cycloid_credential.s3-cycloid.canonical
+#   default = true
+#   purpose = "remote_tfstate"
+#   engine  = "aws_storage"
+#   aws_storage = {
+#     bucket = "${var.cy_child_org_canonical}-terraform-remote-state"
+#     region = var.aws_region
+#     endpoint = "https://s3.${var.aws_region}.amazonaws.com"
+#     s3_force_path_style = false
+#     skip_verify_ssl = true
+#   }
+#   depends_on = [time_sleep.wait_30_seconds]
+# }
