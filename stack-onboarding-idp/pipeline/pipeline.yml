@@ -177,7 +177,20 @@ jobs:
                 set +e
                 cy catalog-repository create --branch stacks --cred git-ssh --name idp-stacks --url "git@github.com:cycloid-demo/${CHILD_ORG}-cycloid.git" --org "${CHILD_ORG}" --update
                 if [ $? -eq 0 ]; then
-                  echo "Stacks Repository created successfully."
+                  echo "Catalog Repository created successfully."
+                  break
+                fi
+                COUNT=$((COUNT + 1))
+                echo "Attempt $COUNT failed... retrying"
+                sleep 1
+              done
+              MAX_RETRIES=30
+              COUNT=0
+              while [ $COUNT -lt $MAX_RETRIES ]; do
+                set +e
+                cy catalog-repository create --branch master --name idp-stacks --url "https://github.com/cycloid-community-catalog/onboarding-stacks-idp.git" --org "${CHILD_ORG}" --update
+                if [ $? -eq 0 ]; then
+                  echo "IDP Catalog Repository created successfully."
                   break
                 fi
                 COUNT=$((COUNT + 1))
