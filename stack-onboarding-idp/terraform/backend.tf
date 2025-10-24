@@ -91,15 +91,15 @@ resource "cycloid_credential" "s3-cycloid" {
   }
 }
 
-resource "time_sleep" "wait_30_seconds" {
-  depends_on = [
-    aws_iam_access_key.child_org,
-    cycloid_credential.s3-cycloid,
-    module.s3_bucket
-  ]
+# resource "time_sleep" "wait_30_seconds" {
+#   depends_on = [
+#     aws_iam_access_key.child_org,
+#     cycloid_credential.s3-cycloid,
+#     module.s3_bucket
+#   ]
 
-  create_duration = "30s"
-}
+#   create_duration = "30s"
+# }
 
 # resource "cycloid_external_backend" "tf_external_backend" {
 #   organization_canonical = var.cy_child_org_canonical

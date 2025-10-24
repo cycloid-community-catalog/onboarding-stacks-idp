@@ -188,6 +188,35 @@ jobs:
                   done
                 done
               done
+
+              # Create config and stacks repositories
+              MAX_RETRIES=30
+              COUNT=0
+              while [ $COUNT -lt $MAX_RETRIES ]; do
+                set +e
+                cy config-repository create --branch config --cred git-ssh --name idp-config --url "git@github.com:cycloid-demo/${CHILD_ORG}-cycloid.git" --org "${CHILD_ORG}" --update
+                if [ $? -eq 0 ]; then
+                  echo "Config Repository created successfully."
+                  break
+                fi
+                COUNT=$((COUNT + 1))
+                echo "Attempt $COUNT failed... retrying"
+                sleep 1
+              done
+              MAX_RETRIES=30
+              COUNT=0
+              while [ $COUNT -lt $MAX_RETRIES ]; do
+                set +e
+                cy catalog-repository create --branch stacks --cred git-ssh --name idp-stacks --url "git@github.com:cycloid-demo/${CHILD_ORG}-cycloid.git" --org "${CHILD_ORG}" --update
+                if [ $? -eq 0 ]; then
+                  echo "Stacks Repository created successfully."
+                  break
+                fi
+                COUNT=$((COUNT + 1))
+                echo "Attempt $COUNT failed... retrying"
+                sleep 1
+              done
+
               ROLE_CAN="list-all"
               BASE_ROLE='{
                 "name": "List All",
