@@ -13,7 +13,7 @@ use_cases:
         key: cy_child_org_canonical
         widget: simple_text
         type: string
-        default: "($ .env $)"
+        default: "($ .component $)"
         validations: 
         - regexp: "^[a-z0-9-]+$"
           error_message: "Please enter a valid Cycloid organization canonical name. It can only contain lowercase letters, numbers and hyphens."
