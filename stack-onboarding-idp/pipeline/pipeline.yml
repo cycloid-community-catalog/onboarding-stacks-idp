@@ -264,11 +264,11 @@ jobs:
                 curl -X POST "${CY_API_URL}/organizations/${CHILD_ORG}/members" \
                   -H "Content-type: application/vnd.cycloid.io.v1+json" \
                   -H "authorization: Bearer ${CY_API_KEY}" \
-                  --data-raw "{ "email": "'"${member}"'", "role_canonical": "infrastructure" }" | jq .
+                  --data-raw '{ "email": '${member}', "role_canonical": "infrastructure" }' | jq .
                 curl -X POST "${CY_API_URL}/organizations/${CHILD_ORG}/teams/infrastructure/members" \
                   -H "Content-type: application/vnd.cycloid.io.v1+json" \
                   -H "authorization: Bearer ${CY_API_KEY}" \
-                  --data-raw "{ "username": "'"${member}"'" }" | jq .
+                  --data-raw '{ "username": '${member}' }' | jq .
               done
           params:
             CHILD_ORG: ((cy_child_org_canonical))
