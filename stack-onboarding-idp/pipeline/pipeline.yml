@@ -264,20 +264,16 @@ jobs:
                 done
               done
 
-              curl -X POST "${CY_API_URL}/organizations/${CHILD_ORG}/roles"\
-                -H "Content-type: application/vnd.cycloid.io.v1+json" \
-                -H "authorization: Bearer ${CY_API_KEY}" \
-                --data-raw '{ "name": "Read All", "canonical": "read-all", "description": "Role to read all resources", "rules": [ { "action": "**:read", "effect": "allow", "resources": [] }, { "action": "**:list", "effect": "allow", "resources": [] } ] }' | jq .
 
               curl -X POST "${CY_API_URL}/organizations/${CHILD_ORG}/roles"\
                 -H "Content-type: application/vnd.cycloid.io.v1+json" \
                 -H "authorization: Bearer ${CY_API_KEY}" \
-                --data-raw '{ "name": "Infrastructure", "canonical": "infrastructure", "description": "Role to access the infrastructure stacks and projects", "rules": [ { "action": "organization:service_catalog:read", "effect": "allow", "resources": [ "organization:'${CHILD_ORG}':service_catalog:'${CHILD_ORG}':stack-kind-argocd", "organization:'${CHILD_ORG}':service_catalog:'${CHILD_ORG}':stack-postgresql-idp" ] }, { "action": "organization:project:read", "effect": "allow", "resources": [ "organization:'${CHILD_ORG}':project:infrastructure" ] } ] }' | jq .
+                --data-raw '{ "name": "Infrastructure", "canonical": "infrastructure", "description": "Role to access the infrastructure stacks and projects", "rules": [ { "action": "**:read", "effect": "allow", "resources": [] }, { "action": "**:list", "effect": "allow", "resources": [] }, { "action": "organization:service_catalog:read", "effect": "allow", "resources": [ "organization:'${CHILD_ORG}':service_catalog:'${CHILD_ORG}':stack-kind-argocd", "organization:'${CHILD_ORG}':service_catalog:'${CHILD_ORG}':stack-postgresql-idp" ] }, { "action": "organization:project:read", "effect": "allow", "resources": [ "organization:'${CHILD_ORG}':project:infrastructure" ] } ] }' | jq .
 
               curl -X POST "${CY_API_URL}/organizations/${CHILD_ORG}/roles"\
                 -H "Content-type: application/vnd.cycloid.io.v1+json" \
                 -H "authorization: Bearer ${CY_API_KEY}" \
-                --data-raw '{ "name": "Application", "canonical": "application", "description": "Role to access the application stacks and projects", "rules": [ { "action": "organization:service_catalog:read", "effect": "allow", "resources": [ "organization:'${CHILD_ORG}':service_catalog:'${CHILD_ORG}':stack-project-github-gitops-idp", "organization:'${CHILD_ORG}':service_catalog:'${CHILD_ORG}':stack-postgresql-idp" ] }, { "action": "organization:project:read", "effect": "allow", "resources": [ "organization:'${CHILD_ORG}':project:application" ] } ] }' | jq .
+                --data-raw '{ "name": "Application", "canonical": "application", "description": "Role to access the application stacks and projects", "rules": [ { "action": "**:read", "effect": "allow", "resources": [] }, { "action": "**:list", "effect": "allow", "resources": [] }, { "action": "organization:service_catalog:read", "effect": "allow", "resources": [ "organization:'${CHILD_ORG}':service_catalog:'${CHILD_ORG}':stack-project-github-gitops-idp", "organization:'${CHILD_ORG}':service_catalog:'${CHILD_ORG}':stack-postgresql-idp" ] }, { "action": "organization:project:read", "effect": "allow", "resources": [ "organization:'${CHILD_ORG}':project:application" ] } ] }' | jq .
 
               curl -X POST "${CY_API_URL}/organizations/${CHILD_ORG}/teams" \
                 -H "Content-type: application/vnd.cycloid.io.v1+json" \
