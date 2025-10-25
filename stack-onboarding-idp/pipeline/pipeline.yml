@@ -198,45 +198,76 @@ jobs:
                 sleep 1
               done
 
-              # Create projects and environments
-              for projiter in "Infrastructure" "Application"
+              # Create Infrastructure project and environments
+              PROJECT=Infrastructure
+              MAX_RETRIES=30
+              COUNT=0
+              while [ $COUNT -lt $MAX_RETRIES ]; do
+                set +e
+                cy project create --project "${PROJECT,,}" --name "${PROJECT}" --org "${CHILD_ORG}" --update
+                if [ $? -eq 0 ]; then
+                  echo "Project ${PROJECT} created successfully."
+                  break
+                fi
+                COUNT=$((COUNT + 1))
+                echo "Attempt $COUNT failed... retrying"
+                sleep 1
+              done
+
+              for enviter in "OTH" "PPE" "PRD"
               do
                 MAX_RETRIES=30
                 COUNT=0
                 while [ $COUNT -lt $MAX_RETRIES ]; do
                   set +e
-                  cy project create --project "${projiter,,}" --name "${projiter}" --org "${CHILD_ORG}" --update
+                  cy environment create --project "${PROJECT,,}" --env "${enviter,,}" --name "${enviter}" --org "${CHILD_ORG}" --update
                   if [ $? -eq 0 ]; then
-                    echo "Project ${projiter} created successfully."
+                    echo "Environment ${enviter} created successfully."
                     break
                   fi
                   COUNT=$((COUNT + 1))
                   echo "Attempt $COUNT failed... retrying"
                   sleep 1
                 done
+              done
 
-                for enviter in "OTH-DEV" "PPE" "PRD"
-                do
-                  MAX_RETRIES=30
-                  COUNT=0
-                  while [ $COUNT -lt $MAX_RETRIES ]; do
-                    set +e
-                    cy environment create --project "${projiter,,}" --env "${enviter,,}" --name "${enviter}" --org "${CHILD_ORG}" --update
-                    if [ $? -eq 0 ]; then
-                      echo "Environment ${enviter} created successfully."
-                      break
-                    fi
-                    COUNT=$((COUNT + 1))
-                    echo "Attempt $COUNT failed... retrying"
-                    sleep 1
-                  done
+              # Create Application project and environments
+              PROJECT=Application
+              MAX_RETRIES=30
+              COUNT=0
+              while [ $COUNT -lt $MAX_RETRIES ]; do
+                set +e
+                cy project create --project "${PROJECT,,}" --name "${PROJECT}" --org "${CHILD_ORG}" --update
+                if [ $? -eq 0 ]; then
+                  echo "Project ${PROJECT} created successfully."
+                  break
+                fi
+                COUNT=$((COUNT + 1))
+                echo "Attempt $COUNT failed... retrying"
+                sleep 1
+              done
+
+              for enviter in "OTH-DEV" "OTH-TST" "PPE" "PRD"
+              do
+                MAX_RETRIES=30
+                COUNT=0
+                while [ $COUNT -lt $MAX_RETRIES ]; do
+                  set +e
+                  cy environment create --project "${PROJECT,,}" --env "${enviter,,}" --name "${enviter}" --org "${CHILD_ORG}" --update
+                  if [ $? -eq 0 ]; then
+                    echo "Environment ${enviter} created successfully."
+                    break
+                  fi
+                  COUNT=$((COUNT + 1))
+                  echo "Attempt $COUNT failed... retrying"
+                  sleep 1
                 done
               done
 
               curl -X POST "${CY_API_URL}/organizations/${CHILD_ORG}/roles"\
                 -H "Content-type: application/vnd.cycloid.io.v1+json" \
                 -H "authorization: Bearer ${CY_API_KEY}" \
-                --data-raw '{ "name": "List All", "canonical": "list-all", "description": "Role to list all resources", "rules": [ { "action": "**:list", "effect": "allow", "resources": [] } ] }' | jq .
+                --data-raw '{ "name": "Read All", "canonical": "read-all", "description": "Role to read all resources", "rules": [ { "action": "**:read", "effect": "allow", "resources": [] }, { "action": "**:list", "effect": "allow", "resources": [] } ] }' | jq .
 
               curl -X POST "${CY_API_URL}/organizations/${CHILD_ORG}/roles"\
                 -H "Content-type: application/vnd.cycloid.io.v1+json" \
@@ -251,24 +282,39 @@ jobs:
               curl -X POST "${CY_API_URL}/organizations/${CHILD_ORG}/teams" \
                 -H "Content-type: application/vnd.cycloid.io.v1+json" \
                 -H "authorization: Bearer ${CY_API_KEY}" \
-                --data-raw '{ "name": "Infrastructure", "canonical": "infrastructure", "owner": "($ .project_owner $)", "roles_canonical": [ "list-all", "infrastructure" ] }' | jq .
+                --data-raw '{ "name": "Infrastructure", "canonical": "infrastructure", "owner": "($ .project_owner $)", "roles_canonical": [ "read-all", "infrastructure" ] }' | jq .
 
               curl -X POST "${CY_API_URL}/organizations/${CHILD_ORG}/teams" \
                 -H "Content-type: application/vnd.cycloid.io.v1+json" \
                 -H "authorization: Bearer ${CY_API_KEY}" \
-                --data-raw '{ "name": "Application", "canonical": "application", "owner": "($ .project_owner $)", "roles_canonical": [ "list-all", "application" ] }' | jq .
-
-              for member in "${TEAM_MEMBERS_INFRASTRUCTURE}"
+                --data-raw '{ "name": "Application", "canonical": "application", "owner": "($ .project_owner $)", "roles_canonical": [ "read-all", "application" ] }' | jq .
+              
+              # Invite team members to the Infrastructure team
+              echo "${TEAM_MEMBERS_INFRASTRUCTURE}" | jq -r '.[]' | while read -r member
               do
                 echo "Inviting ${member} to the Infrastructure team"
                 curl -X POST "${CY_API_URL}/organizations/${CHILD_ORG}/members" \
                   -H "Content-type: application/vnd.cycloid.io.v1+json" \
                   -H "authorization: Bearer ${CY_API_KEY}" \
-                  --data-raw '{ "email": '${member}', "role_canonical": "infrastructure" }' | jq .
+                  --data-raw '{ "email": "'${member}'", "role_canonical": "infrastructure" }' | jq .
                 curl -X POST "${CY_API_URL}/organizations/${CHILD_ORG}/teams/infrastructure/members" \
                   -H "Content-type: application/vnd.cycloid.io.v1+json" \
                   -H "authorization: Bearer ${CY_API_KEY}" \
-                  --data-raw '{ "username": '${member}' }' | jq .
+                  --data-raw '{ "username": "'${member}'" }' | jq .
+              done
+
+              # Invite team members to the Application team
+              echo "${TEAM_MEMBERS_APPLICATION}" | jq -r '.[]' | while read -r member
+              do
+                echo "Inviting ${member} to the Application team"
+                curl -X POST "${CY_API_URL}/organizations/${CHILD_ORG}/members" \
+                  -H "Content-type: application/vnd.cycloid.io.v1+json" \
+                  -H "authorization: Bearer ${CY_API_KEY}" \
+                  --data-raw '{ "email": "'${member}'", "role_canonical": "application" }' | jq .
+                curl -X POST "${CY_API_URL}/organizations/${CHILD_ORG}/teams/application/members" \
+                  -H "Content-type: application/vnd.cycloid.io.v1+json" \
+                  -H "authorization: Bearer ${CY_API_KEY}" \
+                  --data-raw '{ "username": "'${member}'" }' | jq .
               done
           params:
             CHILD_ORG: ((cy_child_org_canonical))
