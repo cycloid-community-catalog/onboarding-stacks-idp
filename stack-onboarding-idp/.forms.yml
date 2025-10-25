@@ -27,7 +27,7 @@ use_cases:
           cred_types:
             - custom
         type: string
-        default: "((idp-api-key.key))"
+        default: "((admin-api-key.key))"
         required: true
       - name: "GitHub PAT"
         description: "GitHub Personal Access Token allowing to scaffold application git repositoryand create ArgoCD git repository."
