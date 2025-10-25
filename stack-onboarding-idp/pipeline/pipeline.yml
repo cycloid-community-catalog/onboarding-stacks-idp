@@ -238,104 +238,37 @@ jobs:
                 -H "authorization: Bearer ${CY_API_KEY}" \
                 --data-raw '{ "name": "List All", "canonical": "list-all", "description": "Role to list all resources", "rules": [ { "action": "**:list", "effect": "allow", "resources": [] } ] }' | jq .
 
-              ROLE_CAN="infrastructure"
-              BASE_ROLE='{
-                "name": "Infrastructure",
-                "canonical": "'$ROLE_CAN'"
-                "description": "Role to access the infrastructure stacks and projects",
-                "rules": [
-                  {
-                    "action": "organization:service_catalog:*",
-                    "effect": "allow",
-                    "resources": [
-                      "organization:'${CHILD_ORG}':service_catalog:'${CHILD_ORG}':stack-kind-argocd",
-                      "organization:'${CHILD_ORG}':service_catalog:'${CHILD_ORG}':stack-postgresql-idp"
-                    ]
-                  },
-                  {
-                    "action": "organization:project:*",
-                    "effect": "allow",
-                    "resources": [
-                      "organization:'${CHILD_ORG}':project:infrastructure"
-                    ]
-                  }
-                ]
-              }'
-              curl -X POST \
+              curl -X POST "${CY_API_URL}/organizations/${CHILD_ORG}/roles"\
                 -H "Content-type: application/vnd.cycloid.io.v1+json" \
                 -H "authorization: Bearer ${CY_API_KEY}" \
-                --data-raw "$BASE_ROLE" "${CY_API_URL}/organizations/${CHILD_ORG}/roles" | jq .
+                --data-raw '{ "name": "Infrastructure", "canonical": "infrastructure", "description": "Role to access the infrastructure stacks and projects", "rules": [ { "action": "organization:service_catalog:*", "effect": "allow", "resources": [ "organization:'${CHILD_ORG}':service_catalog:'${CHILD_ORG}':stack-kind-argocd", "organization:'${CHILD_ORG}':service_catalog:'${CHILD_ORG}':stack-postgresql-idp" ] }, { "action": "organization:project:*", "effect": "allow", "resources": [ "organization:'${CHILD_ORG}':project:infrastructure" ] } ] }' | jq .
 
-
-              ROLE_CAN="application"
-              BASE_ROLE='{
-                "name": "Application",
-                "canonical": "'$ROLE_CAN'"
-                "description": "Role to access the application stacks and projects",
-                "rules": [
-                  {
-                    "action": "organization:service_catalog:*",
-                    "effect": "allow",
-                    "resources": [
-                      "organization:'${CHILD_ORG}':service_catalog:'${CHILD_ORG}':stack-project-github-gitops-idp",
-                      "organization:'${CHILD_ORG}':service_catalog:'${CHILD_ORG}':stack-postgresql-idp"
-                    ]
-                  },
-                  {
-                    "action": "organization:project:*",
-                    "effect": "allow",
-                    "resources": [
-                      "organization:'${CHILD_ORG}':project:application"
-                    ]
-                  }
-                ]
-              }'
-              curl -X POST \
+              curl -X POST "${CY_API_URL}/organizations/${CHILD_ORG}/roles"\
                 -H "Content-type: application/vnd.cycloid.io.v1+json" \
                 -H "authorization: Bearer ${CY_API_KEY}" \
-                --data-raw "$BASE_ROLE" "${CY_API_URL}/organizations/${CHILD_ORG}/roles" | jq .
+                --data-raw '{ "name": "Application", "canonical": "application", "description": "Role to access the application stacks and projects", "rules": [ { "action": "organization:service_catalog:*", "effect": "allow", "resources": [ "organization:'${CHILD_ORG}':service_catalog:'${CHILD_ORG}':stack-project-github-gitops-idp", "organization:'${CHILD_ORG}':service_catalog:'${CHILD_ORG}':stack-postgresql-idp" ] }, { "action": "organization:project:*", "effect": "allow", "resources": [ "organization:'${CHILD_ORG}':project:application" ] } ] }' | jq .
 
-              curl -X POST \
+              curl -X POST "${CY_API_URL}/organizations/${CHILD_ORG}/teams" \
                 -H "Content-type: application/vnd.cycloid.io.v1+json" \
                 -H "authorization: Bearer ${CY_API_KEY}" \
-                -d '{
-                  "name": "Infrastructure",
-                  "canonical": "infrastructure",
-                  "owner": "($ .project_owner $)",
-                  "roles_canonical": [
-                    "list-all",
-                    "infrastructure"
-                  ]
-                }' "${CY_API_URL}/organizations/${CHILD_ORG}/teams" | jq .
+                --data-raw '{ "name": "Infrastructure", "canonical": "infrastructure", "owner": "($ .project_owner $)", "roles_canonical": [ "list-all", "infrastructure" ] }' | jq .
 
-              curl -X POST \
+              curl -X POST "${CY_API_URL}/organizations/${CHILD_ORG}/teams" \
                 -H "Content-type: application/vnd.cycloid.io.v1+json" \
                 -H "authorization: Bearer ${CY_API_KEY}" \
-                -d '{
-                  "name": "Application",
-                  "canonical": "application",
-                  "owner": "($ .project_owner $)",
-                  "roles_canonical": [
-                    "list-all",
-                    "application"
-                  ]
-                }' "${CY_API_URL}/organizations/${CHILD_ORG}/teams" | jq .
+                --data-raw '{ "name": "Application", "canonical": "application", "owner": "($ .project_owner $)", "roles_canonical": [ "list-all", "application" ] }' | jq .
 
               for member in "${TEAM_MEMBERS_INFRASTRUCTURE}"
               do
                 echo "Inviting ${member} to the Infrastructure team"
-                MEMBER_ROLE='{
-                  "email": "'"${member}"'",
-                  "role_canonical": "infrastructure"
-                }'
-                curl -X POST \
+                curl -X POST "${CY_API_URL}/organizations/${CHILD_ORG}/members" \
                   -H "Content-type: application/vnd.cycloid.io.v1+json" \
                   -H "authorization: Bearer ${CY_API_KEY}" \
-                  --data-raw "$MEMBER_ROLE" "${CY_API_URL}/organizations/${CHILD_ORG}/members" | jq .
-                curl -X POST \
+                  --data-raw "{ "email": "'"${member}"'", "role_canonical": "infrastructure" }" | jq .
+                curl -X POST "${CY_API_URL}/organizations/${CHILD_ORG}/teams/infrastructure/members" \
                   -H "Content-type: application/vnd.cycloid.io.v1+json" \
                   -H "authorization: Bearer ${CY_API_KEY}" \
-                  --data-raw "{ "username": "'"${member}"'" }" "${CY_API_URL}/organizations/${CHILD_ORG}/teams/infrastructure/members" | jq .
+                  --data-raw "{ "username": "'"${member}"'" }" | jq .
               done
           params:
             CHILD_ORG: ((cy_child_org_canonical))
