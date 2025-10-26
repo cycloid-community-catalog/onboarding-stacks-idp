@@ -288,10 +288,10 @@ jobs:
     { "action": "organization:kpi:read", "effect": "allow", "resources": [] },
     { "action": "organization:member:read", "effect": "allow", "resources": [] },
     { "action": "organization:pipeline:read", "effect": "allow", "resources": [] },
-    { "action": "organization:project:read", "effect": "allow", "resources": [ "organization:'${CHILD_ORG}':project:infrastructure" ] },
+    { "action": "organization:project:read", "effect": "allow", "resources": [ "organization:${CHILD_ORG}:project:infrastructure" ] },
     { "action": "organization:project:update", "effect": "allow", "resources": [] },
-    { "action": "organization:service_catalog:read", "effect": "allow", "resources": [ "organization:'${CHILD_ORG}':service_catalog:'${CHILD_ORG}':stack-kind-argocd", "organization:'${CHILD_ORG}':service_catalog:'${CHILD_ORG}':stack-postgresql-idp" ] },
-    { "action": "organization:service_catalog:list", "effect": "allow", "resources": [ "organization:'${CHILD_ORG}':service_catalog:'${CHILD_ORG}':stack-kind-argocd", "organization:'${CHILD_ORG}':service_catalog:'${CHILD_ORG}':stack-postgresql-idp" ] },
+    { "action": "organization:service_catalog:read", "effect": "allow", "resources": [ "organization:${CHILD_ORG}:service_catalog:${CHILD_ORG}:stack-kind-argocd", "organization:${CHILD_ORG}:service_catalog:${CHILD_ORG}:stack-postgresql-idp" ] },
+    { "action": "organization:service_catalog:list", "effect": "allow", "resources": [ "organization:${CHILD_ORG}:service_catalog:${CHILD_ORG}:stack-kind-argocd", "organization:${CHILD_ORG}:service_catalog:${CHILD_ORG}:stack-postgresql-idp" ] },
     { "action": "organization:service_catalog_sources:list", "effect": "allow", "resources": [] },
     { "action": "organization:service_catalog_sources:read", "effect": "allow", "resources": [] }
   ]
