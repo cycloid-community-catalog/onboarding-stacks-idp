@@ -268,7 +268,7 @@ jobs:
               curl -X POST "${CY_API_URL}/organizations/${CHILD_ORG}/roles"\
                 -H "Content-type: application/vnd.cycloid.io.v1+json" \
                 -H "authorization: Bearer ${CY_API_KEY}" \
-                --data-raw @- << EOF | jq . << EOF
+                --data-raw @- << EOF | jq .
 {
   "name": "Infrastructure",
   "canonical": "infrastructure",
@@ -293,7 +293,7 @@ jobs:
     { "action": "organization:service_catalog:read", "effect": "allow", "resources": [ "organization:'${CHILD_ORG}':service_catalog:'${CHILD_ORG}':stack-kind-argocd", "organization:'${CHILD_ORG}':service_catalog:'${CHILD_ORG}':stack-postgresql-idp" ] },
     { "action": "organization:service_catalog:list", "effect": "allow", "resources": [ "organization:'${CHILD_ORG}':service_catalog:'${CHILD_ORG}':stack-kind-argocd", "organization:'${CHILD_ORG}':service_catalog:'${CHILD_ORG}':stack-postgresql-idp" ] },
     { "action": "organization:service_catalog_sources:list", "effect": "allow", "resources": [] },
-    { "action": "organization:service_catalog_sources:read", "effect": "allow", "resources": [] },
+    { "action": "organization:service_catalog_sources:read", "effect": "allow", "resources": [] }
   ]
 }
 EOF
