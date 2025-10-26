@@ -17,6 +17,24 @@ variable "aws_region" {
   default     = "eu-west-1"
 }
 
+# Cloud Provider Credentials
+variable "cloud_provider" {
+  description = "Cloud provider to use for the new software project."
+  type        = string
+}
+variable "aws_cred_infra" {
+  description = "AWS credentials for Terraform."
+  sensitive   = true
+}
+variable "azure_cred_infra" {
+  description = "Azure credentials for Terraform."
+  sensitive   = true
+}
+variable "gcp_cred_infra" {
+  description = "GCP credentials for Terraform."
+  sensitive   = true
+}
+
 # GitHub variables
 variable "github_pat" {
   description = "GitHub Personal Access Token allowing to create the new ArgoCD repository. The token must be in the format of 'ghp_<token>', stored in the password field and be created with the 'repo' scope."

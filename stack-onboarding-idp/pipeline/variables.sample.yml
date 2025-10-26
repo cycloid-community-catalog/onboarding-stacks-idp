@@ -10,6 +10,29 @@ aws_cred: ((aws-demo-account))
 #+ AWS region to use for Terraform.
 aws_region: us-east-1
 
+#. cloud_provider (required): aws
+#+ Cloud provider to use for the new software project.
+cloud_provider: aws
+
+#. aws_cred_infra (required): ((aws))
+#+ Amazon credentials containing access key and secret key for Terraform. See value format [here](https://docs.cycloid.io/advanced-guide/integrate-and-use-cycloid-credentials-manager.html#vault-in-the-pipeline)
+aws_cred_infra: ((aws))
+
+#. azure_cred_infra (required): ((azure))
+#+ Azure credentials containing client id, client secret and tenant id for Terraform. See value format [here](https://docs.cycloid.io/advanced-guide/integrate-and-use-cycloid-credentials-manager.html#vault-in-the-pipeline)
+azure_cred_infra: ((azure))
+
+#. gcp_cred_infra (required): ((gcp))
+#+ GCP credentials for Terraform. See value format [here](https://docs.cycloid.io/advanced-guide/integrate-and-use-cycloid-credentials-manager.html#vault-in-the-pipeline)
+gcp_cred_infra: ((gcp))
+
+#
+# GitHub variables
+#
+
+#. github_pat (required): ((github-pat.token))
+#+ GitHub Personal Access Token allowing to create the new ArgoCD repository. It will be also provisionned in the child organization to scaffold the application git repository. The token must be in the format of 'ghp_<token>', stored in the password field and be created with the 'repo' scope.
+github_pat: ((github-pat.token))
 
 #
 # Cycloid Organization

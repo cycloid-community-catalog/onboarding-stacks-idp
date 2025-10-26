@@ -40,7 +40,7 @@ use_cases:
         default: "((github-pat.token))"
         required: true
       - name: "AWS account"
-        description: "The AWS account where to create the S3 bucket and IAM as Terraform backend."
+        description: "The AWS account where to create the S3 bucket and IAM user to access the Cycloid child organization Terraform backend."
         key: aws_cred
         widget: cy_cred
         widget_config:
@@ -51,7 +51,7 @@ use_cases:
         default: "((aws))"
         required: true
       - name: "AWS region"
-        description: "AWS region to use for Terraform."
+        description: "The AWS region where to create the S3 bucket used as the Cycloid child organization Terraform backend."
         key: aws_region
         widget: auto_complete
         type: string
@@ -60,6 +60,66 @@ use_cases:
         validations: 
         - regexp: "^[a-z]{2}-[a-z]+-\\d+$" 
           error_message: "Please enter a valid AWS region such as us-east-3"
+        required: true
+
+    - name: Cloud Providers
+      technologies: [pipeline]
+      vars:
+      - name: "Cloud Provider"
+        description: "Cloud provider to use for the new software project."
+        key: cloud_provider
+        widget: dropdown
+        type: string
+        default: "aws"
+        required: true
+        values:
+        - {label: "AWS", value: "aws"}
+        - {label: "Azure", value: "azure"}
+        - {label: "GCP", value: "gcp"}
+    
+    - name: AWS Credentials
+      technologies: [pipeline]
+      condition: '$cloud_provider == "AWS"'
+      vars:
+      - name: "AWS Credentials"
+        description: "AWS credentials to use for the new software project."
+        key: aws_cred_infra
+        widget: cy_cred
+        widget_config:
+          display_keys: false
+          cred_types:
+            - aws
+        default: "((aws))"
+        required: true
+
+    - name: Azure Credentials
+      technologies: [pipeline]
+      condition: '$cloud_provider == "Azure"'
+      vars:
+      - name: "Azure Credentials"
+        description: "Azure credentials to use for the new software project."
+        key: azure_cred_infra
+        widget: cy_cred
+        widget_config:
+          display_keys: false
+          cred_types:
+            - azure
+        default: "((azure))"
+        required: true
+
+    - name: GCP Credentials
+      technologies: [pipeline]
+      condition: '$cloud_provider == "GCP"'
+      vars:
+      - name: "GCP Credentials"
+        description: "GCP credentials to use for the new software project."
+        key: gcp_cred_infra
+        widget: cy_cred
+        widget_config:
+          display_keys: false
+          cred_types:
+            - gcp
+        default: "((gcp))"
         required: true
 
     - name: Team Members
