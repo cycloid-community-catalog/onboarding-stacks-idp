@@ -18,20 +18,8 @@ variable "aws_region" {
 }
 
 # Cloud Provider Credentials
-variable "cloud_provider" {
-  description = "Cloud provider to use for the new software project."
-  type        = string
-}
 variable "aws_cred_infra" {
   description = "AWS credentials for Terraform."
-  sensitive   = true
-}
-variable "azure_cred_infra" {
-  description = "Azure credentials for Terraform."
-  sensitive   = true
-}
-variable "gcp_cred_infra" {
-  description = "GCP credentials for Terraform."
   sensitive   = true
 }
 

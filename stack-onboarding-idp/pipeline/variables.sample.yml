@@ -10,21 +10,9 @@ aws_cred: ((aws-demo-account))
 #+ AWS region to use for Terraform.
 aws_region: us-east-1
 
-#. cloud_provider (required): aws
-#+ Cloud provider to use for the new software project.
-cloud_provider: aws
-
-#. aws_cred_infra (required): ((aws))
+#. aws_cred_infra (required): ""
 #+ Amazon credentials containing access key and secret key for Terraform. See value format [here](https://docs.cycloid.io/advanced-guide/integrate-and-use-cycloid-credentials-manager.html#vault-in-the-pipeline)
-aws_cred_infra: ((aws))
-
-#. azure_cred_infra (required): ((azure))
-#+ Azure credentials containing client id, client secret and tenant id for Terraform. See value format [here](https://docs.cycloid.io/advanced-guide/integrate-and-use-cycloid-credentials-manager.html#vault-in-the-pipeline)
-azure_cred_infra: ((azure))
-
-#. gcp_cred_infra (required): ((gcp))
-#+ GCP credentials for Terraform. See value format [here](https://docs.cycloid.io/advanced-guide/integrate-and-use-cycloid-credentials-manager.html#vault-in-the-pipeline)
-gcp_cred_infra: ((gcp))
+aws_cred_infra: ""
 
 #
 # GitHub variables

@@ -18,10 +18,7 @@ resources:
     vars:
       aws_cred: ((aws_cred))
       github_pat: ((github_pat))
-      cloud_provider: ((cloud_provider))
       aws_cred_infra: ((aws_cred_infra))
-      azure_cred_infra: ((azure_cred_infra))
-      gcp_cred_infra: ((gcp_cred_infra))
       # team_members_infrastructure: ((team_members_infrastructure))
       # team_members_application: ((team_members_application))
       # team_members_integration: ((team_members_integration))
