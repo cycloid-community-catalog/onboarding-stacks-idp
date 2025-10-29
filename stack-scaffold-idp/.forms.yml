@@ -15,9 +15,9 @@ use_cases:
         widget_config:
           display_keys: false
           cred_types:
-            - basic_auth
+            - custom
         type: string
-        default: "((github-pat))"
+        default: "((github-pat.token))"
         required: true
       - name: "GitHub Organization"
         description: "GitHub organization or username where the repository will be created"

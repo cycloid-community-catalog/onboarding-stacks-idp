@@ -5,7 +5,7 @@
 
 #. github_pat (required): ''
 #+ GitHub Personal Access Token allowing to manage repositories and user SSH keys. We will create a repository with stacks and config branches as well as an SSH public key stored as Cycloid credential to connect to it.
-github_pat: "((github-pat.key))"
+github_pat: "((github-pat.token))"
 
 #. github_org (required): '($ .org $)'
 #+ GitHub organization where the repository will be created

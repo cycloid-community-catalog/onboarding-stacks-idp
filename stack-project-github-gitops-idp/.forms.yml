@@ -53,9 +53,9 @@ use_cases:
         widget_config:
           display_keys: true
           cred_types:
-            - basic_auth
+            - custom
         type: string
-        default: "((github-pat.password))"
+        default: "((github-pat.token))"
         required: true
       - name: "GitHub Organization"
         description: "This is the organization that will be used to create the repository."
@@ -80,9 +80,9 @@ use_cases:
         widget_config:
           display_keys: true
           cred_types:
-            - basic_auth
+            - custom
         type: string
-        default: "((github-pat.password))"
+        default: "((github-pat.token))"
         required: true
       - name: "organization"
         description: "This is the organization that will be used to read the application repository."

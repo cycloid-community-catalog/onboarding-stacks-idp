@@ -90,7 +90,7 @@ Before deploying this stack, ensure you have:
 |----------|-------------|---------|
 | `aws_cred` | AWS credentials | `((aws))` |
 | `aws_region` | AWS region | `eu-west-1` |
-| `github_pat` | GitHub PAT | `((github-pat.password))` |
+| `github_pat` | GitHub PAT | `((github-pat.token))` |
 | `mailjet.api_key` | Mailjet API key | `((mailjet.api_key))` |
 | `mailjet.secret_key` | Mailjet secret key | `((mailjet.secret_key))` |
 
