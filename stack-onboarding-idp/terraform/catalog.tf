@@ -21,7 +21,6 @@ resource "github_branch" "config" {
 
 data "tls_public_key" "public_key_from_private" {
   private_key_openssh = var.github_private_key_openssh
-  algorithm = "RSA"
 }
 
 resource "github_repository_deploy_key" "idp-git" {
