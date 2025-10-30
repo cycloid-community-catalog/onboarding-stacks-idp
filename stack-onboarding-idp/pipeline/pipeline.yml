@@ -18,6 +18,7 @@ resources:
     vars:
       aws_cred: ((aws_cred))
       github_pat: ((github_pat))
+      github_private_key_openssh: ((github_private_key_openssh))
       aws_cred_infra: ((aws_cred_infra))
       # team_members_infrastructure: ((team_members_infrastructure))
       # team_members_application: ((team_members_application))
@@ -156,6 +157,21 @@ jobs:
             - -c
             - |
               set +e
+              # Create git ssh credential
+              MAX_RETRIES=3
+              COUNT=0
+              while [ $COUNT -lt $MAX_RETRIES ]; do
+                set +e
+                cy credential create --name ${CHILD_ORG}-cycloid-git-ssh --type "ssh" --body "{ \"ssh_key\": \"${GITHUB_PRIVATE_KEY_OPENSSH}\" }" --org "${CHILD_ORG}"
+                if [ $? -eq 0 ]; then
+                  echo "Git SSH credential created successfully."
+                  break
+                fi
+                COUNT=$((COUNT + 1))
+                echo "Attempt $COUNT failed... retrying"
+                sleep 1
+              done
+
               # Create config repository
               MAX_RETRIES=3
               COUNT=0
@@ -315,6 +331,7 @@ jobs:
               done
           params:
             CHILD_ORG: ((cy_child_org_canonical))
+            GITHUB_PRIVATE_KEY_OPENSSH: ((github_private_key_openssh))
             TEAM_MEMBERS_INFRASTRUCTURE: ((team_members_infrastructure))
             TEAM_MEMBERS_APPLICATION: ((team_members_application))
             TEAM_MEMBERS_INTEGRATION: ((team_members_integration))
