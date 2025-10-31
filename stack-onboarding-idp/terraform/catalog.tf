@@ -20,7 +20,7 @@ resource "github_branch" "config" {
 }
 
 data "cycloid_credential" "git-ssh" {
-  organization_canonical = var.cy_child_org_canonical
+  organization = var.cy_child_org_canonical
   name = "${var.cy_child_org_canonical}-cycloid-git-ssh"
 }
 

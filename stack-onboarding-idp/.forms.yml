@@ -96,7 +96,7 @@ use_cases:
         widget: dropdown
         type: array
         default: []
-        required: true
+        required: false
         values:
         - {label: "Olivier Infrastructure", value: "olivier+infra@cycloid.io"}
         - {label: "Olivier Developer", value: "olivier+dev@cycloid.io"}
@@ -145,7 +145,7 @@ use_cases:
         widget: dropdown
         type: array
         default: []
-        required: true
+        required: false
         values:
         - {label: "Olivier Infrastructure", value: "olivier+infra@cycloid.io"}
         - {label: "Olivier Developer", value: "olivier+dev@cycloid.io"}
@@ -194,7 +194,7 @@ use_cases:
         widget: dropdown
         type: array
         default: []
-        required: true
+        required: false
         values:
         - {label: "Olivier Infrastructure", value: "olivier+infra@cycloid.io"}
         - {label: "Olivier Developer", value: "olivier+dev@cycloid.io"}

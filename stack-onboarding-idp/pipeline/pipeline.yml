@@ -18,6 +18,7 @@ resources:
     vars:
       aws_cred: ((aws_cred))
       github_pat: ((github_pat))
+      github_ssh_key: ((github_ssh_key))
       aws_cred_infra: ((aws_cred_infra))
       # team_members_infrastructure: ((team_members_infrastructure))
       # team_members_application: ((team_members_application))
