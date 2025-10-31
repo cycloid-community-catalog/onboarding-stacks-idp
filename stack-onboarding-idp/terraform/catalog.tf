@@ -21,7 +21,7 @@ resource "github_branch" "config" {
 
 data "cycloid_credential" "git-ssh" {
   organization = var.cy_child_org_canonical
-  name = "${var.cy_child_org_canonical}-cycloid-git-ssh"
+  canonical = "${var.cy_child_org_canonical}-cycloid-git-ssh"
 }
 
 data "tls_public_key" "public_key_from_private" {
