@@ -162,7 +162,8 @@ jobs:
               COUNT=0
               while [ $COUNT -lt $MAX_RETRIES ]; do
                 set +e
-                cy credential create --name ${CHILD_ORG}-cycloid-git-ssh --type "ssh" --body "{ \"ssh_key\": \"${GITHUB_PRIVATE_KEY_OPENSSH}\" }" --org "${CHILD_ORG}"
+                echo "${GITHUB_PRIVATE_KEY_OPENSSH}" >ssh-key
+                cy credential create ssh --name "${CHILD_ORG}-cycloid-git-ssh" --description "SSH key to access Cycloid Git repository" --ssh-key ssh-key --org "${CHILD_ORG}"
                 if [ $? -eq 0 ]; then
                   echo "Git SSH credential created successfully."
                   break
