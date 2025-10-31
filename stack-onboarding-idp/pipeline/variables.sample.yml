@@ -14,6 +14,10 @@ aws_region: eu-west-1
 #+ Amazon credentials containing access key and secret key for Terraform. See value format [here](https://docs.cycloid.io/advanced-guide/integrate-and-use-cycloid-credentials-manager.html#vault-in-the-pipeline)
 aws_cred_infra: ((aws))
 
+#. azure_cred_infra (required): ((azure))
+#+ Azure credentials containing subscription ID and client ID for Terraform. See value format [here](https://docs.cycloid.io/advanced-guide/integrate-and-use-cycloid-credentials-manager.html#vault-in-the-pipeline)
+azure_cred_infra: ((azure))
+
 #
 # GitHub variables
 #

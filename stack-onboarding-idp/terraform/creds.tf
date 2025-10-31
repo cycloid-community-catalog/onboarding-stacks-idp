@@ -12,6 +12,22 @@ resource "cycloid_credential" "aws" {
   }
 }
 
+resource "cycloid_credential" "azure" {
+  name                   = "Azure"
+  description            = "Azure subscription to use for the software project."
+  path                   = "azure"
+  canonical              = "azure"
+  organization_canonical = var.cy_child_org_canonical
+
+  type = "azure"
+  body = {
+    subscription_id = var.azure_cred_infra.subscription_id
+    tenant_id = var.azure_cred_infra.tenant_id
+    client_id = var.azure_cred_infra.client_id
+    client_secret = var.azure_cred_infra.client_secret
+  }
+}
+
 resource "cycloid_credential" "github-pat" {
   name                   = "GitHub PAT"
   description            = "GitHub Personal Access Token allowing to scaffold the application git repository. The token must be in the format of 'ghp_<token>', stored in the password field and be created with the 'repo' scope."

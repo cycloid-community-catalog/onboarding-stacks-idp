@@ -28,6 +28,28 @@ use_cases:
         type: boolean
         default: false
         required: false
+      - name: "AWS Account for the new software project"
+        description: "AWS account to provision in the new software project. It will be used to deploy the infrastructure resources needed for testing and development, but also to create the non-production and production environments."
+        key: aws_cred_infra
+        widget: cy_cred
+        widget_config:
+          display_keys: false
+          cred_types:
+            - aws
+        type: string
+        default: "((aws))"
+        required: false
+      - name: "Azure Subscription for the new software project"
+        description: "Azure subscription to provision in the new software project. It will be used to deploy the infrastructure resources needed for testing and development, but also to create the non-production and production environments."
+        key: azure_cred_infra
+        widget: cy_cred
+        widget_config:
+          display_keys: false
+          cred_types:
+            - azure
+        type: string
+        default: "((azure))"
+        required: false
     - name: Advanced Configuration
       technologies: [pipeline]
       condition: '$enable_advanced_config == true'
@@ -74,17 +96,6 @@ use_cases:
         validations: 
         - regexp: "^[a-z]{2}-[a-z]+-\\d+$" 
           error_message: "Please enter a valid AWS region such as us-east-3"
-        required: true
-      - name: "AWS Account for the new software project"
-        description: "AWS account to use for the new software project."
-        key: aws_cred_infra
-        widget: cy_cred
-        widget_config:
-          display_keys: false
-          cred_types:
-            - aws
-        type: string
-        default: "((aws))"
         required: true
 
     - name: Team Members

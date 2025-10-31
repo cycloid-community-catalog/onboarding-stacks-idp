@@ -23,6 +23,11 @@ variable "aws_cred_infra" {
   sensitive   = true
 }
 
+variable "azure_cred_infra" {
+  description = "Azure credentials for Terraform."
+  sensitive   = true
+}
+
 # GitHub variables
 variable "github_pat" {
   description = "GitHub Personal Access Token allowing to create the new ArgoCD repository. The token must be in the format of 'ghp_<token>', stored in the password field and be created with the 'repo' scope."
