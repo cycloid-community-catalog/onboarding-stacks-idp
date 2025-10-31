@@ -2,17 +2,17 @@
 # Cloud Provider
 #
 
-#. aws_cred (required): ((aws-demo-account))
+#. aws_cred (required): ((aws))
 #+ Amazon credentials containing access key and secret key for Terraform. See value format [here](https://docs.cycloid.io/advanced-guide/integrate-and-use-cycloid-credentials-manager.html#vault-in-the-pipeline)
-aws_cred: ((aws-demo-account))
+aws_cred: ((aws))
 
-#. aws_default_region (required): us-east-1
+#. aws_default_region (required): eu-west-1
 #+ AWS region to use for Terraform.
-aws_region: us-east-1
+aws_region: eu-west-1
 
-#. aws_cred_infra (required): ""
+#. aws_cred_infra (required): ((aws))
 #+ Amazon credentials containing access key and secret key for Terraform. See value format [here](https://docs.cycloid.io/advanced-guide/integrate-and-use-cycloid-credentials-manager.html#vault-in-the-pipeline)
-aws_cred_infra: ""
+aws_cred_infra: ((aws))
 
 #
 # GitHub variables
@@ -56,9 +56,9 @@ team_members_integration: []
 # Default variables
 #
 
-#. cy_api_key (required): ((idp-api-key.key))
+#. cy_api_key (required): ((admin-api-key.key))
 #+ API key to grant admin acess to Cycloid API.
-cy_api_key: ((idp-api-key.key))
+cy_api_key: ((admin-api-key.key))
 
 #. terraform_version (required): '1.8.3'
 #+ terraform version used to execute your code.

@@ -18,6 +18,20 @@ use_cases:
         - regexp: "^[a-z0-9-]+$"
           error_message: "Please enter a valid Cycloid organization canonical name. It can only contain lowercase letters, numbers and hyphens."
         required: true
+    - name: Enable Advanced Configuration
+      technologies: [pipeline]
+      vars:
+      - name: "Enable advanced configuration"
+        description: "Enable advanced configuration to configure the child organization with custom credentials and settings."
+        key: enable_advanced_config
+        widget: switch
+        type: boolean
+        default: false
+        required: false
+    - name: Advanced Configuration
+      technologies: [pipeline]
+      condition: '$enable_advanced_config == true'
+      vars:
       - name: "Cycloid API key"
         description: "Cycloid organization API key allowing to create and manage child organizations."
         key: cy_api_key
@@ -66,7 +80,7 @@ use_cases:
         widget: auto_complete
         type: string
         values_ref: https://cycloid-demo-stackforms-values.s3.eu-west-1.amazonaws.com/aws-regions.json
-        default: us-east-1
+        default: eu-west-1
         validations: 
         - regexp: "^[a-z]{2}-[a-z]+-\\d+$" 
           error_message: "Please enter a valid AWS region such as us-east-3"

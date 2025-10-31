@@ -163,9 +163,39 @@ jobs:
               while [ $COUNT -lt $MAX_RETRIES ]; do
                 set +e
                 echo "${GITHUB_PRIVATE_KEY_OPENSSH}" >ssh-key
-                cy credential create ssh --name "${CHILD_ORG}-cycloid-git-ssh" --description "SSH key to access Cycloid Git repository" --ssh-key ssh-key --org "${CHILD_ORG}"
+                cy credential create ssh --name "${CHILD_ORG}-cycloid-git-ssh" --description "SSH key to access Cycloid Git repository" --ssh-key ssh-key --org "${CHILD_ORG}" --update
                 if [ $? -eq 0 ]; then
                   echo "Git SSH credential created successfully."
+                  break
+                fi
+                COUNT=$((COUNT + 1))
+                echo "Attempt $COUNT failed... retrying"
+                sleep 1
+              done
+
+              # Create admin API key
+              MAX_RETRIES=3
+              COUNT=0
+              while [ $COUNT -lt $MAX_RETRIES ]; do
+                set +e
+                API_KEY=$(cy api-key create --name "Admin API Key" --rules '[ { "action": "organization:**", "effect": "allow", "resources": [] } ]' --org "${CHILD_ORG}" -o json | jq -r .token)
+                if [ $? -eq 0 ]; then
+                  echo "API key created successfully."
+                  break
+                fi
+                COUNT=$((COUNT + 1))
+                echo "Attempt $COUNT failed... retrying"
+                sleep 1
+              done
+
+              # Create admin API key credential
+              MAX_RETRIES=3
+              COUNT=0
+              while [ $COUNT -lt $MAX_RETRIES ]; do
+                set +e
+                cy credential create custom --name "Admin API Key" --description "Cycloid Admin API Key" --field key="$API_KEY" --org "${CHILD_ORG}"
+                if [ $? -eq 0 ]; then
+                  echo "API key created successfully."
                   break
                 fi
                 COUNT=$((COUNT + 1))
