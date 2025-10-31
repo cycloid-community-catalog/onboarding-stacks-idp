@@ -38,12 +38,6 @@ variable "github_branch_idp" {
   default     = "master"
 }
 
-variable "github_private_key_openssh" {
-  description = "GitHub private key in OpenSSH format"
-  type        = string
-  sensitive   = true
-}
-
 # Members
 # variable "team_members_infrastructure" {
 #   description = "Infrastructure team members to invite to the new software project."

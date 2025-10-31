@@ -19,8 +19,13 @@ resource "github_branch" "config" {
   branch     = "config"
 }
 
+data "cycloid_credential" "git-ssh" {
+  organization_canonical = var.cy_child_org_canonical
+  name = "${var.cy_child_org_canonical}-cycloid-git-ssh"
+}
+
 data "tls_public_key" "public_key_from_private" {
-  private_key_openssh = var.github_private_key_openssh
+  private_key_openssh = data.cycloid_credential.git-ssh.body.ssh_key
 }
 
 resource "github_repository_deploy_key" "idp-git" {

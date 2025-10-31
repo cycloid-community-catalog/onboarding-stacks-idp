@@ -18,7 +18,6 @@ resources:
     vars:
       aws_cred: ((aws_cred))
       github_pat: ((github_pat))
-      github_private_key_openssh: ((github_private_key_openssh))
       aws_cred_infra: ((aws_cred_infra))
       # team_members_infrastructure: ((team_members_infrastructure))
       # team_members_application: ((team_members_application))
@@ -110,6 +109,23 @@ jobs:
                   echo "Unable to create organization ${CHILD_ORG}"
                   echo "Error: $? - $(cat output)"
               fi
+
+              # Generate an RSA SSH key (2048 bits) and create a Cycloid git ssh credential
+              ssh-keygen -t rsa -b 2048 -f /tmp/generated_id_rsa
+              MAX_RETRIES=3
+              COUNT=0
+              while [ $COUNT -lt $MAX_RETRIES ]; do
+                set +e
+                cy credential create ssh --name "${CHILD_ORG}-cycloid-git-ssh" --description "SSH key to access Cycloid Git repository" --ssh-key /tmp/generated_id_rsa --org "${CHILD_ORG}"
+                if [ $? -eq 0 ]; then
+                  echo "Git SSH credential created successfully."
+                  break
+                fi
+                COUNT=$((COUNT + 1))
+                echo "Attempt $COUNT failed... retrying"
+                sleep 1
+              done
+
           params:
             CHILD_ORG: ((cy_child_org_canonical))
             ORG: ($ .organization $)
@@ -157,22 +173,6 @@ jobs:
             - -c
             - |
               set +e
-              # Create git ssh credential
-              MAX_RETRIES=3
-              COUNT=0
-              while [ $COUNT -lt $MAX_RETRIES ]; do
-                set +e
-                echo "${GITHUB_PRIVATE_KEY_OPENSSH}" >ssh-key
-                cy credential create ssh --name "${CHILD_ORG}-cycloid-git-ssh" --description "SSH key to access Cycloid Git repository" --ssh-key ssh-key --org "${CHILD_ORG}" --update
-                if [ $? -eq 0 ]; then
-                  echo "Git SSH credential created successfully."
-                  break
-                fi
-                COUNT=$((COUNT + 1))
-                echo "Attempt $COUNT failed... retrying"
-                sleep 1
-              done
-
               # Create admin API key
               MAX_RETRIES=3
               COUNT=0
@@ -362,7 +362,6 @@ jobs:
               done
           params:
             CHILD_ORG: ((cy_child_org_canonical))
-            GITHUB_PRIVATE_KEY_OPENSSH: ((github_private_key_openssh))
             TEAM_MEMBERS_INFRASTRUCTURE: ((team_members_infrastructure))
             TEAM_MEMBERS_APPLICATION: ((team_members_application))
             TEAM_MEMBERS_INTEGRATION: ((team_members_integration))

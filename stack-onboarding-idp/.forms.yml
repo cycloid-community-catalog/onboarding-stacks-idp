@@ -53,16 +53,6 @@ use_cases:
         type: string
         default: "((github-pat.token))"
         required: true
-      - name: "GitHub SSH key to provision in the child organization"
-        description: "GitHub SSH key in OpenSSH format to provision to access the Cycloid GitHub repositories in the child organization."
-        key: github_private_key_openssh
-        widget: cy_cred
-        widget_config:
-          display_keys: true
-          cred_types: ["ssh"]
-        type: string
-        default: "((git-ssh-child-org.ssh_key))"
-        required: true
       - name: "AWS account for Terraform backend"
         description: "The AWS account where to create the S3 bucket and IAM user to access the Cycloid child organization Terraform backend."
         key: aws_cred

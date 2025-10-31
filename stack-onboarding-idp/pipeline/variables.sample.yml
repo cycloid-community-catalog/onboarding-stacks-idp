@@ -22,10 +22,6 @@ aws_cred_infra: ((aws))
 #+ GitHub Personal Access Token allowing to create the new ArgoCD repository. It will be also provisionned in the child organization to scaffold the application git repository. The token must be in the format of 'ghp_<token>', stored in the password field and be created with the 'repo' scope.
 github_pat: ((github-pat.token))
 
-#. github_private_key_openssh (required): ((git-ssh-child-org.ssh_key))
-#+ GitHub private key in OpenSSH format to access the Cycloid GitHub repositories in the child organization.
-github_private_key_openssh: ((git-ssh-child-org.ssh_key))
-
 #
 # Cycloid Organization
 #
