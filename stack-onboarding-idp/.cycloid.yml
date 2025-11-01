@@ -1,7 +1,7 @@
 ---
 # Configuration of the Cycloid stack
 version: '4'
-name: 'Software Project Onboarding'
+name: 'CBS Project Onboarding'
 canonical: stack-onboarding-idp
 author: Cycloid
 description: |
