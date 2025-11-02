@@ -19,7 +19,7 @@ use_cases:
           error_message: "Please enter a valid Cycloid organization canonical name. It can only contain lowercase letters, numbers and hyphens."
         required: true
       - name: "AWS Account for the new software project"
-        description: "AWS account to provision in the new software project. It will be used to deploy the infrastructure resources needed for testing and development, but also to create the non-production and production environments."
+        description: "AWS account to provision in the new software project. It will be used to deploy the infrastructure resources needed for the new software project."
         key: aws_cred_infra
         widget: cy_cred
         widget_config:
@@ -30,7 +30,7 @@ use_cases:
         default: "((aws))"
         required: false
       - name: "Azure Subscription for the new software project"
-        description: "Azure subscription to provision in the new software project. It will be used to deploy the infrastructure resources needed for testing and development, but also to create the non-production and production environments."
+        description: "Azure subscription to provision in the new software project. It will be used to deploy the infrastructure resources needed for the new software project."
         key: azure_cred_infra
         widget: cy_cred
         widget_config:
