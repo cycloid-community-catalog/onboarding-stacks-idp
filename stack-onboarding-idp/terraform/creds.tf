@@ -1,4 +1,6 @@
 resource "cycloid_credential" "aws" {
+  count = var.aws_cred_infra != "" ? 1 : 0
+
   name                   = "AWS"
   description            = "AWS account to use for the software project."
   path                   = "aws"
@@ -13,6 +15,8 @@ resource "cycloid_credential" "aws" {
 }
 
 resource "cycloid_credential" "azure" {
+  count = var.azure_cred_infra != "" ? 1 : 0
+  
   name                   = "Azure"
   description            = "Azure subscription to use for the software project."
   path                   = "azure"
