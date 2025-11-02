@@ -194,7 +194,7 @@ jobs:
               COUNT=0
               while [ $COUNT -lt $MAX_RETRIES ]; do
                 set +e
-                cy credential create custom --name "Admin API Key" --description "Cycloid Admin API Key" --field key="$API_KEY" --org "${CHILD_ORG}"
+                cy credential create custom --name "Admin API Key" --canonical "admin-api-key" --description "Cycloid Admin API Key" --field key="$API_KEY" --org "${CHILD_ORG}"
                 if [ $? -eq 0 ]; then
                   echo "API key created successfully."
                   break
