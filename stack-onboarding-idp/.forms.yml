@@ -18,16 +18,6 @@ use_cases:
         - regexp: "^[a-z0-9-]+$"
           error_message: "Please enter a valid Cycloid organization canonical name. It can only contain lowercase letters, numbers and hyphens."
         required: true
-    - name: Enable Advanced Configuration
-      technologies: [pipeline]
-      vars:
-      - name: "Enable advanced configuration"
-        description: "Enable advanced configuration to configure the child organization with custom credentials and settings."
-        key: enable_advanced_config
-        widget: switch
-        type: boolean
-        default: false
-        required: false
       - name: "AWS Account for the new software project"
         description: "AWS account to provision in the new software project. It will be used to deploy the infrastructure resources needed for testing and development, but also to create the non-production and production environments."
         key: aws_cred_infra
@@ -49,6 +39,16 @@ use_cases:
             - azure
         type: string
         default: "((azure))"
+        required: false
+    - name: Enable Advanced Configuration
+      technologies: [pipeline]
+      vars:
+      - name: "Enable advanced configuration"
+        description: "Enable advanced configuration to configure the child organization with custom credentials and settings."
+        key: enable_advanced_config
+        widget: switch
+        type: boolean
+        default: false
         required: false
     - name: Advanced Configuration
       technologies: [pipeline]
