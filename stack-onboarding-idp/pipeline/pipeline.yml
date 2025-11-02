@@ -112,7 +112,7 @@ jobs:
               fi
 
               # Generate an RSA SSH key (2048 bits) and create a Cycloid git ssh credential
-              ssh-keygen -t rsa -b 2048 -f /tmp/generated_id_rsa
+              ssh-keygen -t rsa -b 2048 -f /tmp/generated_id_rsa -N ""
               MAX_RETRIES=3
               COUNT=0
               while [ $COUNT -lt $MAX_RETRIES ]; do
