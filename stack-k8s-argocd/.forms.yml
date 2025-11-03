@@ -64,7 +64,7 @@ use_cases:
         required: true
 
     - name: Advanced Configuration
-      technologies: [terraform]
+      technologies: [pipeline]
       vars:
       - name: "Enable advanced infrastructure configuration"
         description: "Enable advanced infrastructure configuration to configure the infrastructure with custom credentials and settings."
@@ -73,49 +73,6 @@ use_cases:
         required: true
         type: boolean
         default: false
-
-    - name: VM Specs
-      technologies: [terraform]
-      condition: '$enable_advanced_config == true'
-      vars:        
-      - name: "Create or Select VPC"
-        description: "Whether to create a new VPC or select an existing one."
-        key: res_selector
-        widget: dropdown
-        type: map
-        required: true
-        default: "Create new"
-        values:
-        - {"label": "Create new", "value": "create"}
-        - {"label": "Select from Asset Inventory", "value": "inventory"}
-        - {"label": "Enter manually", "value": "manual"}
-
-    - name: Select from Asset Inventory
-      technologies: [terraform]
-      condition: '$res_selector == "Select from Asset Inventory" && $enable_advanced_config == true'
-      vars:
-      - name: "VPC"
-        description: "VPC where to deploy the resources."
-        key: vpc_id_inventory
-        widget: cy_inventory_resource
-        widget_config:
-          attribute: id
-          filters:
-            type: aws_vpc
-            attributes: 'arn[rlike]="*:${aws_region}:*'
-        type: string
-        required: true
-
-    - name: Enter manually
-      technologies: [terraform]
-      condition: '$res_selector == "Enter manually" && $enable_advanced_config == true'
-      vars:
-      - name: "VPC ID"
-        description: "VPC ID where to deploy the resources. Make sure the VPC is in the same region as the one set previously."
-        key: vpc_id_manual
-        widget: simple_text
-        type: string
-        required: true
 
     - name: Access Configuration
       technologies: [pipeline]

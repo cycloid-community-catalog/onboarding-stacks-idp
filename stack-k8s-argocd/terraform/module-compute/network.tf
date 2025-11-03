@@ -1,27 +1,4 @@
-data "aws_vpc" "selected" {
-  count = var.res_selector == "create" ? 0 : 1
-
-  id = var.res_selector == "inventory" ? var.vpc_id_inventory : var.vpc_id_manual
-}
-
-data "aws_subnets" "selected" {
-  count = var.res_selector == "create" ? 0 : 1
-
-  filter {
-    name   = "vpc-id"
-    values = [data.aws_vpc.selected[0].id]
-  }
-}
-
-data "aws_subnet" "selected" {
-  count = var.res_selector == "create" ? 0 : 1
-
-  id = data.aws_subnets.selected[0].ids[0]
-}
-
 module "vpc" {
-  count = var.res_selector == "create" ? 1 : 0
-
   source  = "terraform-aws-modules/vpc/aws"
   version = "~> 5.19.0"
 

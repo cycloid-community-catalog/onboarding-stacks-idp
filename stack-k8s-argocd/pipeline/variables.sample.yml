@@ -47,6 +47,14 @@ destroy_timer_in_minutes: 10
 
 
 #
+# Advanced Configuration
+#
+
+#. enable_advanced_config (required): false
+#+ Enable advanced infrastructure configuration to configure the infrastructure with custom credentials and settings.
+enable_advanced_config: false
+
+#
 # Default variables
 #
 
