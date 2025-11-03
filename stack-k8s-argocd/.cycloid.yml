@@ -1,0 +1,33 @@
+---
+# Configuration of the Cycloid stack
+version: '4'
+name: 'OpenShift with ArgoCD'
+canonical: stack-k8s-argocd
+author: Cycloid
+description: |
+  Deploys an OpenShift Kubernetes cluster with Core ArgoCD on compute instances using Terraform and Cloud-Init.
+image: |
+  https://cycloid-demo-stacks-logo.s3.eu-west-1.amazonaws.com/git-argocd.png
+keywords:
+  - kubernetes
+  - openshift
+  - kind
+  - argocd
+  - cloud-init
+  - ec2
+technologies:
+- technology: terraform
+  version: 1.8.3
+
+config:
+  default:
+    pipeline:
+      pipeline:
+        path: pipeline/pipeline.yml
+      variables:
+        path: pipeline/variables.sample.yml
+        destination: '($ .config_root $)/pipeline/variables.yml'
+    terraform:
+      main:
+        path: 'terraform/main.tf'
+        destination: '($ .config_root $)/terraform/main.tf'
