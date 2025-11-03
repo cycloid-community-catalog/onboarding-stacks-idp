@@ -40,6 +40,29 @@ use_cases:
         default: 60
         required: true
 
+    - name: Infrastructure Configuration
+      technologies: [terraform]
+      vars:
+      - name: "Instance type"
+        description: "Instance type for the VM."
+        key: vm_instance_type
+        widget: dropdown
+        type: string
+        default: "t3a.small"
+        values_ref: https://cycloid-demo-stackforms-values.s3.eu-west-1.amazonaws.com/aws-ec2-instance-types.json
+        required: true
+      - name: "Disk size"
+        unit: Go
+        description: "Disk size for the VM."
+        key: vm_disk_size
+        widget: slider_range
+        type: integer
+        default: 20
+        values:
+            - 20
+            - 250
+        required: true
+
     - name: Advanced Configuration
       technologies: [terraform]
       vars:
@@ -54,28 +77,7 @@ use_cases:
     - name: VM Specs
       technologies: [terraform]
       condition: '$enable_advanced_config == true'
-      vars:
-      - name: "Instance type"
-        description: "Instance type for the VM."
-        key: vm_instance_type
-        widget: dropdown
-        type: string
-        default: "t3a.small"
-        values_ref: https://cycloid-demo-stackforms-values.s3.eu-west-1.amazonaws.com/aws-ec2-instance-types.json
-        required: true
-
-      - name: "Disk size"
-        unit: Go
-        description: "Disk size for the VM."
-        key: vm_disk_size
-        widget: slider_range
-        type: integer
-        default: 20
-        values:
-            - 20
-            - 250
-        required: true
-        
+      vars:        
       - name: "Create or Select VPC"
         description: "Whether to create a new VPC or select an existing one."
         key: res_selector
