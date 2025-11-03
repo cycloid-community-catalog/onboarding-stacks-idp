@@ -1,6 +1,6 @@
 resource "aws_security_group" "ec2" {
   name        = "${var.cy_org}-${var.cy_project}-${var.cy_env}-${var.cy_component}"
-  vpc_id      = var.res_selector == "create" ? module.vpc[0].vpc_id : data.aws_vpc.selected[0].id
+  vpc_id      = module.vpc.vpc_id
 }
 
 resource "aws_security_group_rule" "egress-all" {
