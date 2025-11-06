@@ -59,6 +59,12 @@ jobs:
                 echo "GH_URL_REPO: $GH_URL_REPO"
                 echo "GH_SSH_URL: $GH_SSH_URL"
 
+                export ENV_INFRA=$(echo $CY_ENV | cut -d- -f1)
+                export GH_MANIFESTS_SSH_URL="git@github.com:cycloid-demo/($ .project $)-${ENV_INFRA}-manifests.git"
+                export GH_MANIFESTS_SSH_KEY="((($ .org $)-($ .project $)-${ENV_INFRA}-manifests-git-ssh.ssh_key))"
+                echo "GH_MANIFESTS_SSH_URL: $GH_MANIFESTS_SSH_URL"
+                echo "GH_MANIFESTS_SSH_KEY: $GH_MANIFESTS_SSH_KEY"
+
                 echo "fetching required stacks..."
                 STACKS="$(cy stack list -o json)"
                 stack_self="$(echo $STACKS | jq -r '.[] | select(.canonical == "($ .stack $)") | .ref')"
@@ -75,6 +81,9 @@ jobs:
                     --stack-ref "$stack_self" --use-case "testenv" \
                     -V "config.application.app_git_url=${GH_SSH_URL}" \
                     -V "config.application.app_git_branch=${GH_BRANCH}" \
+                    -V "config.manifests.manifests_git_url=${GH_MANIFESTS_SSH_URL}" \
+                    -V "config.manifests.manifests_git_branch=${GH_MANIFESTS_BRANCH}" \
+                    -V "config.manifests.manifests_git_ssh_key=${GH_MANIFESTS_SSH_KEY}" \
                     -o yaml
 
                   if [ $? -eq 0 ]; then

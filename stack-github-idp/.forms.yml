@@ -141,40 +141,31 @@ use_cases:
         default: ((($ .project $)-($ .env $)-kubeconfig.kubeconfig))
         required: true
 
-    # - name: manifests
-    #   # technologies: [pipeline, templating]
-    #   technologies: [pipeline]
-    #   vars:
-    #   - name: "Manifests Git Repository URL"
-    #     description: "The Manifests Git Repository to send the manifests to."
-    #     key: manifests_git_url
-    #     widget: cy_inventory_resource
-    #     widget_config:
-    #       attribute: ssh_clone_url
-    #       filters:
-    #         type: github_repository
-    #         project: ($ .project $)
-    #     required: true
-    #     default: "($ .org $)-($ .project $)-manifests-git-ssh.ssh_url"
-    #     type: string
-    #   - name: "Manifests Git Repository Branch"
-    #     description: "The Manifests Git Repository Branch to send the manifests to."
-    #     key: manifests_git_branch
-    #     widget: auto_complete
-    #     type: string
-    #     values: ["main", "master"]
-    #     default: "main"
-    #     required: true
-      # - name: "Manifests Git Repository SSH Key"
-      #   description: "The Manifests Git Repository SSH Key to access the git repository."
-      #   key: manifests_git_ssh_key
-      #   widget: cy_cred
-      #   widget_config:
-      #     display_keys: true
-      #     cred_types:
-      #       - ssh
-      #   type: string
-      #   default: "((($ .org $)-($ .project $)-manifests-git-ssh.ssh_key))"
+    - name: manifests
+      # technologies: [pipeline, templating]
+      technologies: [pipeline]
+      vars:
+      - name: "Manifests Git Repository URL"
+        description: "The Manifests Git Repository to send the manifests to."
+        key: manifests_git_url
+        widget: simple_text
+        required: true
+        default: "git@github.com:cycloid-demo/($ .project $)-($ .env $)-manifests.git"
+        type: string
+      - name: "Manifests Git Repository Branch"
+        description: "The Manifests Git Repository Branch to send the manifests to."
+        key: manifests_git_branch
+        widget: auto_complete
+        type: string
+        values: ["main", "master"]
+        default: "main"
+        required: true
+      - name: "Manifests Git Repository SSH Key"
+        description: "The Manifests Git Repository SSH Key to access the git repository."
+        key: manifests_git_ssh_key
+        widget: simple_text
+        type: string
+        default: "((($ .project $)-($ .env $)-manifests-git-ssh.ssh_key))"
 
     - name: dockerhub
       # technologies: [pipeline, templating]
