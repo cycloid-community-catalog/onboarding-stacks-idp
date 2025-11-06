@@ -60,9 +60,11 @@ jobs:
                 echo "GH_SSH_URL: $GH_SSH_URL"
 
                 export ENV_INFRA=$(echo $CY_ENV | cut -d- -f1) # infrastructure environment maps to all applications environments starting with the same prefix
-                export GH_MANIFESTS_SSH_URL="git@github.com:cycloid-demo/infrastructure-${ENV_INFRA}-manifests.git"
+                export GH_MANIFESTS_SSH_URL="git@github.com:cycloid-demo/${CY_ORG}-infrastructure-${ENV_INFRA}-manifests.git"
+                export GH_MANIFESTS_BRANCH="main"
                 export GH_MANIFESTS_SSH_KEY="((infrastructure-${ENV_INFRA}-manifests-git-ssh.ssh_key))"
                 echo "GH_MANIFESTS_SSH_URL: $GH_MANIFESTS_SSH_URL"
+                echo "GH_MANIFESTS_BRANCH: $GH_MANIFESTS_BRANCH"
                 echo "GH_MANIFESTS_SSH_KEY: $GH_MANIFESTS_SSH_KEY"
 
                 echo "fetching required stacks..."
