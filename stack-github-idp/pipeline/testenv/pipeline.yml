@@ -16,7 +16,7 @@ resources:
     repository: ((dockerhub_repository))
     username: ((dockerhub_username))
     password: ((dockerhub_password))
-    tag: ($ .project $)-($ .env $)-($ .component $)
+    tag: ($ .org $)-($ .project $)-($ .env $)-($ .component $)
 
 # The repo with our manifests
 - name: git_manifests
@@ -146,10 +146,10 @@ jobs:
           git config --global user.name "Cycloid Platform"
           git add .
           git diff-index --quiet HEAD || git commit -m "Add ($ .project $)-($ .env $)-($ .component $) manifests"
-          
-          argocd app get test --hard-refresh
+          # argocd app get ${ORG}-${PROJECT}-${ENV}-${COMPONENT} --hard-refresh
       params:
         KUBECONFIG_CONTENT: ((kubeconfig_content))
+        ORG: ($ .org $)
         PROJECT: ($ .project $)
         ENV: ($ .env $)
         COMPONENT: ($ .component $)
