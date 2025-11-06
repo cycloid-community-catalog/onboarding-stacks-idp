@@ -32,6 +32,20 @@ resource "cycloid_credential" "azure" {
   }
 }
 
+resource "cycloid_credential" "dockerhub" {
+  name                   = "DockerHub"
+  description            = "DockerHub credentials to access the application image registry."
+  path                   = "dockerhub"
+  canonical              = "dockerhub"
+  organization_canonical = var.cy_child_org_canonical
+
+  type = "basic_auth"
+  body = {
+    username = var.dockerhub_cred.username
+    password = var.dockerhub_cred.password
+  }
+}
+
 resource "cycloid_credential" "github-pat" {
   name                   = "GitHub PAT"
   description            = "GitHub Personal Access Token allowing to scaffold the application git repository. The token must be in the format of 'ghp_<token>', stored in the password field and be created with the 'repo' scope."

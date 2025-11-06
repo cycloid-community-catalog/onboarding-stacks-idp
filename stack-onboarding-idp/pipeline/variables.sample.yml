@@ -19,6 +19,15 @@ aws_cred_infra: ""
 azure_cred_infra: ""
 
 #
+# Docker Hub credentials
+#
+
+#. dockerhub_cred (required): ""
+#+ Docker Hub credentials containing username and password to access the application image registry. See value format [here](https://docs.cycloid.io/advanced-guide/integrate-and-use-cycloid-credentials-manager.html#vault-in-the-pipeline)
+dockerhub_cred: "((dockerhub))" 
+
+
+#
 # GitHub variables
 #
 

@@ -40,6 +40,17 @@ use_cases:
         type: string
         default: "((azure))"
         required: false
+      - name: "Docker Hub credentials for the new software project"
+        description: "Docker Hub credentials to access the application image registry."
+        key: dockerhub_cred
+        widget: cy_cred
+        widget_config:
+          display_keys: false
+          cred_types:
+            - basic_auth
+        type: string
+        default: "((dockerhub))"
+        required: false
     - name: Enable Advanced Configuration
       technologies: [pipeline]
       vars:

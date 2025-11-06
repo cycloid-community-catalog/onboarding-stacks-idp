@@ -17,6 +17,12 @@ variable "aws_region" {
   default     = "eu-west-1"
 }
 
+# Docker Hub credentials
+variable "dockerhub_cred" {
+  description = "Docker Hub credentials for the new software project."
+  sensitive   = true
+}
+
 # Cloud Provider Credentials
 variable "aws_cred_infra" {
   description = "AWS credentials for Terraform."
