@@ -52,6 +52,11 @@ resource "aws_instance" "ec2" {
     }
   ))
 
+  tags = {
+    Name = "${var.cy_org}-${var.cy_project}-${var.cy_env}-${var.cy_component}"
+    role = "argocd-server"
+  }
+
   lifecycle {
     ignore_changes = [ami]
   }

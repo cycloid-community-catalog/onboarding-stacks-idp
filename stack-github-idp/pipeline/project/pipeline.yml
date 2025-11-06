@@ -16,26 +16,10 @@ resources:
     backend_config:
       address: '($ .api_url $)/inventory?jwt=($ .inventory_jwt $)'
     vars:
-($ if eq .use_case "github" $)
       github_pat: ((github_pat))
-      github_org: ((github_org))
-      github_repo_name: ((github_repo_name))
+      github_organization: ((github_organization))
       github_repo_description: ((github_repo_description))
       github_repo_visibility: ((github_repo_visibility))
-      github_auto_init: ((github_auto_init))
-($ else if eq .use_case "gitlab" $)
-      gitlab_pat: ((gitlab_pat))
-      gitlab_url: ((gitlab_url))
-      gitlab_namespace: ((gitlab_namespace))
-      gitlab_repo_name: ((gitlab_repo_name))
-      gitlab_repo_description: ((gitlab_repo_description))
-      gitlab_repo_visibility: ((gitlab_repo_visibility))
-($ else if eq .use_case "azuredevops" $)
-      azuredevops_pat: ((azuredevops_pat))
-      azuredevops_org: ((azuredevops_org))
-      azuredevops_project: ((azuredevops_project))
-      azuredevops_repo_name: ((azuredevops_repo_name))
-($ end $)
       cy_api_key: ((cy_api_key))
       cy_api_url: ($ .api_url $)
       cy_org: ($ .org $)
@@ -59,7 +43,7 @@ resources:
     private_key: ((($ .scs_cred_path $).ssh_key))
     ($- end $)
     paths:
-      - ($ .stack_path $)/terraform/($ .use_case $)/*
+      - ($ .stack_path $)/terraform/*
 
 # The Terraform config (will be merged with the stack)
 - name: git_config-terraform
@@ -76,20 +60,20 @@ resources:
     private_key: ((($ .cr_cred_path $).ssh_key))
     ($- end $)
     paths:
-      - ($ .config_root $)/terraform/($ .use_case $)/*
+      - ($ .config_root $)/terraform/*
 
 groups:
 - name: overview
   jobs:
-    - create-git-repo
+    - project-init
 
 - name: destroy
   jobs:
-    - destroy-git-repo
+    - project-destroy
 
 
 jobs:
-  - name: create-git-repo
+  - name: project-init
     serial: true
     max_in_flight: 1
     build_logs_to_retain: 10
@@ -120,8 +104,8 @@ jobs:
           - name: merged-stack
             path: "merged-stack"
         params:
-          CONFIG_PATH: ($ .config_root $)/terraform/($ .use_case $)
-          STACK_PATH: ($ .stack_path $)/terraform/($ .use_case $)
+          CONFIG_PATH: ($ .config_root $)/terraform
+          STACK_PATH: ($ .stack_path $)/terraform
 
       - put: tfstate
         params:
@@ -185,9 +169,60 @@ jobs:
           GIT_DEST_KEY: ((git_dest_key))
           PROJECT: ($ .project $)
 
+      - task: create-pr-monitor
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source:
+              repository: cycloid/cycloid-toolkit
+              tag: latest
+          run:
+            path: bash
+            args:
+              - "-ec"
+              - |
+                echo "fetching required stacks..."
+                STACKS="$(cy stack list -o json)"
+                stack_self="$(echo "$STACKS" | jq -r '.[] | select(.canonical == "($ .stack $)") | .ref')"
+                echo "stack: $stack_self"
+
+                echo "  Create PR Monitor Component"
+                MAX_RETRIES=30
+                COUNT=0
+                while [ $COUNT -lt $MAX_RETRIES ]; do
+                  set +e
+                  cy component create --update \
+                    --project "$CY_PROJECT" --env "${CY_ENV}" \
+                    --component "pr-monitor" \
+                    --name "PR Monitor" \
+                    --stack-ref "$stack_self" --use-case "pr-monitor" \
+                    -V "config.github.pat='((github_pat))'" \
+                    -V "config.github.organization='((github_organization))'" \
+                    -o yaml
+
+                  if [ $? -eq 0 ]; then
+                    echo "Component created successfully."
+                    break
+                  fi
+
+                  COUNT=$((COUNT + 1))
+                  echo "Attempt $COUNT failed... retrying"
+
+                  sleep 1
+                done
+
+          params:
+            CY_API_KEY: ((cy_api_key))
+            CY_API_URL: ($ .api_url $)
+            CY_ORG: ($ .org $)
+            CY_PROJECT: ($ .project $)
+            CY_ENV: ($ .env $)
+
+
 
   # Destroy the infrastructure
-  - name: destroy-git-repo
+  - name: project-destroy
     max_in_flight: 1
     build_logs_to_retain: 10
     plan:
@@ -218,8 +253,8 @@ jobs:
           - name: merged-stack
             path: "merged-stack"
         params:
-          CONFIG_PATH: ($ .config_root $)/terraform/($ .use_case $)
-          STACK_PATH: ($ .stack_path $)/terraform/($ .use_case $)
+          CONFIG_PATH: ($ .config_root $)/terraform
+          STACK_PATH: ($ .stack_path $)/terraform
 
       - put: tfstate
         params:
