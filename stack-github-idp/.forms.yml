@@ -132,13 +132,9 @@ use_cases:
       - name: "Kubeconfig"
         description: "The Kubeconfig to access your Kubernetes Cluster."
         key: kubeconfig_content
-        widget: cy_cred
-        widget_config:
-          display_keys: true
-          cred_types:
-            - custom
+        widget: simple_text
         type: string
-        default: ((($ .project $)-($ .env $)-kubeconfig.kubeconfig))
+        default: ((infrastructure-($ .env $)-kubeconfig.kubeconfig))
         required: true
 
     - name: manifests

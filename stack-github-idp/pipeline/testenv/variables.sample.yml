@@ -65,7 +65,7 @@ app_replicas: 3
 
 #. kubeconfig_content (required): ''
 #+ Kubeconfig content from Cycloid vault.
-kubeconfig_content: "((($ .project $)-($ .env $)-kubeconfig.kubeconfig))"
+kubeconfig_content: "((infrastructure-($ .env $)-kubeconfig.kubeconfig))"
 
 #
 # Default variables
