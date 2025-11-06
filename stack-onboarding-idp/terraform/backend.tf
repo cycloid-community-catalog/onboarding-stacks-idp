@@ -23,10 +23,6 @@ resource "aws_iam_user" "child_org" {
     Name = "${var.cy_child_org_canonical}"
     role = "user"
   }
-
-  depends_on = [
-    cycloid_credential.s3-cycloid
-  ]
 }
 
 resource "aws_iam_user_login_profile" "child_org" {
