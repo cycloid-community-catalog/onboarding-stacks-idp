@@ -146,6 +146,8 @@ jobs:
           git config --global user.name "Cycloid Platform"
           git add .
           git diff-index --quiet HEAD || git commit -m "Add ($ .project $)-($ .env $)-($ .component $) manifests"
+          
+          argocd app get test --hard-refresh
       params:
         KUBECONFIG_CONTENT: ((kubeconfig_content))
         PROJECT: ($ .project $)
