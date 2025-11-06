@@ -23,6 +23,10 @@ resource "aws_iam_user" "child_org" {
     Name = "${var.cy_child_org_canonical}"
     role = "user"
   }
+
+  depends_on = [
+    cycloid_credential.s3-cycloid
+  ]
 }
 
 resource "aws_iam_user_login_profile" "child_org" {
@@ -88,10 +92,6 @@ resource "cycloid_credential" "s3-cycloid" {
   body = {
     access_key = aws_iam_access_key.child_org.id
     secret_key = aws_iam_access_key.child_org.secret
-  }
-
-  lifecycle {
-    prevent_destroy = true
   }
 }
 
