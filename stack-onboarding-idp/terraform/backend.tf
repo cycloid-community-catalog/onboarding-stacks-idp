@@ -89,12 +89,15 @@ resource "cycloid_credential" "s3-cycloid" {
     access_key = aws_iam_access_key.child_org.id
     secret_key = aws_iam_access_key.child_org.secret
   }
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 resource "time_sleep" "wait_30_seconds" {
   depends_on = [
     aws_iam_access_key.child_org,
-    cycloid_credential.s3-cycloid,
     module.s3_bucket
   ]
 
