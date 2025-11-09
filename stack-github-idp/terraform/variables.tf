@@ -37,3 +37,15 @@ variable "cy_api_key" {
   description = "Org JWT used for authentication"
   sensitive   = true
 }
+
+variable "dockerhub_username" {
+  type        = string
+  description = "DockerHub username"
+  sensitive   = true
+}
+
+variable "dockerhub_token" {
+  type        = string
+  description = "DockerHub token"
+  sensitive   = true
+}

@@ -23,7 +23,7 @@ use_cases:
         - {label: "Web app using Next.js and Prisma Client", value: "nextjs"}
         - {label: "Fullstack app with Nuxt using Vue and Prisma Client", value: "nuxt"}
         - {label: "Web app using React Router 7 and Prisma ORM", value: "react-router-7"}
-        - {label: "Simple NodeJS WebApp", value: "simple-counter"}
+        - {label: "NodeJS WebApp", value: "simple-counter"}
         default: "Simple NodeJS WebApp"
       - name: "Repository Description"
         description: "Description for the GitHub repository"

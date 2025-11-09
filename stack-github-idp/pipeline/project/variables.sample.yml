@@ -20,6 +20,19 @@ github_repo_visibility: "private"
 
 
 #
+# Docker Hub
+#
+
+#. dockerhub_username (required): ''
+#+ The username to access the registry.
+dockerhub_username: "((dockerhub.username))"
+
+#. dockerhub_token (required): ''
+#+ The token to access the registry.
+dockerhub_token: "((dockerhub.password))"
+
+
+#
 # Application Templates Source
 #
 
