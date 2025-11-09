@@ -24,7 +24,8 @@ use_cases:
         - {label: "Fullstack app with Nuxt using Vue and Prisma Client", value: "nuxt"}
         - {label: "Web app using React Router 7 and Prisma ORM", value: "react-router-7"}
         - {label: "NodeJS WebApp", value: "simple-counter"}
-        default: "Simple NodeJS WebApp"
+        - {label: "Java Spring Boot WebApp", value: "java-spring-boot"}
+        default: "NodeJS WebApp"
       - name: "Repository Description"
         description: "Description for the GitHub repository"
         key: github_repo_description
