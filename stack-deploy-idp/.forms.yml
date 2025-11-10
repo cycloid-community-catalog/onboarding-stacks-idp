@@ -10,12 +10,12 @@ use_cases:
       technologies: [pipeline]
       vars:
       - name: "Application Image Tag"
-        description: "The DockerHub image tag to use for the container image."
-        key: dockerhub_image_tag
+        description: "The application release tag to use for the container image."
+        key: app_image_tag
         widget: simple_text
         required: true
         type: string
-        default: "($ .component $)"
+        default: "1.0.0"
       # - name: "DockerHub Repository"
       #   description: "The DockerHub repository to store your application images."
       #   key: dockerhub_repository

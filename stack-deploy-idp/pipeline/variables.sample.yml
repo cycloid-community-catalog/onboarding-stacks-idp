@@ -14,9 +14,15 @@ dockerhub_username: "((dockerhub.username))"
 #+ The password to access the registry.
 dockerhub_password: "((dockerhub.password))"
 
-#. dockerhub_image_tag (required): '1.0.0'
+
+#
+# Application Image Tag
+#
+
+#. app_image_tag (required): '($ .component $)'
 #+ The tag to use for the container image.
-dockerhub_image_tag: "1.0.0"
+app_image_tag: "1.0.0"
+
 
 #
 # Manifests
