@@ -17,7 +17,7 @@ This stack renders Kubernetes manifests for an application and publishes them to
 
 ## Configurable Inputs
 Populate `pipeline/variables.sample.yml` (or configure via Cycloid forms) with the following keys:
-- **DockerHub**: `dockerhub_repository`, `dockerhub_username`, `dockerhub_password`, `dockerhub_image_tag`.
+- **DockerHub**: `dockerhub_repository`, `dockerhub_username`, `dockerhub_password`, `app_image_tag`.
 - **Manifests Git**: `manifests_git_url`, `manifests_git_branch`, `manifests_git_ssh_key`.
 - **Application**: `app_replicas`.
 - **Kubernetes**: `kubeconfig_content`.

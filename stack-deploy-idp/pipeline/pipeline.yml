@@ -113,7 +113,7 @@ jobs:
         ENV: ($ .env $)
         COMPONENT: ($ .component $)
         DH_REPO: ((dockerhub_repository))
-        DH_IMAGE_TAG: ((dockerhub_image_tag))
+        DH_IMAGE_TAG: "($ .org $)-($ .project $)-((app_image_tag))"
         APP_REPLICAS: ((app_replicas))
   - put: git_manifests
     params:
