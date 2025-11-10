@@ -164,12 +164,8 @@ jobs:
           - name: tfstate
             path: "tfstate"
         params:
-          USE_CASE: ($ .use_case $)
           GIT_SOURCE_URL: ((git_source_url))
           GIT_SOURCE_PATH: ((git_source_path))
-          GIT_DEST_URL: ((git_dest_url))
-          GIT_DEST_KEY: ((git_dest_key))
-          PROJECT: ($ .project $)
 
       - task: create-pr-monitor
         config:

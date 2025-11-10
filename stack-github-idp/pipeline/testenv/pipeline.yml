@@ -16,7 +16,7 @@ resources:
     repository: ((dockerhub_repository))
     username: ((dockerhub_username))
     password: ((dockerhub_password))
-    tag: ($ .org $)-($ .project $)-($ .env $)-($ .component $)
+    tag: ((dockerhub_image_tag))
 
 # The repo with our manifests
 - name: git_manifests

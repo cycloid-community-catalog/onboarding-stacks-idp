@@ -33,72 +33,72 @@ use_cases:
         type: string
         default: "Scaffolded project for ($ .project $) in ($ .env $) environment"
         required: false
-      - name: "Repository Visibility"
-        description: "Visibility level of the GitHub repository"
-        key: github_repo_visibility
-        widget: dropdown
-        type: map
-        required: true
-        default: "Private"
-        values:
-        - {label: "Private", value: "private"}
-        - {label: "Public", value: "public"}
+      # - name: "Repository Visibility"
+      #   description: "Visibility level of the GitHub repository"
+      #   key: github_repo_visibility
+      #   widget: dropdown
+      #   type: map
+      #   required: true
+      #   default: "Private"
+      #   values:
+      #   - {label: "Private", value: "private"}
+      #   - {label: "Public", value: "public"}
 
-    - name: GitHub Access
-      technologies: [pipeline]
-      vars:
-      - name: "GitHub Personal Access Token"
-        description: "GitHub Personal Access Token with repo scope to manage repositories and SSH keys."
-        key: github_pat
-        widget: cy_cred
-        widget_config:
-          display_keys: true
-          cred_types:
-            - custom
-        type: string
-        default: "((github-pat.token))"
-        required: true
-      - name: "GitHub Organization"
-        description: "This is the organization that will be used to create the repository."
-        key: github_organization
-        widget: simple_text
-        type: string
-        default: "cycloid-demo"
-        required: true
+    # - name: GitHub Access
+    #   technologies: [pipeline]
+    #   vars:
+    #   - name: "GitHub Personal Access Token"
+    #     description: "GitHub Personal Access Token with repo scope to manage repositories and SSH keys."
+    #     key: github_pat
+    #     widget: cy_cred
+    #     widget_config:
+    #       display_keys: true
+    #       cred_types:
+    #         - custom
+    #     type: string
+    #     default: "((github-pat.token))"
+    #     required: true
+    #   - name: "GitHub Organization"
+    #     description: "This is the organization that will be used to create the repository."
+    #     key: github_organization
+    #     widget: simple_text
+    #     type: string
+    #     default: "cycloid-demo"
+    #     required: true
 
-    - name: dockerhub
-      # technologies: [pipeline, templating]
-      technologies: [pipeline]
-      vars:
-      - name: "DockerHub Repository"
-        description: "The DockerHub repository to store your application images."
-        key: dockerhub_repository
-        widget: simple_text
-        required: true
-        type: string
-        default: "olivier2t/app-test-env"
-      - name: "DockerHub Username"
-        description: "The DockerHub username to access the registry."
-        key: dockerhub_username
-        widget: cy_cred
-        widget_config:
-          display_keys: true
-          cred_types:
-            - basic_auth
-        required: true
-        type: string
-        default: "((dockerhub.username))"
-      - name: "DockerHub Password"
-        description: "The DockerHub password to access the registry."
-        key: dockerhub_password
-        widget: cy_cred
-        widget_config:
-          display_keys: true
-          cred_types:
-            - basic_auth
-        required: true
-        type: string
-        default: "((dockerhub.password))"
+    # - name: dockerhub
+    #   # technologies: [pipeline, templating]
+    #   technologies: [pipeline]
+    #   vars:
+    #   - name: "DockerHub Repository"
+    #     description: "The DockerHub repository to store your application images."
+    #     key: dockerhub_repository
+    #     widget: simple_text
+    #     required: true
+    #     type: string
+    #     default: "olivier2t/app-test-env"
+    #   - name: "DockerHub Username"
+    #     description: "The DockerHub username to access the registry."
+    #     key: dockerhub_username
+    #     widget: cy_cred
+    #     widget_config:
+    #       display_keys: true
+    #       cred_types:
+    #         - basic_auth
+    #     required: true
+    #     type: string
+    #     default: "((dockerhub.username))"
+    #   - name: "DockerHub Password"
+    #     description: "The DockerHub password to access the registry."
+    #     key: dockerhub_password
+    #     widget: cy_cred
+    #     widget_config:
+    #       display_keys: true
+    #       cred_types:
+    #         - basic_auth
+    #     required: true
+    #     type: string
+    #     default: "((dockerhub.password))"
 
 - name: pr-monitor
   sections:
@@ -127,106 +127,106 @@ use_cases:
         required: true
 
 
-- name: testenv
-  sections:
-  - name: config
-    groups:
-    - name: application
-      technologies: [pipeline]
-      vars:
-      - name: "Application Git URL"
-        description: "Git URL where the application is stored."
-        key: app_git_url
-        widget: simple_text
-        required: true
-        type: string
-      - name: "Application Git Branch or Tag"
-        description: "Git branch or tag where the application is stored."
-        key: app_git_branch
-        widget: auto_complete
-        type: string
-        values: ["develop", "main", "master", "v1.0.0"]
-        default: "main"
-        required: true
-      # - name: "SSH Key"
-      #   description: "The SSH private key to access the git repository."
-      #   key: app_git_ssh_key
-      #   widget: cy_cred
-      #   widget_config:
-      #     display_keys: true
-      #     cred_types:
-      #       - ssh
-      #   type: string
-      #   default: "((($ .project $)-app-git-ssh.ssh_key))"
-      #   required: true
+# - name: testenv
+#   sections:
+#   - name: config
+#     groups:
+#     - name: application
+#       technologies: [pipeline]
+#       vars:
+#       - name: "Application Git URL"
+#         description: "Git URL where the application is stored."
+#         key: app_git_url
+#         widget: simple_text
+#         required: true
+#         type: string
+#       - name: "Application Git Branch or Tag"
+#         description: "Git branch or tag where the application is stored."
+#         key: app_git_branch
+#         widget: auto_complete
+#         type: string
+#         values: ["develop", "main", "master", "v1.0.0"]
+#         default: "main"
+#         required: true
+#       # - name: "SSH Key"
+#       #   description: "The SSH private key to access the git repository."
+#       #   key: app_git_ssh_key
+#       #   widget: cy_cred
+#       #   widget_config:
+#       #     display_keys: true
+#       #     cred_types:
+#       #       - ssh
+#       #   type: string
+#       #   default: "((($ .project $)-app-git-ssh.ssh_key))"
+#       #   required: true
 
-    - name: kubernetes
-      technologies: [pipeline]
-      vars:
-      - name: "Kubeconfig"
-        description: "The Kubeconfig to access your Kubernetes Cluster."
-        key: kubeconfig_content
-        widget: simple_text
-        type: string
-        default: ((infrastructure-($ .env $)-kubeconfig.kubeconfig))
-        required: true
+#     - name: kubernetes
+#       technologies: [pipeline]
+#       vars:
+#       - name: "Kubeconfig"
+#         description: "The Kubeconfig to access your Kubernetes Cluster."
+#         key: kubeconfig_content
+#         widget: simple_text
+#         type: string
+#         default: ((infrastructure-($ .env $)-kubeconfig.kubeconfig))
+#         required: true
 
-    - name: manifests
-      # technologies: [pipeline, templating]
-      technologies: [pipeline]
-      vars:
-      - name: "Manifests Git Repository URL"
-        description: "The Manifests Git Repository to send the manifests to."
-        key: manifests_git_url
-        widget: simple_text
-        required: true
-        default: "git@github.com:cycloid-demo/($ .project $)-($ .env $)-manifests.git"
-        type: string
-      - name: "Manifests Git Repository Branch"
-        description: "The Manifests Git Repository Branch to send the manifests to."
-        key: manifests_git_branch
-        widget: auto_complete
-        type: string
-        values: ["main", "master"]
-        default: "main"
-        required: true
-      - name: "Manifests Git Repository SSH Key"
-        description: "The Manifests Git Repository SSH Key to access the git repository."
-        key: manifests_git_ssh_key
-        widget: simple_text
-        type: string
-        default: "((($ .project $)-($ .env $)-manifests-git-ssh.ssh_key))"
+#     - name: manifests
+#       # technologies: [pipeline, templating]
+#       technologies: [pipeline]
+#       vars:
+#       - name: "Manifests Git Repository URL"
+#         description: "The Manifests Git Repository to send the manifests to."
+#         key: manifests_git_url
+#         widget: simple_text
+#         required: true
+#         default: "git@github.com:cycloid-demo/($ .project $)-($ .env $)-manifests.git"
+#         type: string
+#       - name: "Manifests Git Repository Branch"
+#         description: "The Manifests Git Repository Branch to send the manifests to."
+#         key: manifests_git_branch
+#         widget: auto_complete
+#         type: string
+#         values: ["main", "master"]
+#         default: "main"
+#         required: true
+#       - name: "Manifests Git Repository SSH Key"
+#         description: "The Manifests Git Repository SSH Key to access the git repository."
+#         key: manifests_git_ssh_key
+#         widget: simple_text
+#         type: string
+#         default: "((($ .project $)-($ .env $)-manifests-git-ssh.ssh_key))"
 
-    - name: dockerhub
-      # technologies: [pipeline, templating]
-      technologies: [pipeline]
-      vars:
-      - name: "DockerHub Repository"
-        description: "The DockerHub repository to store your application images."
-        key: dockerhub_repository
-        widget: simple_text
-        required: true
-        type: string
-        default: "olivier2t/app-test-env"
-      - name: "DockerHub Username"
-        description: "The DockerHub username to access the registry."
-        key: dockerhub_username
-        widget: cy_cred
-        widget_config:
-          display_keys: true
-          cred_types:
-            - basic_auth
-        required: true
-        type: string
-        default: "((dockerhub.username))"
-      - name: "DockerHub Password"
-        description: "The DockerHub password to access the registry."
-        key: dockerhub_password
-        widget: cy_cred
-        widget_config:
-          display_keys: true
-          cred_types:
-            - basic_auth
-        required: true
-        type: string
-        default: "((dockerhub.password))"
+#     - name: dockerhub
+#       # technologies: [pipeline, templating]
+#       technologies: [pipeline]
+#       vars:
+#       - name: "DockerHub Repository"
+#         description: "The DockerHub repository to store your application images."
+#         key: dockerhub_repository
+#         widget: simple_text
+#         required: true
+#         type: string
+#         default: "olivier2t/app-test-env"
+#       - name: "DockerHub Username"
+#         description: "The DockerHub username to access the registry."
+#         key: dockerhub_username
+#         widget: cy_cred
+#         widget_config:
+#           display_keys: true
+#           cred_types:
+#             - basic_auth
+#         required: true
+#         type: string
+#         default: "((dockerhub.username))"
+#       - name: "DockerHub Password"
+#         description: "The DockerHub password to access the registry."
+#         key: dockerhub_password
+#         widget: cy_cred
+#         widget_config:
+#           display_keys: true
+#           cred_types:
+#             - basic_auth
+#         required: true
+#         type: string
+#         default: "((dockerhub.password))"

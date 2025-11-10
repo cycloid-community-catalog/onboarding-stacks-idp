@@ -48,14 +48,6 @@ git_source_branch: "main"
 #+ The path in the public git repo to copy for the first commit.
 git_source_path: "simple-counter"
 
-#. git_dest_url (required): "git@github.com:cycloid-demo/($ .project $)-($ .env $).git"
-#+ The url of the destination scaffolded git repo.
-git_dest_url: "git@github.com:cycloid-demo/($ .project $)-($ .env $).git"
-
-#. git_dest_key (required): ((($ .project $)-($ .env $)-app-git-ssh.ssh_key))
-#+ The ssh key of the destination scaffolded git repo.
-git_dest_key: ((($ .project $)-($ .env $)-app-git-ssh.ssh_key))
-
 
 #
 # Default variables

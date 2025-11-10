@@ -2,17 +2,21 @@
 # Registry
 #
 
-#. dockerhub_repository (required): ''
+#. dockerhub_repository (required): "olivier2t/app-test-env"
 #+ The repository path to use for the container images.
 dockerhub_repository: "olivier2t/app-test-env"
 
-#. dockerhub_username (required): ''
+#. dockerhub_username (required): "((dockerhub.username))"
 #+ The username to access the registry.
-dockerhub_username: ""
+dockerhub_username: "((dockerhub.username))"
 
-#. dockerhub_password (required): ''
+#. dockerhub_password (required): "((dockerhub.password))"
 #+ The password to access the registry.
-dockerhub_password: ""
+dockerhub_password: "((dockerhub.password))"
+
+#. dockerhub_image_tag (required): "($ .org $)-($ .project $)-($ .env $)-($ .component $)"
+#+ The tag to use for the container image.
+dockerhub_image_tag: "($ .org $)-($ .project $)-($ .env $)-($ .component $)"
 
 
 #
@@ -21,15 +25,15 @@ dockerhub_password: ""
 
 #. app_git_url (required): ''
 #+ Public git URL where the application is stored.
-app_git_url: ""
+# app_git_url: "git@github.com:cycloid-demo/($ .org $)-($ .project $)-app.git"
 
-#. app_git_branch (required): ''
+#. app_git_branch (required): "main"
 #+ Git branch where the application is stored.
-app_git_branch: ""
+# app_git_branch: "main"
 
 #. app_git_ssh_key (required): ''
 #+ The SSH private key to access the git repository.
-app_git_ssh_key: "((($ .project $)-($ .env $)-app-git-ssh.ssh_key))"
+# app_git_ssh_key: "((($ .project $)-($ .env $)-app-git-ssh.ssh_key))"
 
 #
 # Manifests
@@ -37,7 +41,7 @@ app_git_ssh_key: "((($ .project $)-($ .env $)-app-git-ssh.ssh_key))"
 
 #. manifests_git_url (required): ''
 #+ Git repository URL where the manifests are stored.
-manifests_git_url: "git@github.com:cycloid-demo/($ .project $)-($ .env $)-manifests.git"
+manifests_git_url: "git@github.com:cycloid-demo/($ .org $)-($ .project $)-($ .env $)-manifests.git"
 
 #. manifests_git_branch (required): ''
 #+ Git branch where the manifests are stored.
@@ -50,10 +54,6 @@ manifests_git_ssh_key: "((($ .project $)-($ .env $)-manifests-git-ssh.ssh_key))"
 #
 # Application
 #
-
-#. app_env_vars (required): ""
-#+ Other environment variables to provide to your application.
-app_env_vars: ""
 
 #. app_replicas (required): ''
 #+ The number of replicas to deploy in the Kubernetes Cluster.

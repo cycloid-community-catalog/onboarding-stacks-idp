@@ -45,40 +45,16 @@ use_cases:
         required: true
         type: string
         default: "((dockerhub.password))"
-
-    - name: kubernetes
+    - name: "Kubernetes Configuration"
       technologies: [pipeline]
       vars:
-      - name: "Kubeconfig"
-        description: "The Kubeconfig to access your Kubernetes Cluster."
-        key: kubeconfig_content
-        widget: simple_text
-        type: string
-        default: ((infrastructure-($ .env $)-kubeconfig.kubeconfig))
+      - name: "Replicas"
+        description: "The number of replicas to deploy in the Kubernetes Cluster."
+        key: app_replicas
+        widget: slider_range
+        type: integer
+        default: 3
+        values:
+          - 1
+          - 5
         required: true
-
-    - name: manifests
-      # technologies: [pipeline, templating]
-      technologies: [pipeline]
-      vars:
-      - name: "Manifests Git Repository URL"
-        description: "The Manifests Git Repository to send the manifests to."
-        key: manifests_git_url
-        widget: simple_text
-        required: true
-        default: "git@github.com:cycloid-demo/($ .project $)-($ .env $)-manifests.git"
-        type: string
-      - name: "Manifests Git Repository Branch"
-        description: "The Manifests Git Repository Branch to send the manifests to."
-        key: manifests_git_branch
-        widget: auto_complete
-        type: string
-        values: ["main", "master"]
-        default: "main"
-        required: true
-      - name: "Manifests Git Repository SSH Key"
-        description: "The Manifests Git Repository SSH Key to access the git repository."
-        key: manifests_git_ssh_key
-        widget: simple_text
-        type: string
-        default: "((($ .project $)-($ .env $)-manifests-git-ssh.ssh_key))"
