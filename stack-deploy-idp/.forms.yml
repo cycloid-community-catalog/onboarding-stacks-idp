@@ -1,0 +1,84 @@
+---
+version: "2"
+use_cases:
+- name: default
+  sections:
+  - name: config
+    groups:
+    - name: "Application Image"
+      # technologies: [pipeline, templating]
+      technologies: [pipeline]
+      vars:
+      - name: "Application Image Tag"
+        description: "The DockerHub image tag to use for the container image."
+        key: dockerhub_image_tag
+        widget: simple_text
+        required: true
+        type: string
+        default: "1.0.0"
+      - name: "DockerHub Repository"
+        description: "The DockerHub repository to store your application images."
+        key: dockerhub_repository
+        widget: simple_text
+        required: true
+        type: string
+        default: "olivier2t/app-test-env"
+      - name: "DockerHub Username"
+        description: "The DockerHub username to access the registry."
+        key: dockerhub_username
+        widget: cy_cred
+        widget_config:
+          display_keys: true
+          cred_types:
+            - basic_auth
+        required: true
+        type: string
+        default: "((dockerhub.username))"
+      - name: "DockerHub Password"
+        description: "The DockerHub password to access the registry."
+        key: dockerhub_password
+        widget: cy_cred
+        widget_config:
+          display_keys: true
+          cred_types:
+            - basic_auth
+        required: true
+        type: string
+        default: "((dockerhub.password))"
+
+    - name: kubernetes
+      technologies: [pipeline]
+      vars:
+      - name: "Kubeconfig"
+        description: "The Kubeconfig to access your Kubernetes Cluster."
+        key: kubeconfig_content
+        widget: simple_text
+        type: string
+        default: ((infrastructure-($ .env $)-kubeconfig.kubeconfig))
+        required: true
+
+    - name: manifests
+      # technologies: [pipeline, templating]
+      technologies: [pipeline]
+      vars:
+      - name: "Manifests Git Repository URL"
+        description: "The Manifests Git Repository to send the manifests to."
+        key: manifests_git_url
+        widget: simple_text
+        required: true
+        default: "git@github.com:cycloid-demo/($ .project $)-($ .env $)-manifests.git"
+        type: string
+      - name: "Manifests Git Repository Branch"
+        description: "The Manifests Git Repository Branch to send the manifests to."
+        key: manifests_git_branch
+        widget: auto_complete
+        type: string
+        values: ["main", "master"]
+        default: "main"
+        required: true
+      - name: "Manifests Git Repository SSH Key"
+        description: "The Manifests Git Repository SSH Key to access the git repository."
+        key: manifests_git_ssh_key
+        widget: simple_text
+        type: string
+        default: "((($ .project $)-($ .env $)-manifests-git-ssh.ssh_key))"

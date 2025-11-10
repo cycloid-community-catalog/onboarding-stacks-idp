@@ -1,0 +1,63 @@
+#
+# Registry
+#
+
+#. dockerhub_repository (required): ''
+#+ The repository path to use for the container images.
+dockerhub_repository: "olivier2t/app-test-env"
+
+#. dockerhub_username (required): '((dockerhub.username))'
+#+ The username to access the registry.
+dockerhub_username: "((dockerhub.username))"
+
+#. dockerhub_password (required): '((dockerhub.password))'
+#+ The password to access the registry.
+dockerhub_password: "((dockerhub.password))"
+
+#. dockerhub_image_tag (required): '1.0.0'
+#+ The tag to use for the container image.
+dockerhub_image_tag: "1.0.0"
+
+#
+# Manifests
+#
+
+#. manifests_git_url (required): ''
+#+ Git repository URL where the manifests are stored.
+manifests_git_url: "git@github.com:cycloid-demo/($ .org $)-($ .project $)-($ .env $)-manifests.git"
+
+#. manifests_git_branch (required): ''
+#+ Git branch where the manifests are stored.
+manifests_git_branch: "main"
+
+#. manifests_git_ssh_key (required): ''
+#+ The SSH private key to access the git repository.
+manifests_git_ssh_key: "((($ .project $)-($ .env $)-manifests-git-ssh.ssh_key))"
+
+#
+# Application
+#
+
+#. app_replicas (required): 3
+#+ The number of replicas to deploy in the Kubernetes Cluster.
+app_replicas: 3
+
+#
+# Kubernetes
+#
+
+#. kubeconfig_content (required): ''
+#+ Kubeconfig content from Cycloid vault.
+kubeconfig_content: "((infrastructure-($ .env $)-kubeconfig.kubeconfig))"
+
+#
+# Default variables
+#
+
+#. cy_api_key (required): ((admin-api-key.key))
+#+ API key to grant admin acess to Cycloid API.
+cy_api_key: ((admin-api-key.key))
+
+#. terraform_version (required): '1.8.3'
+#+ terraform version used to execute your code.
+terraform_version: '1.8.3'

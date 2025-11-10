@@ -1,0 +1,27 @@
+---
+# Configuration of the Cycloid stack
+version: '4'
+name: 'Deploy Application Release'
+canonical: stack-deploy-idp
+author: Cycloid
+description: |
+  Deploy an application release to a Kubernetes cluster using ArgoCD manifests.
+image: |
+  https://cycloid-demo-stacks-logo.s3.eu-west-1.amazonaws.com/argocd.svg
+keywords:
+  - 'kubernetes'
+  - 'argocd'
+  - 'application'
+  - 'release'
+technologies:
+- technology: terraform
+  version: 1.8.3
+
+config:
+  default:
+    pipeline:
+      pipeline:
+        path: pipeline/pipeline.yml
+      variables:
+        path: pipeline/variables.sample.yml
+        destination: '($ .config_root $)/pipeline/variables.yml'

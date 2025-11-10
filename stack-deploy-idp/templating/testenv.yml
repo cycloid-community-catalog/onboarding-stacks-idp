@@ -1,0 +1,80 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ${ORG}-${PROJECT}-${ENV}-${COMPONENT}
+---
+# Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ${ORG}-${PROJECT}-${ENV}-${COMPONENT}
+  namespace: ${ORG}-${PROJECT}-${ENV}-${COMPONENT}
+spec:
+  replicas: ${APP_REPLICAS}
+  selector:
+    matchLabels:
+      app: ${ORG}-${PROJECT}-${ENV}-${COMPONENT}
+  template:
+    metadata:
+      labels:
+        app: ${ORG}-${PROJECT}-${ENV}-${COMPONENT}
+    spec:
+      containers:
+        - name: ${ORG}-${PROJECT}-${ENV}-${COMPONENT}
+          image: ${DH_REPO}:${DH_IMAGE_TAG}
+          ports:
+            - containerPort: 8080
+          imagePullPolicy: Always
+---
+# Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: ${ORG}-${PROJECT}-${ENV}-${COMPONENT}
+  namespace: ${ORG}-${PROJECT}-${ENV}-${COMPONENT}
+spec:
+  selector:
+    app: ${ORG}-${PROJECT}-${ENV}-${COMPONENT}
+  ports:
+    - port: 80
+      targetPort: 8080
+---
+# Ingress
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ${ORG}-${PROJECT}-${ENV}-${COMPONENT}
+  namespace: ${ORG}-${PROJECT}-${ENV}-${COMPONENT}
+  annotations:
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: ${ORG}-${PROJECT}-${ENV}-${COMPONENT}.${K8S_EXTERNAL_IP}.nip.io
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: ${ORG}-${PROJECT}-${ENV}-${COMPONENT}
+                port:
+                  number: 80
+  tls:
+    - hosts:
+        - ${ORG}-${PROJECT}-${ENV}-${COMPONENT}.${K8S_EXTERNAL_IP}.nip.io
+      secretName: ${ORG}-${PROJECT}-${ENV}-${COMPONENT}-tls
+# ---
+# apiVersion: cert-manager.io/v1
+# kind: Certificate
+# metadata:
+#   name: ${ORG}-${PROJECT}-${ENV}-${COMPONENT}
+#   namespace: ${ORG}-${PROJECT}-${ENV}-${COMPONENT}
+# spec:
+#   secretName: ${ORG}-${PROJECT}-${ENV}-${COMPONENT}-tls
+#   issuerRef:
+#     name: ssl-issuer
+#     kind: ClusterIssuer
+#   dnsNames:
+#     - ${ORG}-${PROJECT}-${ENV}-${COMPONENT}.${K8S_EXTERNAL_IP}.nip.io
