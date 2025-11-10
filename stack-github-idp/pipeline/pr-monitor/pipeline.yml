@@ -79,13 +79,13 @@ jobs:
                     --project "$CY_PROJECT" --env "$CY_ENV" \
                     --component "pr${GH_PR}" \
                     --stack-ref "$stack_self" --use-case "testenv" \
+                    -o yaml
                     # -V "config.application.app_git_url=${GH_SSH_URL}" \
                     # -V "config.application.app_git_branch=${GH_BRANCH}" \
                     # -V "config.manifests.manifests_git_url=${GH_MANIFESTS_SSH_URL}" \
                     # -V "config.manifests.manifests_git_branch=${GH_MANIFESTS_BRANCH}" \
                     # -V "config.manifests.manifests_git_ssh_key=${GH_MANIFESTS_SSH_KEY}" \
                     # -V "config.kubernetes.kubeconfig_content=${KUBECONFIG_CONTENT}" \
-                    -o yaml
 
                   if [ $? -eq 0 ]; then
                     echo "Component created successfully."
