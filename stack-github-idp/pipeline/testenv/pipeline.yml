@@ -167,7 +167,7 @@ jobs:
         ENV: ($ .env $)
         COMPONENT: ($ .component $)
         DH_REPO: ((dockerhub_repository))
-        APP_REPLICAS: 3
+        APP_REPLICAS: ((app_replicas))
         GITHUB_TOKEN: ((github-pat.token))
   - put: git_manifests
     params:

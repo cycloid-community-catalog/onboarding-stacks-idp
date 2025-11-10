@@ -55,7 +55,7 @@ manifests_git_ssh_key: "((infrastructure-($ .env $)-manifests-git-ssh.ssh_key))"
 # Application
 #
 
-#. app_replicas (required): ''
+#. app_replicas (required): 3
 #+ The number of replicas to deploy in the Kubernetes Cluster.
 app_replicas: 3
 
