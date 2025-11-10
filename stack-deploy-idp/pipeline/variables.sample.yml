@@ -24,7 +24,7 @@ dockerhub_image_tag: "1.0.0"
 
 #. manifests_git_url (required): ''
 #+ Git repository URL where the manifests are stored.
-manifests_git_url: "git@github.com:cycloid-demo/($ .org $)-($ .project $)-($ .env $)-manifests.git"
+manifests_git_url: "git@github.com:cycloid-demo/($ .org $)-infrastructure-($ .env $)-manifests.git"
 
 #. manifests_git_branch (required): ''
 #+ Git branch where the manifests are stored.
@@ -32,7 +32,7 @@ manifests_git_branch: "main"
 
 #. manifests_git_ssh_key (required): ''
 #+ The SSH private key to access the git repository.
-manifests_git_ssh_key: "((($ .project $)-($ .env $)-manifests-git-ssh.ssh_key))"
+manifests_git_ssh_key: "((infrastructure-($ .env $)-manifests-git-ssh.ssh_key))"
 
 #
 # Application
