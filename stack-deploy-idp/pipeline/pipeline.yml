@@ -113,9 +113,6 @@ jobs:
         COMPONENT: ($ .component $)
         DH_REPO: ((dockerhub_repository))
         DH_IMAGE_TAG: ((dockerhub_image_tag))
-      GITHUB_TOKEN: ((github_token))
-      GITHUB_REPOSITORY: ((github_repository))
-      GITHUB_PR_NUMBER: ((github_pr_number))
         APP_REPLICAS: ((app_replicas))
   - put: git_manifests
     params:
