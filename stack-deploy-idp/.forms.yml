@@ -16,35 +16,35 @@ use_cases:
         required: true
         type: string
         default: "($ .component $)"
-      - name: "DockerHub Repository"
-        description: "The DockerHub repository to store your application images."
-        key: dockerhub_repository
-        widget: simple_text
-        required: true
-        type: string
-        default: "olivier2t/app-test-env"
-      - name: "DockerHub Username"
-        description: "The DockerHub username to access the registry."
-        key: dockerhub_username
-        widget: cy_cred
-        widget_config:
-          display_keys: true
-          cred_types:
-            - basic_auth
-        required: true
-        type: string
-        default: "((dockerhub.username))"
-      - name: "DockerHub Password"
-        description: "The DockerHub password to access the registry."
-        key: dockerhub_password
-        widget: cy_cred
-        widget_config:
-          display_keys: true
-          cred_types:
-            - basic_auth
-        required: true
-        type: string
-        default: "((dockerhub.password))"
+      # - name: "DockerHub Repository"
+      #   description: "The DockerHub repository to store your application images."
+      #   key: dockerhub_repository
+      #   widget: simple_text
+      #   required: true
+      #   type: string
+      #   default: "olivier2t/app-test-env"
+      # - name: "DockerHub Username"
+      #   description: "The DockerHub username to access the registry."
+      #   key: dockerhub_username
+      #   widget: cy_cred
+      #   widget_config:
+      #     display_keys: true
+      #     cred_types:
+      #       - basic_auth
+      #   required: true
+      #   type: string
+      #   default: "((dockerhub.username))"
+      # - name: "DockerHub Password"
+      #   description: "The DockerHub password to access the registry."
+      #   key: dockerhub_password
+      #   widget: cy_cred
+      #   widget_config:
+      #     display_keys: true
+      #     cred_types:
+      #       - basic_auth
+      #   required: true
+      #   type: string
+      #   default: "((dockerhub.password))"
     - name: "Kubernetes Configuration"
       technologies: [pipeline]
       vars:
