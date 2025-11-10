@@ -23,13 +23,13 @@ github_repo_visibility: "private"
 # Docker Hub
 #
 
-#. dockerhub_username (required): ''
+#. dockerhub_username (required): "((dockerhub.username))"
 #+ The username to access the registry.
 dockerhub_username: "((dockerhub.username))"
 
-#. dockerhub_token (required): ''
-#+ The token to access the registry.
-dockerhub_token: "((dockerhub.password))"
+#. dockerhub_password (required): "((dockerhub.password))"
+#+ The password to access the registry.
+dockerhub_password: "((dockerhub.password))"
 
 
 #

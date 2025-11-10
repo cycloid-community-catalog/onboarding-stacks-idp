@@ -21,7 +21,7 @@ resources:
       github_repo_description: ((github_repo_description))
       github_repo_visibility: ((github_repo_visibility))
       dockerhub_username: ((dockerhub_username))
-      dockerhub_token: ((dockerhub_token))
+      dockerhub_password: ((dockerhub_password))
       cy_api_key: ((cy_api_key))
       cy_api_url: ($ .api_url $)
       cy_org: ($ .org $)

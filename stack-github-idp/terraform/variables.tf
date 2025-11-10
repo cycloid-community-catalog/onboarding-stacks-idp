@@ -44,8 +44,8 @@ variable "dockerhub_username" {
   sensitive   = true
 }
 
-variable "dockerhub_token" {
+variable "dockerhub_password" {
   type        = string
-  description = "DockerHub token"
+  description = "DockerHub password"
   sensitive   = true
 }

@@ -88,9 +88,9 @@ use_cases:
         required: true
         type: string
         default: "((dockerhub.username))"
-      - name: "DockerHub Token"
+      - name: "DockerHub Password"
         description: "The DockerHub password to access the registry."
-        key: dockerhub_token
+        key: dockerhub_password
         widget: cy_cred
         widget_config:
           display_keys: true
@@ -98,7 +98,7 @@ use_cases:
             - basic_auth
         required: true
         type: string
-        default: "((dockerhub.token))"
+        default: "((dockerhub.password))"
 
 - name: pr-monitor
   sections:

@@ -47,8 +47,8 @@ resource "github_actions_secret" "dockerhub_username" {
   plaintext_value  = var.dockerhub_username
 }
 
-resource "github_actions_secret" "dockerhub_token" {
+resource "github_actions_secret" "dockerhub_password" {
   repository       = github_repository.scaffold.name
-  secret_name      = "DOCKERHUB_TOKEN"
-  plaintext_value  = var.dockerhub_token
+  secret_name      = "DOCKERHUB_PASSWORD"
+  plaintext_value  = var.dockerhub_password
 }
