@@ -15,7 +15,7 @@ use_cases:
         widget: simple_text
         required: true
         type: string
-        default: "1.0.0"
+        default: "($ .component $)"
       - name: "DockerHub Repository"
         description: "The DockerHub repository to store your application images."
         key: dockerhub_repository
