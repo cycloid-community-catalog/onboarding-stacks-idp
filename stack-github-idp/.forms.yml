@@ -31,7 +31,7 @@ use_cases:
         key: github_repo_description
         widget: simple_text
         type: string
-        default: "Scaffolded project for ($ .project $) in ($ .env $) environment"
+        default: "Scaffolded software project for ($ .project $)"
         required: false
       # - name: "Repository Visibility"
       #   description: "Visibility level of the GitHub repository"
