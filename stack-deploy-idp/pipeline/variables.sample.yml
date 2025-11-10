@@ -19,7 +19,7 @@ dockerhub_password: "((dockerhub.password))"
 # Application Image Tag
 #
 
-#. app_image_tag (required): '($ .component $)'
+#. app_image_tag (required):  "1.0.0"
 #+ The tag to use for the container image.
 app_image_tag: "1.0.0"
 
