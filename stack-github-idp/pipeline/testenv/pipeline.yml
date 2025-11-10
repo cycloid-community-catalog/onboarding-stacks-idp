@@ -106,13 +106,14 @@ jobs:
   max_in_flight: 1
   build_logs_to_retain: 10
   plan:
-  - get: app_image
-    trigger: true
-    # passed:
-    #   - build-and-push
-  - get: git_stacks
-    trigger: true
-  - get: git_manifests
+  - in_parallel:
+    - get: app_image
+      trigger: true
+      # passed:
+      #   - build-and-push
+    - get: git_stacks
+      trigger: true
+    - get: git_manifests
   - task: manifests
     config:
       platform: linux
@@ -146,7 +147,12 @@ jobs:
           git config --global user.name "Cycloid Platform"
           git add .
           git diff-index --quiet HEAD || git commit -m "Add ($ .project $)-($ .env $)-($ .component $) manifests"
-          # argocd app get ${ORG}-${PROJECT}-${ENV}-${COMPONENT} --hard-refresh
+          GH_PR=$(echo ($ .component $) | sed 's/pr//g')
+          http_status=$(echo "🚀 Environment deployed at http://${ORG}-${PROJECT}-${ENV}-${COMPONENT}.${K8S_EXTERNAL_IP}.nip.io" | curl -s \
+            -H "Authorization: token ${GITHUB_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            -d @- \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/issues/${GH_PR}/comments")
       params:
         KUBECONFIG_CONTENT: ((kubeconfig_content))
         ORG: ($ .org $)
@@ -155,6 +161,7 @@ jobs:
         COMPONENT: ($ .component $)
         DH_REPO: ((dockerhub_repository))
         APP_REPLICAS: 3
+        GITHUB_TOKEN: ((github-pat.token))
   - put: git_manifests
     params:
       repository: git_manifests

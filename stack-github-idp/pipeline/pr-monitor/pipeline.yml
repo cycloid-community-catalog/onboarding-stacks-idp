@@ -99,7 +99,7 @@ jobs:
                 done
 
                 # Construct the github message
-                echo "A dedicated Cycloid env have been created under ($ .console_url $)/organizations/${CY_ORG}/projects/${CY_PROJECT}/environments/${CY_ENV}/components/${CY_COMPONENT}/overview" > pull-request-comment/comment.txt
+                echo "A dedicated Cycloid env have been created under ($ .console_url $)/organizations/${CY_ORG}/projects/${CY_PROJECT}/environments/${CY_ENV}/components/pr${GH_PR}/overview" > pull-request-comment/comment.txt
           outputs:
             - name: pull-request-comment
         params:
@@ -171,7 +171,7 @@ jobs:
                 done
 
                 # Construct the github message
-                echo "PR has been merged. Destroy job for the PR test environment has been triggered under ($ .console_url $)/organizations/${CY_ORG}/projects/${CY_PROJECT}/environments/${CY_ENV}/components/${CY_COMPONENT}/overview" > pull-request-comment/comment.txt
+                echo "PR has been merged. Destroy job for the PR test environment has been triggered under ($ .console_url $)/organizations/${CY_ORG}/projects/${CY_PROJECT}/environments/${CY_ENV}/components/pr${GH_PR}/overview" > pull-request-comment/comment.txt
           outputs:
             - name: pull-request-comment
         params:

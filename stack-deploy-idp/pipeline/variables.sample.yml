@@ -51,6 +51,22 @@ app_replicas: 3
 kubeconfig_content: "((infrastructure-($ .env $)-kubeconfig.kubeconfig))"
 
 #
+# GitHub
+#
+
+#. github_repository (optional): ''
+#+ GitHub repository (owner/repo) containing the pull request to comment on.
+github_repository: ""
+
+#. github_pr_number (optional): ''
+#+ Pull request number to receive the deployment status comment.
+github_pr_number: ""
+
+#. github_token (optional): ''
+#+ GitHub token with permissions to comment on the pull request.
+github_token: ""
+
+#
 # Default variables
 #
 

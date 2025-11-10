@@ -138,6 +138,24 @@ jobs:
           git config --global user.name "Cycloid Platform"
           git add .
           git diff-index --quiet HEAD || git commit -m "Add ($ .project $)-($ .env $)-($ .component $) manifests"
+          if [[ -n "${GITHUB_TOKEN:-}" && -n "${GITHUB_REPOSITORY:-}" && -n "${GITHUB_PR_NUMBER:-}" ]]; then
+            echo "Posting deployment comment to GitHub PR #${GITHUB_PR_NUMBER}..."
+            body_message="Environment ${ORG}-${PROJECT}-${ENV}-${COMPONENT} deployed with image ${DH_REPO}:${DH_IMAGE_TAG}."
+            payload=$(printf '{"body": "%s"}' "${body_message//\"/\\\"}")
+            http_status=$(curl -s -o /tmp/github_comment_response.json -w "%{http_code}" \
+                -H "Authorization: token ${GITHUB_TOKEN}" \
+                -H "Accept: application/vnd.github+json" \
+                -d "${payload}" \
+                "https://api.github.com/repos/${GITHUB_REPOSITORY}/issues/${GITHUB_PR_NUMBER}/comments")
+            if [[ "${http_status}" =~ ^2[0-9]{2}$ ]]; then
+              echo "GitHub comment posted successfully."
+            else
+              echo "Failed to post GitHub comment (HTTP ${http_status}). Response:"
+              cat /tmp/github_comment_response.json
+            fi
+          else
+            echo "Skipping GitHub PR comment; missing GitHub configuration."
+          fi
           # argocd app get ${ORG}-${PROJECT}-${ENV}-${COMPONENT} --hard-refresh
       params:
         KUBECONFIG_CONTENT: ((kubeconfig_content))
@@ -147,6 +165,9 @@ jobs:
         COMPONENT: ($ .component $)
         DH_REPO: ((dockerhub_repository))
         DH_IMAGE_TAG: ((dockerhub_image_tag))
+      GITHUB_TOKEN: ((github_token))
+      GITHUB_REPOSITORY: ((github_repository))
+      GITHUB_PR_NUMBER: ((github_pr_number))
         APP_REPLICAS: ((app_replicas))
   - put: git_manifests
     params:
