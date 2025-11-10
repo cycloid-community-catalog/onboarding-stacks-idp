@@ -71,7 +71,7 @@ jobs:
                 echo "stack: $stack_self"
 
                 echo "  Create Component GitOps Test Environment"
-                MAX_RETRIES=30
+                MAX_RETRIES=3
                 COUNT=0
                 while [ $COUNT -lt $MAX_RETRIES ]; do
                   set +e
@@ -149,7 +149,7 @@ jobs:
                 export GH_PR=$(cat github_pull-request/.git/resource/metadata.json | jq '.[] | select( .name | contains("pr")) | .value' -r)
 
                 echo "  Trigger Deletion of Test Environment"
-                MAX_RETRIES=30
+                MAX_RETRIES=3
                 COUNT=0
                 while [ $COUNT -lt $MAX_RETRIES ]; do
                   set +e
