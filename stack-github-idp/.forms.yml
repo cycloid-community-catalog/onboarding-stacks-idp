@@ -128,6 +128,22 @@ use_cases:
 
 
 - name: testenv
+  sections:
+  - name: config
+    groups:
+    - name: "Kubernetes Configuration"
+      technologies: [pipeline]
+      vars:
+      - name: "Replicas"
+        description: "The number of replicas to deploy in the Kubernetes Cluster."
+        key: app_replicas
+        widget: slider_range
+        type: integer
+        default: 3
+        values:
+          - 1
+          - 5
+        required: true
 #   sections:
 #   - name: config
 #     groups:
