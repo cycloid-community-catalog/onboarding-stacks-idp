@@ -264,7 +264,7 @@ jobs:
                 sleep 1
               done
 
-              for enviter in "OTH" "PPE" "PRD"
+              for enviter in "DEV" "STAGING" "PREPROD" "PRODUCTION"
               do
                 MAX_RETRIES=3
                 COUNT=0
@@ -297,7 +297,7 @@ jobs:
                 sleep 1
               done
 
-              for enviter in "OTH-DEV" "OTH-TST" "PPE" "PRD"
+              for enviter in "DEV" "STAGING" "PREPROD" "PRODUCTION"
               do
                 MAX_RETRIES=3
                 COUNT=0
