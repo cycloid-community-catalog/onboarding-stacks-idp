@@ -2,26 +2,26 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: ${ORG}-${PROJECT}-${ENV}-${COMPONENT}
+  name: ${DH_IMAGE_TAG}
 ---
 # Deployment
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ${ORG}-${PROJECT}-${ENV}-${COMPONENT}
-  namespace: ${ORG}-${PROJECT}-${ENV}-${COMPONENT}
+  name: ${DH_IMAGE_TAG}
+  namespace: ${DH_IMAGE_TAG}
 spec:
   replicas: ${APP_REPLICAS}
   selector:
     matchLabels:
-      app: ${ORG}-${PROJECT}-${ENV}-${COMPONENT}
+      app: ${DH_IMAGE_TAG}
   template:
     metadata:
       labels:
-        app: ${ORG}-${PROJECT}-${ENV}-${COMPONENT}
+        app: ${DH_IMAGE_TAG}
     spec:
       containers:
-        - name: ${ORG}-${PROJECT}-${ENV}-${COMPONENT}
+        - name: ${DH_IMAGE_TAG}
           image: ${DH_REPO}:${DH_IMAGE_TAG}
           ports:
             - containerPort: 8080
@@ -31,11 +31,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: ${ORG}-${PROJECT}-${ENV}-${COMPONENT}
-  namespace: ${ORG}-${PROJECT}-${ENV}-${COMPONENT}
+  name: ${DH_IMAGE_TAG}
+  namespace: ${DH_IMAGE_TAG}
 spec:
   selector:
-    app: ${ORG}-${PROJECT}-${ENV}-${COMPONENT}
+    app: ${DH_IMAGE_TAG}
   ports:
     - port: 80
       targetPort: 8080
@@ -44,37 +44,37 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: ${ORG}-${PROJECT}-${ENV}-${COMPONENT}
-  namespace: ${ORG}-${PROJECT}-${ENV}-${COMPONENT}
+  name: ${DH_IMAGE_TAG}
+  namespace: ${DH_IMAGE_TAG}
   annotations:
     nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
 spec:
   ingressClassName: nginx
   rules:
-    - host: ${ORG}-${PROJECT}-${ENV}-${COMPONENT}.${K8S_EXTERNAL_IP}.nip.io
+    - host: ${DH_IMAGE_TAG}.${K8S_EXTERNAL_IP}.nip.io
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: ${ORG}-${PROJECT}-${ENV}-${COMPONENT}
+                name: ${DH_IMAGE_TAG}
                 port:
                   number: 80
   tls:
     - hosts:
-        - ${ORG}-${PROJECT}-${ENV}-${COMPONENT}.${K8S_EXTERNAL_IP}.nip.io
-      secretName: ${ORG}-${PROJECT}-${ENV}-${COMPONENT}-tls
+        - ${DH_IMAGE_TAG}.${K8S_EXTERNAL_IP}.nip.io
+      secretName: ${DH_IMAGE_TAG}-tls
 # ---
 # apiVersion: cert-manager.io/v1
 # kind: Certificate
 # metadata:
-#   name: ${ORG}-${PROJECT}-${ENV}-${COMPONENT}
-#   namespace: ${ORG}-${PROJECT}-${ENV}-${COMPONENT}
+#   name: ${DH_IMAGE_TAG}
+#   namespace: ${DH_IMAGE_TAG}
 # spec:
-#   secretName: ${ORG}-${PROJECT}-${ENV}-${COMPONENT}-tls
+#   secretName: ${DH_IMAGE_TAG}-tls
 #   issuerRef:
 #     name: ssl-issuer
 #     kind: ClusterIssuer
 #   dnsNames:
-#     - ${ORG}-${PROJECT}-${ENV}-${COMPONENT}.${K8S_EXTERNAL_IP}.nip.io
+#     - ${DH_IMAGE_TAG}.${K8S_EXTERNAL_IP}.nip.io
