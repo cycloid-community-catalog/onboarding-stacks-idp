@@ -56,6 +56,7 @@ resource "cycloid_credential" "github-pat" {
   type = "custom"
   body = {
     raw = {
+      password = var.github_pat
       token = var.github_pat
     }
   }
