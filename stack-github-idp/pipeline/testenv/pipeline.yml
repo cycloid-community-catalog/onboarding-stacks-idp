@@ -149,8 +149,8 @@ jobs:
           git diff-index --quiet HEAD || git commit -m "Add ($ .project $)-($ .env $)-($ .component $) manifests"
           
           echo "Generating GitHub comment..."
-          GH_PR_URL=https://api.github.com/repos/cycloid-demo/${ORG}-${PROJECT}-app/issues/$(echo pr2 | sed 's/pr//g')/comments
-          message="✅ Environment deployed at http://${ORG}-${PROJECT}-${ENV}-${COMPONENT}.${K8S_EXTERNAL_IP}.nip.io"
+          GH_PR_URL=https://api.github.com/repos/cycloid-demo/${ORG}-${PROJECT}-app/issues/$(echo ($ .component $) | sed 's/pr//g')/comments
+          message="✅ Environment deployed at http://${ORG}-${PROJECT}-${ENV}-${COMPONENT}.${K8S_EXTERNAL_IP}.nip.io and ArgoCD at http://argocd.${K8S_EXTERNAL_IP}.nip.io"
           echo $message
           echo "{\"body\": \"$message\"}" | \
           curl -L \
