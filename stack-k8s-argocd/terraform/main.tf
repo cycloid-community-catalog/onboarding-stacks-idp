@@ -12,9 +12,9 @@ module "compute" {
   #+ AWS region where to deploy the resoureces
   aws_region = var.aws_region
 
-  #. vm_instance_type: 't3.micro'
+  #. vm_instance_type: 't3.medium'
   #+ Instance type for the VM
-  vm_instance_type = ""
+  vm_instance_type = "t3.medium"
 
   #. vm_disk_size: 20
   #+ Disk size for the VM (Go)
