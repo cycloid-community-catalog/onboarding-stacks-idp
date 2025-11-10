@@ -66,6 +66,39 @@ use_cases:
         default: "cycloid-demo"
         required: true
 
+    - name: dockerhub
+      # technologies: [pipeline, templating]
+      technologies: [pipeline]
+      vars:
+      - name: "DockerHub Repository"
+        description: "The DockerHub repository to store your application images."
+        key: dockerhub_repository
+        widget: simple_text
+        required: true
+        type: string
+        default: "olivier2t/app-test-env"
+      - name: "DockerHub Username"
+        description: "The DockerHub username to access the registry."
+        key: dockerhub_username
+        widget: cy_cred
+        widget_config:
+          display_keys: true
+          cred_types:
+            - basic_auth
+        required: true
+        type: string
+        default: "((dockerhub.username))"
+      - name: "DockerHub Token"
+        description: "The DockerHub password to access the registry."
+        key: dockerhub_token
+        widget: cy_cred
+        widget_config:
+          display_keys: true
+          cred_types:
+            - basic_auth
+        required: true
+        type: string
+        default: "((dockerhub.token))"
 
 - name: pr-monitor
   sections:
