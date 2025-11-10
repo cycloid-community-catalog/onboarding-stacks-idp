@@ -19,6 +19,7 @@ groups:
   - name: pull-requests
     jobs:
       - create-dedicated-env
+      - delete-dedicated-env
 
 jobs:
   # Create dedicated environment for the pull-request
