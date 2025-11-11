@@ -89,12 +89,12 @@ metadata:
     argocd.argoproj.io/hook: PostSync
     argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
 spec:
-template:
-  spec:
-    restartPolicy: Never
-    containers:
-    - name: kubectl
-      image: bitnami/kubectl:latest
-      command: ["/bin/sh", "-c"]
-      args:
-        - kubectl rollout restart deployment ${ORG}-${PROJECT}-${ENV}-${COMPONENT} -n ${ORG}-${PROJECT}-${ENV}-${COMPONENT}
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: kubectl
+        image: bitnami/kubectl:latest
+        command: ["/bin/sh", "-c"]
+        args:
+          - kubectl rollout restart deployment ${ORG}-${PROJECT}-${ENV}-${COMPONENT} -n ${ORG}-${PROJECT}-${ENV}-${COMPONENT}
