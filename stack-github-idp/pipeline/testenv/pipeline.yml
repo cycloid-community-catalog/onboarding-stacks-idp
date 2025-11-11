@@ -223,6 +223,8 @@ jobs:
           tag: latest
       inputs:
       - name: git_manifests
+      outputs:
+      - name: git_manifests
       run:
         path: /bin/bash
         args:
