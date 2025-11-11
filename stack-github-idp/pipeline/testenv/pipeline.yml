@@ -160,6 +160,9 @@ jobs:
             -H "X-GitHub-Api-Version: 2022-11-28" \
             $GH_PR_URL \
             -d @-
+
+          until argocd login http://argocd.${K8S_EXTERNAL_IP}.nip.io --username admin --password ${ARGOCD_ADMIN_PASSWORD} --grpc-web --insecure; do sleep 5; done
+          argocd app sync app-of-apps --force
       params:
         KUBECONFIG_CONTENT: ((kubeconfig_content))
         ORG: ($ .org $)
@@ -169,6 +172,7 @@ jobs:
         DH_REPO: ((dockerhub_repository))
         APP_REPLICAS: ((app_replicas))
         GITHUB_TOKEN: ((github-pat.token))
+        ARGOCD_ADMIN_PASSWORD: ((infrastructure-($ .env $)-argocd-admin-password.password))
   - put: git_manifests
     params:
       repository: git_manifests
