@@ -19,7 +19,7 @@ groups:
   - name: pull-requests
     jobs:
       - create-dedicated-env
-      - delete-dedicated-env
+      # - delete-dedicated-env
 
 jobs:
   # Create dedicated environment for the pull-request
@@ -119,73 +119,73 @@ jobs:
             integration_tool: checkout
 
   # Delete dedicated environment upon pull-request merge
-  - name: delete-dedicated-env
-    max_in_flight: 1
-    build_logs_to_retain: 20
-    plan:
-      - in_parallel:
-          - get: github_pull-request
-            trigger: false
-            version: every
-            params:
-              integration_tool: merge
+  # - name: delete-dedicated-env
+  #   max_in_flight: 1
+  #   build_logs_to_retain: 20
+  #   plan:
+  #     - in_parallel:
+  #         - get: github_pull-request
+  #           trigger: false
+  #           version: every
+  #           params:
+  #             integration_tool: merge
 
-      - task: check-and-delete
-        config:
-          platform: linux
-          image_resource:
-            type: registry-image
-            source:
-              repository: cycloid/cycloid-toolkit
-              tag: develop
-          inputs:
-            - name: github_pull-request
-          run:
-            path: sh
-            args:
-              - -ec
-              - |
-                # Gather information to delete a testenv
-                export GH_PR=$(cat github_pull-request/.git/resource/metadata.json | jq '.[] | select( .name | contains("pr")) | .value' -r)
+  #     - task: check-and-delete
+  #       config:
+  #         platform: linux
+  #         image_resource:
+  #           type: registry-image
+  #           source:
+  #             repository: cycloid/cycloid-toolkit
+  #             tag: develop
+  #         inputs:
+  #           - name: github_pull-request
+  #         run:
+  #           path: sh
+  #           args:
+  #             - -ec
+  #             - |
+  #               # Gather information to delete a testenv
+  #               export GH_PR=$(cat github_pull-request/.git/resource/metadata.json | jq '.[] | select( .name | contains("pr")) | .value' -r)
 
-                echo "  Trigger Deletion of Test Environment"
-                MAX_RETRIES=3
-                COUNT=0
-                while [ $COUNT -lt $MAX_RETRIES ]; do
-                  set +e
-                  cy pipeline build trigger \
-                    --project "$CY_PROJECT" \
-                    --env "$CY_ENV" \
-                    --component "pr${GH_PR}" \
-                    --job delete
+  #               echo "  Trigger Deletion of Test Environment"
+  #               MAX_RETRIES=3
+  #               COUNT=0
+  #               while [ $COUNT -lt $MAX_RETRIES ]; do
+  #                 set +e
+  #                 cy pipeline build trigger \
+  #                   --project "$CY_PROJECT" \
+  #                   --env "$CY_ENV" \
+  #                   --component "pr${GH_PR}" \
+  #                   --job delete
 
-                  if [ $? -eq 0 ]; then
-                    echo "Destroy job for the PR test environment has been triggered successfully."
-                    break
-                  fi
+  #                 if [ $? -eq 0 ]; then
+  #                   echo "Destroy job for the PR test environment has been triggered successfully."
+  #                   break
+  #                 fi
 
-                  COUNT=$((COUNT + 1))
-                  echo "Attempt $COUNT failed... retrying"
+  #                 COUNT=$((COUNT + 1))
+  #                 echo "Attempt $COUNT failed... retrying"
 
-                  sleep 1
-                done
+  #                 sleep 1
+  #               done
 
-                # Construct the github message
-                echo "PR has been merged. Destroy job for the PR test environment has been triggered under ($ .console_url $)/organizations/${CY_ORG}/projects/${CY_PROJECT}/environments/${CY_ENV}/components/pr${GH_PR}/overview" > pull-request-comment/comment.txt
-          outputs:
-            - name: pull-request-comment
-        params:
-          CY_ORG: ($ .organization $)
-          CY_PROJECT: ($ .project $)
-          CY_ENV: ($ .env $)
-          CY_COMPONENT: ($ .component $)
-          CY_API_KEY: ((cy_api_key))
-          CY_API_URL: ($ .api_url $)
+  #               # Construct the github message
+  #               echo "PR has been merged. Destroy job for the PR test environment has been triggered under ($ .console_url $)/organizations/${CY_ORG}/projects/${CY_PROJECT}/environments/${CY_ENV}/components/pr${GH_PR}/overview" > pull-request-comment/comment.txt
+  #         outputs:
+  #           - name: pull-request-comment
+  #       params:
+  #         CY_ORG: ($ .organization $)
+  #         CY_PROJECT: ($ .project $)
+  #         CY_ENV: ($ .env $)
+  #         CY_COMPONENT: ($ .component $)
+  #         CY_API_KEY: ((cy_api_key))
+  #         CY_API_URL: ($ .api_url $)
 
-        on_success:
-          put: github_pull-request
-          params:
-            path: github_pull-request
-            comment_file: pull-request-comment/comment.txt
-          get_params:
-            integration_tool: merge
+  #       on_success:
+  #         put: github_pull-request
+  #         params:
+  #           path: github_pull-request
+  #           comment_file: pull-request-comment/comment.txt
+  #         get_params:
+  #           integration_tool: merge
