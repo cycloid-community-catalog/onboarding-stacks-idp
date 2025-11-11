@@ -78,23 +78,53 @@ spec:
 #     kind: ClusterIssuer
 #   dnsNames:
 #     - ${ORG}-${PROJECT}-${ENV}-${COMPONENT}.${K8S_EXTERNAL_IP}.nip.io
-# ---
-# # Pull again the latest image
-# apiVersion: batch/v1
-# kind: Job
-# metadata:
-#   name: restart-my-app
-#   namespace: ${ORG}-${PROJECT}-${ENV}-${COMPONENT}
-#   annotations:
-#     argocd.argoproj.io/hook: PostSync
-#     argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
-# spec:
-#   template:
-#     spec:
-#       restartPolicy: Never
-#       containers:
-#       - name: kubectl
-#         image: bitnami/kubectl:latest
-#         command: ["/bin/sh", "-c"]
-#         args:
-#           - kubectl rollout restart deployment ${ORG}-${PROJECT}-${ENV}-${COMPONENT} -n ${ORG}-${PROJECT}-${ENV}-${COMPONENT}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: kubectl-restart
+  namespace: ${ORG}-${PROJECT}-${ENV}-${COMPONENT}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: kubectl-restart
+  namespace: ${ORG}-${PROJECT}-${ENV}-${COMPONENT}
+rules:
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    verbs: ["get", "list", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: kubectl-restart
+  namespace: ${ORG}-${PROJECT}-${ENV}-${COMPONENT}
+subjects:
+  - kind: ServiceAccount
+    name: kubectl-restart
+    namespace: ${ORG}-${PROJECT}-${ENV}-${COMPONENT}
+roleRef:
+  kind: Role
+  name: kubectl-restart
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: restart-${ORG}-${PROJECT}-${ENV}-${COMPONENT}
+  namespace: ${ORG}-${PROJECT}-${ENV}-${COMPONENT}
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+spec:
+  template:
+    spec:
+      serviceAccountName: kubectl-restart
+      restartPolicy: Never
+      containers:
+      - name: kubectl
+        image: bitnami/kubectl:latest
+        command: ["/bin/sh", "-c"]
+        args:
+          - kubectl rollout restart deployment ${ORG}-${PROJECT}-${ENV}-${COMPONENT} -n ${ORG}-${PROJECT}-${ENV}-${COMPONENT}
