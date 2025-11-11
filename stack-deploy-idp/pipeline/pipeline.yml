@@ -144,8 +144,10 @@ jobs:
           echo "Deleting..."
           cd git_manifests
           rm -rf ($ .project $)-($ .env $)/
+          git config --global user.email "noreply@cycloid.io"
+          git config --global user.name "Cycloid Platform"
           git add .
-          git commit -m "Delete ($ .project $)-($ .env $) manifests"
+          git diff-index --quiet HEAD || git commit -m "Delete ($ .project $)-($ .env $) manifests"
   - put: git_manifests
     params:
       repository: git_manifests
