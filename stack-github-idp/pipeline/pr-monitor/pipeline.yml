@@ -143,9 +143,8 @@ jobs:
           run:
             path: sh
             args:
-              - -c
+              - -ec
               - |
-                set +e
                 # Gather information to delete a testenv
                 export GH_PR=$(cat github_pull-request/.git/resource/metadata.json | jq '.[] | select( .name | contains("pr")) | .value' -r)
 
