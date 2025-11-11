@@ -84,8 +84,10 @@ apiVersion: batch/v1
 kind: Job
 metadata:
 name: restart-my-app
+namespace: ${ORG}-${PROJECT}-${ENV}-${COMPONENT}
 annotations:
   argocd.argoproj.io/hook: PostSync
+  argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
 spec:
 template:
   spec:
