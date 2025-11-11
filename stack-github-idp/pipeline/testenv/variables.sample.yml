@@ -14,9 +14,9 @@ dockerhub_username: "((dockerhub.username))"
 #+ The password to access the registry.
 dockerhub_password: "((dockerhub.password))"
 
-#. dockerhub_image_tag (required): "($ .org $)-($ .project $)-($ .env $)-($ .component $)"
+#. dockerhub_image_tag (required): "($ .org $)-($ .project $)-($ .component $)"
 #+ The tag to use for the container image.
-dockerhub_image_tag: "($ .org $)-($ .project $)-($ .env $)-($ .component $)"
+dockerhub_image_tag: "($ .org $)-($ .project $)-($ .component $)"
 
 
 #

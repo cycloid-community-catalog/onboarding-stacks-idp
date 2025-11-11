@@ -22,7 +22,7 @@ spec:
     spec:
       containers:
         - name: ${ORG}-${PROJECT}-${ENV}-${COMPONENT}
-          image: ${DH_REPO}:${ORG}-${PROJECT}-${ENV}-${COMPONENT}
+          image: ${DH_REPO}:${ORG}-${PROJECT}-${COMPONENT}
           ports:
             - containerPort: 8080
           imagePullPolicy: Always
