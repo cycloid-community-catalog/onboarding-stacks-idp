@@ -125,7 +125,7 @@ jobs:
     plan:
       - in_parallel:
           - get: github_pull-request
-            trigger: true
+            trigger: false
             version: every
             params:
               integration_tool: merge
