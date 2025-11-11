@@ -179,7 +179,7 @@ jobs:
           rm -rf ($ .project $)-($ .env $)/
           git config --global user.email "noreply@cycloid.io"
           git config --global user.name "Cycloid Platform"
-          git add .
+          git add -A
           git diff-index --quiet HEAD || git commit -m "Delete ($ .project $)-($ .env $) manifests"
   - put: git_manifests
     params:
