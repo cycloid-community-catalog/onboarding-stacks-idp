@@ -78,3 +78,21 @@ spec:
 #     kind: ClusterIssuer
 #   dnsNames:
 #     - ${ORG}-${PROJECT}-${ENV}-${COMPONENT}.${K8S_EXTERNAL_IP}.nip.io
+---
+# Pull again the latest image
+apiVersion: batch/v1
+kind: Job
+metadata:
+name: restart-my-app
+annotations:
+  argocd.argoproj.io/hook: PostSync
+spec:
+template:
+  spec:
+    restartPolicy: Never
+    containers:
+    - name: kubectl
+      image: bitnami/kubectl:latest
+      command: ["/bin/sh", "-c"]
+      args:
+        - kubectl rollout restart deployment ${ORG}-${PROJECT}-${ENV}-${COMPONENT} -n ${ORG}-${PROJECT}-${ENV}-${COMPONENT}
