@@ -1,17 +1,17 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: ${DH_IMAGE_TAG}
+  name: ${ORG}-${PROJECT}-${ENV}
   namespace: argocd
 spec:
   project: default
   source:
     repoURL: ${ORG}-${PROJECT}-${ENV}-manifests
     targetRevision: main
-    path: ${DH_IMAGE_TAG}
+    path: ${ORG}-${PROJECT}-${ENV}
   destination:
     server: https://kubernetes.default.svc
-    namespace: ${DH_IMAGE_TAG}
+    namespace: ${ORG}-${PROJECT}-${ENV}
   syncPolicy:
     automated:
       prune: true

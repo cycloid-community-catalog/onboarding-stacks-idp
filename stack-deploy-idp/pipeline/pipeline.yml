@@ -105,7 +105,7 @@ jobs:
           git config --global user.name "Cycloid Platform"
           git add .
           git diff-index --quiet HEAD || git commit -m "Add ($ .project $)-($ .env $)-($ .component $) manifests"
-          echo "✅ Environment deployed at http://${DH_IMAGE_TAG}.${K8S_EXTERNAL_IP}.nip.io and ArgoCD at http://argocd.${K8S_EXTERNAL_IP}.nip.io"
+          echo "✅ Environment deployed at http://${ORG}-${PROJECT}-${ENV}.${K8S_EXTERNAL_IP}.nip.io and ArgoCD at http://argocd.${K8S_EXTERNAL_IP}.nip.io"
       params:
         KUBECONFIG_CONTENT: ((kubeconfig_content))
         ORG: ($ .org $)
