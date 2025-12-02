@@ -1,8 +1,8 @@
 ---
 # Configuration of the Cycloid stack
 version: '4'
-name: 'NodeJS App'
-canonical: stack-nodejs-app-demo
+name: 'Deploy NodeJS App Release'
+canonical: stack-deploy-nodejs-idp
 author: Cycloid
 description: |
   Deploy a Node.js application on public and/or private clouds infrastructure using Terraform and Ansible.
