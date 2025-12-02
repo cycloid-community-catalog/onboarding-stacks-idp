@@ -1,0 +1,546 @@
+---
+version: "2"
+use_cases:
+- name: cycloid-common
+  sections:
+  - name: Deployment
+    groups:
+    - name: "Application"
+      technologies: [pipeline]
+      vars:
+      - name: "Application Image Tag"
+        description: "The application release tag to use for the container image."
+        key: app_image_tag
+        widget: simple_text
+        required: true
+        type: string
+        default: "1.0.0"
+    - name: Day-2 Operations
+      technologies: [ansible]
+      vars:
+      - name: "Service to Restart"
+        description: "A single service to restart on a Linux machine. Supported init systems include BSD init, OpenRC, SysV, Solaris SMF, systemd, upstart."
+        key: hosts_service
+        type: string
+        widget: simple_text
+        default: "sshd"
+      - name: "Package to Install"
+        description: "A single package to install or upgrade on a Debian or Ubuntu OS."
+        key: hosts_package
+        type: string
+        widget: simple_text
+        default: "curl"
+      - name: "User to Create"
+        description: "A single user to create."
+        key: hosts_user
+        type: string
+        widget: simple_text
+        default: "cycloid"
+
+- name: aws
+  sections:
+  - name: Deployment
+    groups:
+    - name: "Application"
+    - name: Infrastructure Access Configuration
+      technologies: [pipeline]
+      vars:
+      - name: "AWS Account"
+        description: "The AWS account where to deploy the infrastructure."
+        key: aws_cred
+        widget: cy_cred
+        widget_config:
+          display_keys: false
+          cred_types:
+            - aws
+        type: string
+        default: "((aws))"
+        required: true
+      - name: "AWS Region"
+        description: "AWS region where to deploy the resources."
+        key: aws_region
+        widget: dropdown
+        type: string
+        values_ref: https://cycloid-demo-stackforms-values.s3.eu-west-1.amazonaws.com/aws-regions.json
+        default: eu-west-1
+        required: true
+
+    - name: VM Specs
+      technologies: [terraform]
+      vars:
+      - name: "Instance type"
+        description: "Instance type for the VM."
+        key: vm_instance_type
+        widget: dropdown
+        type: string
+        default: "t3a.small"
+        values_ref: https://cycloid-demo-stackforms-values.s3.eu-west-1.amazonaws.com/aws-instance-types.json
+        required: true
+      - name: "Disk size"
+        unit: Go
+        description: "Disk size for the VM."
+        key: vm_disk_size
+        widget: slider_range
+        type: integer
+        default: 20
+        values:
+            - 20
+            - 250
+        required: true
+
+      - name: "Create or Select VPC"
+        description: "Whether to create a new VPC or select an existing one."
+        key: res_selector
+        widget: dropdown
+        type: map
+        required: true
+        default: "Create new"
+        values:
+        - {"label": "Create new", "value": "create"}
+        - {"label": "Select from Asset Inventory", "value": "inventory"}
+        - {"label": "Enter manually", "value": "manual"}
+
+    - name: Select from Asset Inventory
+      technologies: [terraform]
+      condition: '$res_selector == "Select from Asset Inventory"'
+      vars:
+      - name: "VPC"
+        description: "VPC where to deploy the resources."
+        key: vpc_id_inventory
+        widget: cy_inventory_resource
+        widget_config:
+          attribute: id
+          filters:
+            type: aws_vpc
+            attributes: 'arn[rlike]="*:${aws_region}:*'
+        type: string
+        required: true
+
+    - name: Enter manually
+      technologies: [terraform]
+      condition: '$res_selector == "Enter manually"'
+      vars:
+      - name: "VPC ID"
+        description: "VPC ID where to deploy the resources. Make sure the VPC is in the same region as the one set previously."
+        key: vpc_id_manual
+        widget: simple_text
+        type: string
+        required: true
+
+    - name: Database Integration
+      technologies: [terraform]
+      vars:
+      - name: "Does you application needs a database?"
+        description: "Check this if your application requires a database connection."
+        key: database_enabled
+        widget: switch
+        required: true
+        type: boolean
+        default: false
+
+    - name: Database Specs
+      technologies: [terraform]
+      condition: '$database_enabled == true'
+      vars:
+      - name: "Database Connection String Environment Var Name"
+        description: "Name of the environment variable where the database connection string will be stored for your application. If there is no database to integrate, leave this field blank."
+        key: database_env_var_name
+        widget: simple_text
+        required: false
+        type: string
+        default: "DATABASE_URL"
+      - name: "AWS RDS"
+        description: "Select the AWS RDS instance that your application will connect to. If there is no database to integrate, leave this field blank."
+        key: database_resource
+        widget: cy_inventory_resource
+        widget_config:
+          attribute: endpoint
+          filters:
+            type: aws_db_instance
+            project: ($ .project $)
+            environment: ($ .env $)
+        required: false
+        type: string
+
+
+- name: azure
+  sections:
+  - name: Deployment
+    groups:
+    - name: "Application"
+    - name: "Infrastructure Access Configuration"
+      technologies: [pipeline]
+      vars:
+      - name: "Azure credentials"
+        description: "The azure credential used to deploy the infrastructure. It contains subscription_id, tenant_id, client_id, and client_secret."
+        key: azure_cred
+        widget: cy_cred
+        widget_config:
+          display_keys: false
+          cred_types:
+            - azure
+        type: string
+        default: "((azure))"
+        required: true
+
+    - name: VM Specs
+      technologies: [terraform]
+      vars:
+      - name: "Instance type"
+        description: "Instance size for the worker."
+        key: vm_instance_type
+        widget: dropdown
+        type: string
+        default: "Standard_DS1_v2"
+        values_ref: https://cycloid-demo-stackforms-values.s3.eu-west-1.amazonaws.com/azure-instance-sizes.json
+        required: true
+      - name: "Disk size"
+        unit: Go
+        description: "Disk size for the instance."
+        key: vm_disk_size
+        widget: slider_range
+        type: integer
+        default: 30
+        values:
+            - 30
+            - 250
+        required: true
+      - name: "Azure location"
+        description: "Azure location where to create resources."
+        key: azure_location
+        widget: dropdown
+        values_ref: https://cycloid-demo-stackforms-values.s3.eu-west-1.amazonaws.com/azure-locations.json
+        type: string
+        default: "West Europe"
+        required: true
+      - name: "Create or Select Resource Group"
+        description: "Whether to create a new Resource group or select existing ones."
+        key: res_selector
+        widget: dropdown
+        type: map
+        required: true
+        default: "Create new"
+        values:
+        - {"label": "Create new", "value": "create"}
+        - {"label": "Select from Asset Inventory", "value": "inventory"}
+        - {"label": "Enter manually", "value": "manual"}
+
+    - name: Select from Asset Inventory
+      technologies: [terraform]
+      condition: '$res_selector == "Select from Asset Inventory"'
+      vars:
+      - name: "Existing Resource Group Name"
+        description: "The name of the existing resource group where the resources will be deployed."
+        key: resource_group_name_inventory
+        widget: cy_inventory_resource
+        widget_config:
+          attribute: name
+          filters:
+            type: azurerm_resource_group
+        type: string
+        required: true
+
+    - name: Enter manually
+      technologies: [terraform]
+      condition: '$res_selector == "Enter manually"'
+      vars:
+      - name: "Resource Group Name"
+        description: "The name of the existing resource group where the resources will be deployed."
+        key: resource_group_name_manual
+        widget: simple_text
+        type: string
+        required: true
+
+    - name: Database Integration
+      technologies: [terraform]
+      vars:
+      - name: "Does you application needs a database?"
+        description: "Check this if your application requires a database connection."
+        key: database_enabled
+        widget: switch
+        required: true
+        type: boolean
+        default: false
+
+    - name: Database Specs
+      technologies: [terraform]
+      condition: '$database_enabled == true'
+      vars:
+      - name: "Database Connection String Environment Var Name"
+        description: "Name of the environment variable where the database connection string will be stored for your application. If there is no database to integrate, leave this field blank."
+        key: database_env_var_name
+        widget: simple_text
+        required: false
+        type: string
+        default: "DATABASE_URL"
+      - name: "Azure Managed Database"
+        description: "Select the Azure Managed Database that your application will connect to. If there is no database to integrate, leave this field blank."
+        key: database_resource
+        widget: cy_inventory_resource
+        widget_config:
+          attribute: id
+          filters:
+            type: azurerm_postgresql_server
+            project: ($ .project $)
+            environment: ($ .env $)
+        required: true
+        type: string
+
+
+- name: vmware
+  sections:
+  - name: Deployment
+    groups:
+    - name: "Application"
+    - name: "Infrastructure Access Configuration"
+      technologies: [pipeline]
+      vars:
+      - name: "vSphere Environment"
+        description: "The vSphere environment where to deploy the infrastructure. It contains server, user, password, datacenter, datastore and cluster."
+        key: vsphere_env
+        widget: cy_cred
+        widget_config:
+          display_keys: false
+          cred_types:
+            - vmware
+        type: string
+        default: "((vsphere))"
+
+    - name: Virtual machine specifications
+      technologies: [terraform]
+      vars:
+      - name: "vCPU"
+        unit: vCPU
+        description: "Number of vCPU allocated to the virtual machine."
+        key: vm_cpu
+        widget: slider_range
+        type: integer
+        default: 2
+        values:
+            - 1
+            - 4
+        required: true
+        # CPU amount will be deducted from the team quota
+        quota_config:
+          type: "cpu"
+      - name: "Memory"
+        unit: Mo
+        description: "Memory allocated to the virtual machine."
+        key: vm_memory
+        widget: slider_list
+        type: integer
+        default: 2048
+        values:
+            - 1024
+            - 2048
+            - 4096
+        required: true
+        # Memory amount will be deducted from the team quota
+        quota_config:
+          type: "memory"
+      - name: "Disk"
+        unit: Go
+        description: "Disk size allocated to the virtual machine."
+        key: vm_disk_size
+        widget: slider_range
+        type: integer
+        default: 20
+        values:
+            - 10
+            - 200
+        required: true
+        # Storage amount will be deducted from the team quota
+        quota_config:
+          type: "storage"
+      - name: "Clone from VM or Template Name"
+        description: "Virtual Machine or Template name to clone from. The VM or template must already exist in your VMware datacenter."
+        key: vsphere_template
+        widget: auto_complete
+        type: string
+        values: ["debian","ubuntu","hardened debian"]
+        default: "debian"
+        required: true
+
+
+# - name: outscale
+#   sections:
+#   - name: Deployment
+#     groups:
+#     - name: "Application"
+#     - name: "Infrastructure Access Configuration"
+#       technologies: [pipeline]
+#       vars:
+#       - name: "Outscale Account"
+#         description: "The Outscale account where to deploy the infrastructure."
+#         key: outscale_cred
+#         widget: cy_cred
+#         widget_config:
+#           display_keys: false
+#           cred_types:
+#             - custom
+#         type: string
+#         default: "((outscale))"
+#         required: true
+
+#       - name: "Outscale Region"
+#         description: "The Outscale region where to deploy the infrastructure."
+#         key: outscale_region
+#         widget: auto_complete
+#         type: string
+#         required: true
+#         default: "eu-west-2"
+#         values:
+#         - eu-west-2
+#         - cloudgouv-eu-west-1
+#         - us-east-2
+#         - us-west-1
+#         - ap-northeast-1
+
+#     - name: Outscale Infrastructure
+#       technologies: [terraform]
+#       vars:
+#       - name: "CPU Generation"
+#         description: "The Outscale CPU Generation to deploy."
+#         key: outscale_cpu_gen
+#         widget: slider_list
+#         type: integer
+#         required: true
+#         default: 6
+#         values:
+#         - 5
+#         - 6
+#         - 7
+#       - name: "CPU"
+#         description: "The number of CPU to deploy."
+#         key: outscale_cpu
+#         widget: slider_range
+#         type: integer
+#         required: true
+#         default: 2
+#         values:
+#         - 1
+#         - 4
+#       - name: "Memory"
+#         description: "The amount of memory to deploy."
+#         key: outscale_mem
+#         widget: slider_range
+#         type: integer
+#         required: true
+#         default: 4
+#         values:
+#         - 1
+#         - 8
+
+#     - name: Outscale Networks
+#       technologies: [terraform]
+#       vars:
+#       - name: "Outscale Private Network"
+#         description: "Whether to connect to an Outscale private network."
+#         key: outscale_private_network
+#         widget: switch
+#         type: boolean
+#         required: true
+#         default: false
+
+#     - name: Outscale Private Network
+#       technologies: [terraform]
+#       condition: '$outscale_private_network == true'
+#       vars:
+#       - name: "Outscale Private Network"
+#         description: "Select an Outscale private network to connect the instance to."
+#         key: outscale_net
+#         widget: cy_inventory_resource
+#         widget_config:
+#           attribute: id
+#           filters:
+#             type: outscale_net
+#         type: string
+#         required: true
+
+#     - name: NodeJS Application
+
+#     - name: Day-2 Operations
+
+# - name: ionos
+#   sections:
+#   - name: Deployment
+#     groups:
+#     - name: "Application"
+#     - name: "Infrastructure Access Configuration"
+#       technologies: [pipeline]
+#       vars:
+#       - name: "IONOS Account"
+#         description: "The IONOS account where to deploy the infrastructure."
+#         key: ionos_cred
+#         widget: cy_cred
+#         widget_config:
+#           display_keys: false
+#           cred_types:
+#             - custom
+#         type: string
+#         default: "((ionos))"
+#         required: true
+
+#       - name: "IONOS Region"
+#         description: "The IONOS region where to deploy the infrastructure."
+#         key: ionos_region
+#         widget: dropdown
+#         type: map
+#         required: true
+#         values:
+#         - {"label": "Frankfurt am Main (DE)", "value": "de/fra"}
+#         - {"label": "Karlsruhe (DE)", "value": "de/fkb"}
+#         - {"label": "Berlin (DE)", "value": "de/txl"}
+#         - {"label": "Paris (FR)", "value": "fr/par"}
+#         - {"label": "London (GB)", "value": "gb/lhr"}
+#         - {"label": "Logroño (ES)", "value": "es/vit"}
+
+#     - name: IONOS Infrastructure
+#       technologies: [terraform]
+#       vars:
+#       - name: "IONOS Compute Configuration"
+#         description: "The IONOS cube configuration to deploy."
+#         key: ionos_cube
+#         widget: dropdown
+#         type: string
+#         required: true
+#         values:
+#         - "Basic Cube XS"
+#         - "Basic Cube S"
+#         - "Basic Cube M"
+#         - "Basic Cube L"
+#         - "Basic Cube XL"
+#         - "Memory Cube S"
+#         - "Memory Cube M"
+#         - "Memory Cube L"
+#         - "Memory Cube XL"
+
+#     - name: IONOS Networks
+#       technologies: [terraform]
+#       vars:
+#       - name: "IONOS Private Network"
+#         description: "Whether to connect the instance to a IONOS private network."
+#         key: ionos_private_network
+#         widget: switch
+#         type: boolean
+#         required: true
+#         default: false
+
+#     - name: IONOS Private Network
+#       technologies: [terraform]
+#       condition: '$ionos_private_network == true'
+#       vars:
+#       - name: "IONOS Private Network"
+#         description: "Select an IONOS private network to connect the instance to."
+#         key: ionos_lan
+#         widget: cy_inventory_resource
+#         widget_config:
+#           attribute: id
+#           filters:
+#             type: ionoscloud_lan
+#         type: string
+#         required: true
+
+#     - name: NodeJS Application
+
+#     - name: Day-2 Operations

@@ -1,12 +1,11 @@
 ---
 version: "2"
 use_cases:
-- name: default
+- name: cycloid-common
   sections:
   - name: config
     groups:
     - name: "Application Image"
-      # technologies: [pipeline, templating]
       technologies: [pipeline]
       vars:
       - name: "Application Image Tag"
@@ -16,35 +15,9 @@ use_cases:
         required: true
         type: string
         default: "1.0.0"
-      # - name: "DockerHub Repository"
-      #   description: "The DockerHub repository to store your application images."
-      #   key: dockerhub_repository
-      #   widget: simple_text
-      #   required: true
-      #   type: string
-      #   default: "olivier2t/app-test-env"
-      # - name: "DockerHub Username"
-      #   description: "The DockerHub username to access the registry."
-      #   key: dockerhub_username
-      #   widget: cy_cred
-      #   widget_config:
-      #     display_keys: true
-      #     cred_types:
-      #       - basic_auth
-      #   required: true
-      #   type: string
-      #   default: "((dockerhub.username))"
-      # - name: "DockerHub Password"
-      #   description: "The DockerHub password to access the registry."
-      #   key: dockerhub_password
-      #   widget: cy_cred
-      #   widget_config:
-      #     display_keys: true
-      #     cred_types:
-      #       - basic_auth
-      #   required: true
-      #   type: string
-      #   default: "((dockerhub.password))"
+- name: argocd
+  - name: config
+    groups:
     - name: "Kubernetes Configuration"
       technologies: [pipeline]
       vars:
@@ -58,3 +31,25 @@ use_cases:
           - 1
           - 5
         required: true
+- name: aws
+    sections:
+    - name: config
+      groups:
+      - name: "AWS Configuration"
+        technologies: [pipeline]
+        vars:
+        - name: "AWS Region"
+          description: "The AWS region to deploy the application to."
+          key: aws_region
+          widget: simple_text
+          type: string
+          default: "us-east-1"
+          required: true
+        - name: "AWS Instance Type"
+          description: "The AWS instance type to deploy the application to."
+          key: aws_instance_type
+          widget: simple_text
+          type: string
+          default: "t3.medium"
+          required: true
+

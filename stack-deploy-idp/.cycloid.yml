@@ -18,10 +18,41 @@ technologies:
   version: 1.8.3
 
 config:
-  default:
+  argocd:
+    name: 'ArgoCD'
+    description: 'Deploy the application release to a Kubernetes cluster using ArgoCD manifests.'
+    cloud_provider: kubernetes
     pipeline:
       pipeline:
         path: pipeline/pipeline.yml
       variables:
         path: pipeline/variables.sample.yml
         destination: '($ .config_root $)/pipeline/variables.yml'
+  aws:
+    name: 'AWS'
+    description: 'Deploy the application release to an EC2 instance using Terraform and Ansible.'
+    cloud_provider: aws
+    pipeline:
+      pipeline:
+        path: pipeline/pipeline.yml
+      variables:
+        path: pipeline/variables.sample.yml
+        destination: '($ .config_root $)/pipeline/variables.yml'
+    terraform:
+      main:
+        path: 'terraform/aws/main.tf'
+        destination: '($ .config_root $)/terraform/aws/main.tf'
+  azure:
+    name: 'Azure'
+    description: 'Deploy the application release to an Azure virtual machine using Terraform and Ansible.'
+    cloud_provider: azure
+    pipeline:
+      pipeline:
+        path: pipeline/pipeline.yml
+      variables:
+        path: pipeline/variables.sample.yml
+        destination: '($ .config_root $)/pipeline/variables.yml'
+    terraform:
+      main:
+        path: 'terraform/azure/main.tf'
+        destination: '($ .config_root $)/terraform/azure/main.tf'

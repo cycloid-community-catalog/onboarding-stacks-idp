@@ -1,0 +1,119 @@
+---
+# Configuration of the Cycloid stack
+version: '4'
+name: 'NodeJS App'
+canonical: stack-nodejs-app-demo
+author: Cycloid
+description: |
+  Deploy a Node.js application on public and/or private clouds infrastructure using Terraform and Ansible.
+image: |
+  https://cycloid-demo-stacks-logo.s3.eu-west-1.amazonaws.com/node.svg
+keywords:
+  - ec2
+  - virtual machine
+  - instance
+  - webapp
+  - nodejs
+  - provider:aws
+  - provider:azure
+  - provider:vmware
+technologies:
+- technology: terraform
+  version: 1.8.3
+
+
+config:
+  aws:
+    name: 'AWS'
+    description: 'Deploy a Node.js web application on AWS EC2 instances'
+    cloud_provider: aws
+    pipeline:
+      pipeline:
+        path: pipeline/pipeline.yml
+      variables:
+        path: pipeline/variables.sample.yml
+        destination: '($ .config_root $)/pipeline/variables.yml'
+    terraform:
+      main:
+        path: 'terraform/aws/main.tf'
+        destination: '($ .config_root $)/terraform/aws/main.tf'
+    ansible:
+      node:
+        path: 'ansible/environments/node.yml.sample'
+        destination: '($ .config_root $)/ansible/environments/node.yml'
+
+  azure:
+    name: 'Azure'
+    description: 'Deploy a Node.js web application on Azure instances'
+    cloud_provider: azurerm
+    pipeline:
+      pipeline:
+        path: 'pipeline/pipeline.yml'
+      variables:
+        path: 'pipeline/variables.sample.yml'
+        destination: '($ .config_root $)/pipeline/variables.yml'
+    terraform:
+      main:
+        path: 'terraform/azure/main.tf'
+        destination: '($ .config_root $)/terraform/azure/main.tf'
+    ansible:
+      node:
+        path: 'ansible/environments/node.yml.sample'
+        destination: '($ .config_root $)/ansible/environments/node.yml'
+
+  vmware:
+    name: 'VMware'
+    description: 'Deploy a Node.js web application on VMware instances'
+    cloud_provider: vmware
+    pipeline:
+      pipeline:
+        path: 'pipeline/pipeline.yml'
+      variables:
+        path: 'pipeline/variables.sample.yml'
+        destination: '($ .config_root $)/pipeline/variables.yml'
+    terraform:
+      main:
+        path: 'terraform/vmware/main.tf'
+        destination: '($ .config_root $)/terraform/vmware/main.tf'
+    ansible:
+      node:
+        path: 'ansible/environments/node.yml.sample'
+        destination: '($ .config_root $)/ansible/environments/node.yml'
+
+  # outscale:
+  #   name: 'Outscale'
+  #   description: 'Deploy a Node.js web application on Outscale instances'
+  #   # cloud_provider: outscale
+  #   pipeline:
+  #     pipeline:
+  #       path: pipeline/pipeline.yml
+  #     variables:
+  #       path: pipeline/variables.sample.yml
+  #       destination: '($ .config_root $)/pipeline/variables.yml'
+  #   terraform:
+  #     main:
+  #       path: 'terraform/outscale/main.tf'
+  #       destination: '($ .config_root $)/terraform/outscale/main.tf'
+  #   ansible:
+  #     node:
+  #       path: 'ansible/environments/node.yml.sample'
+  #       destination: '($ .config_root $)/ansible/environments/node.yml'
+
+  # ionos:
+  #   name: 'Ionos'
+  #   description: 'Deploy a Node.js web application on Ionos instances'
+  #   # cloud_provider: ionos
+  #   pipeline:
+  #     pipeline:
+  #       path: pipeline/pipeline.yml
+  #     variables:
+  #       path: pipeline/variables.sample.yml
+  #       destination: '($ .config_root $)/pipeline/variables.yml'
+  #   terraform:
+  #     main:
+  #       path: 'terraform/ionos/main.tf'
+  #       destination: '($ .config_root $)/terraform/ionos/main.tf'
+  #   ansible:
+  #     node:
+  #       path: 'ansible/environments/node.yml.sample'
+  #       destination: '($ .config_root $)/ansible/environments/node.yml'

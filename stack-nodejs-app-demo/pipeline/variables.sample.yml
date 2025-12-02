@@ -1,0 +1,114 @@
+#
+# Cloud Provider
+#
+
+($ if eq .use_case "aws" $)
+
+#. aws_cred (required): ((aws))
+#+ Amazon credentials containing access key and secret key for Terraform. See value format [here](https://docs.cycloid.io/advanced-guide/integrate-and-use-cycloid-credentials-manager.html#vault-in-the-pipeline)
+aws_cred: ((aws))
+
+#. aws_region (required): "eu-west-1"
+#+ AWS region to use for Terraform.
+aws_region: "eu-west-1"
+
+($ else if eq .use_case "azure" $)
+
+#. azure_cred (required): ((azure))
+#+ The azure credential used to deploy the infrastructure. It contains subscription_id, tenant_id, client_id, and client_secret. See value format [here](https://docs.cycloid.io/advanced-guide/integrate-and-use-cycloid-credentials-manager.html#vault-in-the-pipeline)
+azure_cred: ((azure))
+
+($ else if eq .use_case "gcp" $)
+
+#. gcp_cred (required): ((gcp))
+#+ Google Cloud Platform JSON credentials to use for Terraform. See value format [here](https://docs.cycloid.io/advanced-guide/integrate-and-use-cycloid-credentials-manager.html#vault-in-the-pipeline)
+gcp_cred: ((gcp))
+
+#. gcp_project (required): ($ .org $)
+#+ Google Cloud Platform project to use for Terraform.
+gcp_project: ($ .org $)
+
+#. gcp_region (required): europe-west1
+#+ Google Cloud Platform region to use for Terraform.
+gcp_region: "europe-west1"
+
+#. gcp_zone (required): "europe-west1-b"
+#+ Google Cloud Platform zone to use for Terraform.
+gcp_zone: "europe-west1-b"
+
+($ else if eq .use_case "vmware" $)
+
+#. vsphere_server (required): ""
+#+ vSphere server for Terraform
+vsphere_server: "212.83.169.2"
+
+#. vsphere_cred (required): ((vsphere))
+#+ vSphere credentials
+vsphere_cred: ((vsphere))
+
+($ end $)
+
+
+#
+# Registry
+#
+
+#. registry_repository (required): ''
+#+ The repository path to use for the container images.
+registry_repository: "olivier2t/app-prod"
+
+#. registry_username (required): ''
+#+ The username to access the registry.
+registry_username: "((dockerhub.username))"
+
+#. registry_password (required): ''
+#+ The password to access the registry.
+registry_password: "((dockerhub.password))"
+
+
+#
+# Ansible Operations
+#
+
+#. hosts_service (required): ''
+#+ Service to restart.
+hosts_service: ''
+
+#. hosts_package (required): ''
+#+ Package to install.
+hosts_package: ''
+
+#. hosts_user (required): ''
+#+ User to create.
+hosts_user: ''
+
+
+
+#
+# Mailjet Operations
+#
+
+#. mailjet_api_key (required): ''
+#+ Mailjet API key.
+mailjet_api_key: ((mailjet.api_key))
+
+#. mailjet_secret_key (required): ''
+#+ Mailjet secret key.
+mailjet_secret_key: ((mailjet.secret_key))
+
+
+#
+# Default variables
+#
+
+#. cy_api_key (required): ((admin-api-key.key))
+#+ API key to grant admin acess to Cycloid API.
+cy_api_key: ((admin-api-key.key))
+
+#. terraform_version (required): '1.11.4'
+#+ terraform version used to execute your code.
+terraform_version: '1.11.4'
+
+#. cycloid-toolkit ansible version (required): 'v8.3'
+#+ cycloid-toolkit docker image tag to use (https://hub.docker.com/r/cycloid/cycloid-toolkit/tags).
+ansible_version: 'v8.3'
