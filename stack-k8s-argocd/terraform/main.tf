@@ -20,6 +20,10 @@ module "compute" {
   #+ Disk size for the VM (Go)
   vm_disk_size = ""
 
+  #. vm_aws_route53_zone: "cycloid-demo.com"
+  #+ Route53 Hosted Zone (e.g. cycloid-demo.com) where DNS records will be created
+  vm_aws_route53_zone = "cycloid-demo.com"
+
   #. res_selector: ''
   #+ Whether to create a new VPC or select an existing one
   res_selector = ""

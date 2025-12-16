@@ -62,6 +62,13 @@ use_cases:
             - 20
             - 250
         required: true
+      - name: "Route53 Hosted Zone"
+        description: "Route53 Hosted Zone where DNS records will be created."
+        key: vm_aws_route53_zone
+        widget: text
+        type: string
+        default: "cycloid-demo.com"
+        required: true
 
     - name: Advanced Configuration
       technologies: [pipeline]

@@ -30,6 +30,11 @@ variable "vm_os_user" {
   default     = "admin"
 }
 
+variable "vm_aws_route53_zone" {
+  description = "Route53 Hosted Zone (e.g. cycloid-demo.com) where DNS records will be created"
+  default     = "cycloid-demo.com"
+}
+
 variable "res_selector" {
   description = "Whether to create a new VPC or select an existing one"
 }
