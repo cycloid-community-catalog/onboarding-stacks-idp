@@ -14,10 +14,10 @@ output "instance_id" {
 
 output "dns_name" {
   description = "The DNS name for the application"
-  value       = aws_route53_record.app.fqdn
+  value       = aws_route53_record.record.fqdn
 }
 
 output "url_dns" {
   description = "The URL of the application using DNS"
-  value       = "http://${aws_route53_record.app.fqdn}"
+  value       = "http://${aws_route53_record.record.fqdn}"
 }
