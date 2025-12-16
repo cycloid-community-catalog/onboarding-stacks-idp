@@ -11,4 +11,6 @@ resource "aws_route53_record" "cycloid-demo" {
   type    = "A"
   ttl     = 300
   records = [data.aws_instance.ec2.public_ip]
+
+  allow_overwrite = true
 }
