@@ -31,8 +31,8 @@ variable "vm_os_user" {
 }
 
 variable "vm_aws_route53_zone" {
-  description = "Route53 Hosted Zone (e.g. cycloid-demo.com) where DNS records will be created"
-  default     = "cycloid-demo.com"
+  description = "Route53 Hosted Zone (e.g. demo.cycloid.io) where DNS records will be created"
+  default     = "demo.cycloid.io"
 }
 
 variable "res_selector" {

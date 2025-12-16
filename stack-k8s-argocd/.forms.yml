@@ -67,7 +67,7 @@ use_cases:
         key: vm_aws_route53_zone
         widget: simple_text
         type: string
-        default: "cycloid-demo.com"
+        default: "demo.cycloid.io"
         required: true
 
     - name: Advanced Configuration
