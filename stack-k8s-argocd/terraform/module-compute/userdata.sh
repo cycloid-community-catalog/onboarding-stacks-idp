@@ -105,15 +105,14 @@ spec:
             port:
               name: https
 EOF
-export ARGOCD_EXTERNAL_URL="argocd.$(curl http://169.254.169.254/latest/meta-data/public-ipv4).nip.io"
-sed -i "s/argocd.example.com/$ARGOCD_EXTERNAL_URL/" argocd-server-ingress.yaml
+sed -i "s/argocd.example.com/${ARGOCD_URL}/" argocd-server-ingress.yaml
 kubectl apply -f argocd-server-ingress.yaml
 # Configure ArgoCD
 export ARGOCD_ADMIN_BCRYPT_PASSWORD="$(argocd account bcrypt --password ${ARGOCD_ADMIN_PASSWORD})"
 export ARGOCD_PASSWORD_MTIME="'$(date +%FT%T%Z)'"
 kubectl -n argocd patch secret argocd-secret -p "{\"stringData\": {\"admin.password\": \"$ARGOCD_ADMIN_BCRYPT_PASSWORD\", \"admin.passwordMtime\": \"$ARGOCD_PASSWORD_MTIME\"}}"
 kubectl -n argocd delete pod -l app.kubernetes.io/name=argocd-server
-until argocd login $ARGOCD_EXTERNAL_URL --username admin --password ${ARGOCD_ADMIN_PASSWORD} --grpc-web --insecure; do sleep 5; done
+until argocd login ${ARGOCD_URL} --username admin --password ${ARGOCD_ADMIN_PASSWORD} --grpc-web --insecure; do sleep 5; done
 argocd version
 echo "${GIT_PRIVATE_KEY}" >/home/${USERNAME}/.ssh/git-argocd
 argocd repo add ${GIT_SSH_URL} --ssh-private-key-path /home/${USERNAME}/.ssh/git-argocd
