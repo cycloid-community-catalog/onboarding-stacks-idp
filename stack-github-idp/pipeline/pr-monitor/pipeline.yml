@@ -49,21 +49,7 @@ jobs:
             args:
               - -ec
               - |
-                # Gather information to create a testenv
                 export GH_PR=$(cat github_pull-request/.git/resource/metadata.json | jq '.[] | select( .name | contains("pr")) | .value' -r)
-                # export GH_BRANCH=$(cat github_pull-request/.git/resource/metadata.json | jq '.[] | select( .name | contains("head_name")) | .value' -r)
-                # export GH_URL=$(cat github_pull-request/.git/resource/metadata.json | jq '.[] | select( .name | contains("url")) | .value' -r)
-                # export GH_URL_REPO=$(echo $GH_URL | sed 's/https:\/\/github.com\///g' | sed 's/\/pull.*$//g')
-                # export GH_SSH_URL="git@github.com:${GH_URL_REPO}.git"
-                # cat github_pull-request/.git/resource/metadata.json | jq '.[]'
-
-                # export ENV_INFRA=$(echo $CY_ENV | cut -d- -f1) # infrastructure environment maps to all applications environments starting with the same prefix
-
-                # export GH_MANIFESTS_SSH_URL="git@github.com:cycloid-demo/${CY_ORG}-infrastructure-${ENV_INFRA}-manifests.git"
-                # export GH_MANIFESTS_BRANCH="main"
-                # export GH_MANIFESTS_SSH_KEY="((infrastructure-${ENV_INFRA}-manifests-git-ssh.ssh_key))"
-
-                # export KUBECONFIG_CONTENT="((infrastructure-${ENV_INFRA}-kubeconfig.kubeconfig))"
 
                 echo "fetching required stacks..."
                 STACKS="$(cy stack list -o json)"
@@ -79,13 +65,10 @@ jobs:
                     --project "$CY_PROJECT" --env "$CY_ENV" \
                     --component "pr${GH_PR}" \
                     --stack-ref "$stack_self" --use-case "testenv" \
+                    -V "config.kubernetes.app_replicas=((app_replicas))" \
+                    -V "config.dockerhub.dockerhub_repository=((dockerhub_repository))" \
+                    -V "config.dns.dns_zone=((dns_zone))" \
                     -o yaml
-                    # -V "config.application.app_git_url=${GH_SSH_URL}" \
-                    # -V "config.application.app_git_branch=${GH_BRANCH}" \
-                    # -V "config.manifests.manifests_git_url=${GH_MANIFESTS_SSH_URL}" \
-                    # -V "config.manifests.manifests_git_branch=${GH_MANIFESTS_BRANCH}" \
-                    # -V "config.manifests.manifests_git_ssh_key=${GH_MANIFESTS_SSH_KEY}" \
-                    # -V "config.kubernetes.kubeconfig_content=${KUBECONFIG_CONTENT}" \
 
                   if [ $? -eq 0 ]; then
                     echo "Component created successfully."

@@ -197,6 +197,9 @@ jobs:
                     --stack-ref "$stack_self" --use-case "pr-monitor" \
                     -V "config.github.pat='((github_pat))'" \
                     -V "config.github.organization='((github_organization))'" \
+                    -V "config.kubernetes.app_replicas=((app_replicas))" \
+                    -V "config.dockerhub.dockerhub_repository=((dockerhub_repository))" \
+                    -V "config.dns.dns_zone=((dns_zone))" \
                     -o yaml
 
                   if [ $? -eq 0 ]; then

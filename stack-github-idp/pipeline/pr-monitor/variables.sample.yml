@@ -10,6 +10,17 @@ github_pat: "((github-pat.token))"
 #+ GitHub organization where the repository will be created
 github_organization: "cycloid-demo"
 
+#. app_replicas (required): 3
+#+ The number of replicas to deploy in the Kubernetes Cluster.
+app_replicas: 3
+
+#. dockerhub_repository (required): 'olivier2t/app-test-env'
+#+ DockerHub repository to store the application images.
+dockerhub_repository: "olivier2t/app-test-env"
+
+#. dns_zone (required): 'demo.cycloid.io'
+#+ DNS zone to use for the application.
+dns_zone: "demo.cycloid.io"
 
 #
 # Default variables

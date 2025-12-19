@@ -1,0 +1,130 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ${ORG}-${PROJECT}-${ENV}-${COMPONENT}
+---
+# Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ${ORG}-${PROJECT}-${ENV}-${COMPONENT}
+  namespace: ${ORG}-${PROJECT}-${ENV}-${COMPONENT}
+spec:
+  replicas: ${APP_REPLICAS}
+  selector:
+    matchLabels:
+      app: ${ORG}-${PROJECT}-${ENV}-${COMPONENT}
+  template:
+    metadata:
+      labels:
+        app: ${ORG}-${PROJECT}-${ENV}-${COMPONENT}
+    spec:
+      containers:
+        - name: ${ORG}-${PROJECT}-${ENV}-${COMPONENT}
+          image: ${DH_REPO}:${ORG}-${PROJECT}-${COMPONENT}
+          ports:
+            - containerPort: 8080
+          imagePullPolicy: Always
+---
+# Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: ${ORG}-${PROJECT}-${ENV}-${COMPONENT}
+  namespace: ${ORG}-${PROJECT}-${ENV}-${COMPONENT}
+spec:
+  selector:
+    app: ${ORG}-${PROJECT}-${ENV}-${COMPONENT}
+  ports:
+    - port: 80
+      targetPort: 8080
+---
+# Ingress
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ${ORG}-${PROJECT}-${ENV}-${COMPONENT}
+  namespace: ${ORG}-${PROJECT}-${ENV}-${COMPONENT}
+  annotations:
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: ${ORG}-${PROJECT}-${ENV}-${COMPONENT}.${K8S_EXTERNAL_IP}.nip.io
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: ${ORG}-${PROJECT}-${ENV}-${COMPONENT}
+                port:
+                  number: 80
+  tls:
+    - hosts:
+        - ${ORG}-${PROJECT}-${ENV}-${COMPONENT}.${K8S_EXTERNAL_IP}.nip.io
+      secretName: ${ORG}-${PROJECT}-${ENV}-${COMPONENT}-tls
+# ---
+# apiVersion: cert-manager.io/v1
+# kind: Certificate
+# metadata:
+#   name: ${ORG}-${PROJECT}-${ENV}-${COMPONENT}
+#   namespace: ${ORG}-${PROJECT}-${ENV}-${COMPONENT}
+# spec:
+#   secretName: ${ORG}-${PROJECT}-${ENV}-${COMPONENT}-tls
+#   issuerRef:
+#     name: ssl-issuer
+#     kind: ClusterIssuer
+#   dnsNames:
+#     - ${ORG}-${PROJECT}-${ENV}-${COMPONENT}.${K8S_EXTERNAL_IP}.nip.io
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: kubectl-restart
+  namespace: ${ORG}-${PROJECT}-${ENV}-${COMPONENT}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: kubectl-restart
+  namespace: ${ORG}-${PROJECT}-${ENV}-${COMPONENT}
+rules:
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    verbs: ["get", "list", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: kubectl-restart
+  namespace: ${ORG}-${PROJECT}-${ENV}-${COMPONENT}
+subjects:
+  - kind: ServiceAccount
+    name: kubectl-restart
+    namespace: ${ORG}-${PROJECT}-${ENV}-${COMPONENT}
+roleRef:
+  kind: Role
+  name: kubectl-restart
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: restart-${ORG}-${PROJECT}-${ENV}-${COMPONENT}
+  namespace: ${ORG}-${PROJECT}-${ENV}-${COMPONENT}
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+spec:
+  template:
+    spec:
+      serviceAccountName: kubectl-restart
+      restartPolicy: Never
+      containers:
+      - name: kubectl
+        image: bitnami/kubectl:latest
+        command: ["/bin/sh", "-c"]
+        args:
+          - kubectl rollout restart deployment ${ORG}-${PROJECT}-${ENV}-${COMPONENT} -n ${ORG}-${PROJECT}-${ENV}-${COMPONENT}
