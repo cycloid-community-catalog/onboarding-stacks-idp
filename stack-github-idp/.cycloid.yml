@@ -56,7 +56,7 @@ config:
       variables:
         path: pipeline/testenv/variables.sample.yml
         destination: '($ .config_root $)/pipeline/testenv/variables.yml'
-    templating:
+    custom:
       var_path: ($ .config_root $)/vars/templating.json
       templates:
       - paths:
