@@ -103,7 +103,7 @@ use_cases:
     #     required: true
 
     # - name: dockerhub
-    #   # technologies: [pipeline, templating]
+    #   # technologies: [pipeline, custom]
     #   technologies: [pipeline]
     #   vars:
     #   - name: "DockerHub Repository"
@@ -204,7 +204,7 @@ use_cases:
   - name: config
     groups:
     - name: kubernetes
-      technologies: [pipeline, templating]
+      technologies: [pipeline, custom]
       vars:
       - name: "Replicas"
         description: "The number of replicas to deploy in the Kubernetes Cluster."
@@ -218,7 +218,7 @@ use_cases:
         required: true
 
     - name: dockerhub
-      technologies: [pipeline, templating]
+      technologies: [pipeline, custom]
       vars:
       - name: "DockerHub Repository"
         description: "The DockerHub repository to store your application images."
@@ -229,7 +229,7 @@ use_cases:
         required: true
 
     - name: dns
-      technologies: [pipeline, templating]
+      technologies: [pipeline, custom]
       vars:
       - name: "DNS Zone"
         description: "The DNS zone to use for the application."
