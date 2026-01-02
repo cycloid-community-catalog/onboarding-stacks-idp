@@ -5,21 +5,34 @@ use_cases:
   sections:
   - name: config
     groups:
-    - name: "Application Image"
-      technologies: [pipeline]
+    - name: application
+      technologies: [pipeline, custom]
       vars:
       - name: "Application Image Tag"
-        description: "The application release tag to use for the container image."
+        description: "The application release tag to use for the container image. For example, 'pr1' for a test environment or '1.0.1' for an application release."
         key: app_image_tag
         widget: simple_text
         required: true
         type: string
         default: "1.0.0"
+
+    - name: dockerhub
+      technologies: [pipeline, custom]
+      vars:
+      - name: "DockerHub Repository"
+        description: "The DockerHub repository to store your application images."
+        key: dockerhub_repository
+        widget: simple_text
+        type: string
+        default: "olivier2t/app-test-env"
+        required: true
+
 - name: argocd
+  sections:
   - name: config
     groups:
-    - name: "Kubernetes Configuration"
-      technologies: [pipeline]
+    - name: kubernetes
+      technologies: [pipeline, custom]
       vars:
       - name: "Replicas"
         description: "The number of replicas to deploy in the Kubernetes Cluster."
@@ -31,25 +44,38 @@ use_cases:
           - 1
           - 5
         required: true
+
+    - name: dns
+      technologies: [pipeline, custom]
+      vars:
+      - name: "DNS Zone"
+        description: "The DNS zone to use for the application."
+        key: dns_zone
+        widget: simple_text
+        type: string
+        default: "demo.cycloid.io"
+        required: true
+
 - name: aws
-    sections:
-    - name: config
-      groups:
-      - name: "AWS Configuration"
-        technologies: [pipeline]
-        vars:
-        - name: "AWS Region"
-          description: "The AWS region to deploy the application to."
-          key: aws_region
-          widget: simple_text
-          type: string
-          default: "us-east-1"
-          required: true
-        - name: "AWS Instance Type"
-          description: "The AWS instance type to deploy the application to."
-          key: aws_instance_type
-          widget: simple_text
-          type: string
-          default: "t3.medium"
-          required: true
+  sections:
+  - name: config
+    groups:
+    - name: "AWS Configuration"
+      technologies: [pipeline]
+      vars:
+      - name: "AWS Region"
+        description: "The AWS region to deploy the application to."
+        key: aws_region
+        widget: simple_text
+        type: string
+        default: "us-east-1"
+        required: true
+        
+      - name: "AWS Instance Type"
+        description: "The AWS instance type to deploy the application to."
+        key: aws_instance_type
+        widget: simple_text
+        type: string
+        default: "t3.medium"
+        required: true
 

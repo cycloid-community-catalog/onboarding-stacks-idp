@@ -1,40 +1,69 @@
+resource_types:
+- name: terraform
+  type: registry-image
+  source:
+    repository: cycloid/terraform-resource
+    tag: ((terraform_version))
+
+- name: http-api
+  type: docker-image
+  source:
+    repository: jgriff/http-resource
+
+
 resources:
-# Where we will get the image from the registry
+- name: tfstate
+  type: terraform
+  icon: terraform
+  source:
+    env_name: ($ .env $)
+    backend_type: http
+    backend_config:
+      address: '($ .api_url $)/inventory?jwt=($ .inventory_jwt $)'
+    vars:
+      cy_api_key: ((cy_api_key))
+      cy_api_url: ($ .api_url $)
+      cy_org: ($ .org $)
+      cy_project: ($ .project $)
+      cy_env: ($ .env $)
+      cy_component: ($ .component $)
+($ if eq .use_case "aws" $)
+      aws_cred: ((aws_cred))
+      aws_region: ((aws_region))
+($ else if eq .use_case "azure" $)
+      azure_cred: ((azure_cred))
+($ else if eq .use_case "gcp" $)
+      gcp_project: ((gcp_project))
+      gcp_region: ((gcp_region))
+      gcp_zone: ((gcp_zone))
+    env:
+      GOOGLE_PROJECT: ((gcp_project))
+      GOOGLE_REGION: ((gcp_region))
+      GOOGLE_ZONE: ((gcp_zone))
+      GOOGLE_CREDENTIALS: ((gcp.json_key))
+($ else if eq .use_case "vmware" $)
+      vsphere_server: ((vsphere_server))
+      vmware_cred: ((vsphere_cred))
+($ else if eq .use_case "outscale" $)
+      outscale_cred: ((outscale_cred))
+      outscale_region: ((outscale_region))
+($ else if eq .use_case "ionos" $)
+      ionos_cred: ((ionos_cred))
+      ionos_region: ((ionos_region))
+($ end $)
+
+# Where we will get the image
 - name: app_image
   type: registry-image
   icon: docker
   source:
-    repository: ((dockerhub_repository))
-    username: ((dockerhub_username))
-    password: ((dockerhub_password))
+    repository: ((registry_repository))
+    username: ((registry_username))
+    password: ((registry_password))
     tag: "($ .org $)-($ .project $)-((app_image_tag))"
 
-# The repo with our manifests
-- name: git_manifests
-  type: git
-  icon: github-circle
-  source:
-    uri: ((manifests_git_url))
-    branch: ((manifests_git_branch))
-    private_key: ((manifests_git_ssh_key))
-
-# The config git where the generated manifests are stored
-# - name: git_config_templates
-#   type: git
-#   icon: github-circle
-#   source:
-#     uri: ($ .cr_url $)
-#     branch: ($ .cr_branch $)
-#     ($- if eq .cr_cred_type "basic_auth" $)
-#     username: ((($ .cr_cred_path $).username))
-#     password: ((($ .cr_cred_path $).password))
-#     ($- end $)
-#     ($- if eq .cr_cred_type "ssh" $)
-#     private_key: ((($ .cr_cred_path $).ssh_key))
-#     ($- end $)
-#     paths:
-#       - ($ .config_root $)/*
-- name: git_stacks
+# The Terraform stack (will be merged with the config)
+- name: git_stack-terraform
   type: git
   icon: github-circle
   source:
@@ -48,141 +77,328 @@ resources:
     private_key: ((($ .scs_cred_path $).ssh_key))
     ($- end $)
     paths:
-      - ($ .stack_path $)/templating/*
+      - ($ .stack_path $)/terraform/($ .use_case $)/*
+
+# The Terraform config (will be merged with the stack)
+- name: git_config-terraform
+  type: git
+  icon: github-circle
+  source:
+    uri: ($ .cr_url $)
+    branch: ($ .cr_branch $)
+    ($- if eq .cr_cred_type "basic_auth" $)
+    username: ((($ .cr_cred_path $).username))
+    password: ((($ .cr_cred_path $).password))
+    ($- end $)
+    ($- if eq .cr_cred_type "ssh" $)
+    private_key: ((($ .cr_cred_path $).ssh_key))
+    ($- end $)
+    paths:
+      - ($ .config_root $)/terraform/($ .use_case $)/*
+
+# The Ansible stack (will be merged with the config)
+- name: git_stack-ansible
+  type: git
+  icon: github-circle
+  source:
+    uri: ($ .scs_url $)
+    branch: ($ .scs_branch $)
+    ($- if eq .scs_cred_type "basic_auth" $)
+    username: ((($ .scs_cred_path $).username))
+    password: ((($ .scs_cred_path $).password))
+    ($- end $)
+    ($- if eq .scs_cred_type "ssh" $)
+    private_key: ((($ .scs_cred_path $).ssh_key))
+    ($- end $)
+    paths:
+      - ($ .stack_path $)/ansible/*
+
+# The Ansible config (will be merged with the stack)
+- name: git_config-ansible
+  type: git
+  icon: github-circle
+  source:
+    uri: ($ .cr_url $)
+    branch: ($ .cr_branch $)
+    ($- if eq .cr_cred_type "basic_auth" $)
+    username: ((($ .cr_cred_path $).username))
+    password: ((($ .cr_cred_path $).password))
+    ($- end $)
+    ($- if eq .cr_cred_type "ssh" $)
+    private_key: ((($ .cr_cred_path $).ssh_key))
+    ($- end $)
+    paths:
+      - ($ .config_root $)/ansible/environments/*
+
+- name: mailjet-send
+  type: http-api
+  icon: mail
+  source:
+    url: https://api.mailjet.com/v3.1/send
+    method: POST
+    username: ((mailjet_api_key))
+    password: ((mailjet_secret_key))
+    out_only: true
+    headers:
+      Accept: '*/*'
+      Content-Type: 'application/json'
+
+# 60 minutes timer to trigger destroy periodically
+- name: every-1h
+  type: time
+  icon: timer
+  source:
+    interval: 60m
+
 
 groups:
 - name: overview
   jobs:
-    - generate-manifests
+    - deploy-infra
+    - deploy-app
 
-- name: delete
+- name: destroy
   jobs:
-    - delete-app
+    - destroy-infra
 
 
 jobs:
-- name: generate-manifests
-  serial: true
-  max_in_flight: 1
-  build_logs_to_retain: 10
-  plan:
-  - in_parallel:
-    - get: app_image
-      trigger: true
-    - get: git_stacks
-      trigger: true
-    - get: git_manifests
-  - task: manifests
-    config:
-      platform: linux
-      image_resource:
-        type: registry-image
-        source:
-          repository: olivier2t/toolkit
-          tag: latest
-      inputs:
-      - name: git_manifests
-      - name: git_stacks
-      - name: app_image
-      outputs:
-      - name: git_manifests
-      run:
-        path: /bin/bash
-        args:
-        - -c
-        - |
-          set +e
-          echo "Generating manifests..."
-          mkdir -p git_manifests/($ .project $)-($ .env $)
-          export K8S_EXTERNAL_IP=$(echo ${KUBECONFIG_CONTENT} | grep "server: https" | head -1 | grep -oE '((1?[0-9][0-9]?|2[0-4][0-9]|25[0-5])\.){3}(1?[0-9][0-9]?|2[0-4][0-9]|25[0-5])')
-          ls -la git_stacks/($ .stack_path $)/templating/*
-          for file in git_stacks/($ .stack_path $)/templating/*; do
-            echo "Processing $file"
-            envsubst < $file > git_manifests/($ .project $)-($ .env $)/$(basename $file)
-          done
-          cd git_manifests
-          git config --global user.email "noreply@cycloid.io"
-          git config --global user.name "Cycloid Platform"
-          git add .
-          git diff-index --quiet HEAD || git commit -m "Add ($ .project $)-($ .env $)-($ .component $) manifests"
-          echo "✅ Environment deployed at http://${ORG}-${PROJECT}-${ENV}.${K8S_EXTERNAL_IP}.nip.io and ArgoCD at http://argocd.${K8S_EXTERNAL_IP}.nip.io"
-      params:
-        KUBECONFIG_CONTENT: ((kubeconfig_content))
-        ORG: ($ .org $)
-        PROJECT: ($ .project $)
-        ENV: ($ .env $)
-        COMPONENT: ($ .component $)
-        DH_REPO: ((dockerhub_repository))
-        DH_IMAGE_TAG: "($ .org $)-($ .project $)-((app_image_tag))"
-        APP_REPLICAS: ((app_replicas))
-  - put: git_manifests
-    params:
-      repository: git_manifests
-  - task: restart-app
-    config:
-      platform: linux
-      image_resource:
-        type: registry-image
-        source:
-          repository: olivier2t/toolkit
-          tag: latest
-      inputs:
-      - name: git_manifests
-      - name: git_stacks
-      - name: app_image
-      outputs:
-      - name: git_manifests
-      run:
-        path: /bin/bash
-        args:
-        - -c
-        - |
-          set +e
-          echo "Restarting application..."
-          export K8S_EXTERNAL_IP=$(echo ${KUBECONFIG_CONTENT} | grep "server: https" | head -1 | grep -oE '((1?[0-9][0-9]?|2[0-4][0-9]|25[0-5])\.){3}(1?[0-9][0-9]?|2[0-4][0-9]|25[0-5])')
-          until argocd login argocd.${K8S_EXTERNAL_IP}.nip.io --username admin --password ${ARGOCD_ADMIN_PASSWORD} --grpc-web --insecure; do sleep 5; done
-          argocd app sync app-of-apps --force
-          # echo "$KUBECONFIG_CONTENT" > kubeconfig.yaml
-          # kubectl --kubeconfig kubeconfig.yaml rollout restart deployment ${ORG}-${PROJECT}-${ENV}-${COMPONENT} -n ${ORG}-${PROJECT}-${ENV}-${COMPONENT}
-      params:
-        KUBECONFIG_CONTENT: ((kubeconfig_content))
-        ARGOCD_ADMIN_PASSWORD: ((infrastructure-($ .env $)-argocd-admin-password.password))
-        ORG: ($ .org $)
-        PROJECT: ($ .project $)
-        ENV: ($ .env $)
-        COMPONENT: ($ .component $)
+  - name: deploy-infra
+    serial: true
+    max_in_flight: 1
+    build_logs_to_retain: 10
+    plan:
+      - in_parallel:
+        - get: git_stack-terraform
+          trigger: true
+        - get: git_config-terraform
+          trigger: true
 
+      - task: merge-stack-and-config
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source:
+              repository: cycloid/cycloid-toolkit
+              tag: latest
+          run:
+            path: /usr/bin/merge-stack-and-config
+          inputs:
+          - name: git_config-terraform
+            path: "config"
+          - name: git_stack-terraform
+            path: "stack"
+          outputs:
+          - name: merged-stack
+            path: "merged-stack"
+        params:
+          CONFIG_PATH: ($ .config_root $)/terraform/($ .use_case $)
+          STACK_PATH: ($ .stack_path $)/terraform/($ .use_case $)
 
-- name: delete-app
-  serial: true
-  max_in_flight: 1
-  build_logs_to_retain: 10
-  plan:
-  - get: git_manifests
-  - task: delete-app
-    config:
-      platform: linux
-      image_resource:
-        type: registry-image
-        source:
-          repository: olivier2t/toolkit
-          tag: latest
-      inputs:
-      - name: git_manifests
-      outputs:
-      - name: git_manifests
-      run:
-        path: /bin/bash
-        args:
-        - -ec
-        - |
-          echo "Deleting..."
-          cd git_manifests
-          rm -rf ($ .project $)-($ .env $)/
-          git config --global user.email "noreply@cycloid.io"
-          git config --global user.name "Cycloid Platform"
-          git add -A
-          git diff-index --quiet HEAD || git commit -m "Delete ($ .project $)-($ .env $) manifests"
-  - put: git_manifests
-    params:
-      repository: git_manifests
+      - put: tfstate
+        params:
+          terraform_source: merged-stack/
+
+  - name: deploy-app
+    serial: true
+    build_logs_to_retain: 10
+    plan:
+      - in_parallel:
+        - get: git_stack-ansible
+          trigger: true
+        - get: git_config-ansible
+          trigger: true
+        - get: tfstate
+          trigger: true
+          passed:
+            - deploy-infra
+        - get: app_image
+          trigger: true
+
+      - task: merge-stack-and-config
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source:
+              repository: cycloid/cycloid-toolkit
+              tag: latest
+          run:
+            path: /usr/bin/merge-stack-and-config
+          inputs:
+          - name: git_config-ansible
+            path: "config"
+          - name: git_stack-ansible
+            path: "stack"
+          - name: tfstate
+            path: "terraform"
+          outputs:
+          - name: merged-stack
+            path: "merged-stack"
+          - name: output-var
+            path: "output-var"
+        params:
+          CONFIG_PATH: ($ .config_root $)/ansible/environments
+          STACK_PATH: ($ .stack_path $)/ansible
+
+      - task: run-ansible
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source:
+              repository: cycloid/cycloid-toolkit
+              tag: ((ansible_version))
+          run:
+            path: /bin/bash
+            args:
+              - '-ec'
+              - |
+                # Get vm_os_user and vm_public_ip env vars from Terraform outputs
+                source ansible-playbook/env
+                cat <<-EOF >ansible-playbook/mailjet-message-tmp.json
+                {
+                  "Messages":[
+                    {
+                      "From": {
+                        "Email": "olivier.deturckheim@cycloid.io",
+                        "Name": "Cycloid Platform"
+                      },
+                      "To": [
+                        {
+                          "Email": "($ .project_owner_email $)",
+                          "Name": "($ .project_owner_name $) ($ .project_owner_surname $)"
+                        }
+                      ],
+                      "Subject": "Your application is available!",
+                      "TextPart": "Dear ($ .project_owner_name $), Your application is available. You can access it at the following URL: http://${vm_public_ip} Best regards, Cycloid Platform",
+                      "HTMLPart": "<p>Dear ($ .project_owner_name $),<br/><br/>Your application is available.<br/>You can access it at the following URL: http://${vm_public_ip}<br/><br/>Best regards,<br/>Cycloid Platform</p>"
+                    }
+                  ]
+                }
+                EOF
+                envsubst <ansible-playbook/mailjet-message-tmp.json >ansible-playbook/mailjet-message.json
+                export ANSIBLE_REMOTE_USER=${vm_os_user:-admin}
+                export ANSIBLE_EXTRA_ARGS="-i ${vm_public_ip},"
+                echo "Targeting VM with IP ${vm_public_ip}"
+                /usr/bin/ansible-runner
+          caches:
+            - path: ansible-playbook/roles
+          inputs:
+          - name: merged-stack
+            path: ansible-playbook
+          outputs:
+          - name: merged-stack
+            path: ansible-playbook
+        params:
+          #+ Parameters of ansible-runner script. Can be found here: https://github.com/cycloidio/docker-cycloid-toolkit#ansible-runner
+          SSH_PRIVATE_KEY: ((($ .project $)-($ .env $)-compute-ssh.ssh_key))
+          ANSIBLE_PLAYBOOK_PATH: ansible-playbook
+          ANSIBLE_PLAYBOOK_NAME: site.yml
+          ANSIBLE_EXTRA_VARS:
+            cy_org: ($ .org $)
+            cy_project: ($ .project $)
+            cy_env: ($ .env $)
+            cy_component: ($ .component $)
+            app_image: ((registry_repository))
+            app_tag: "($ .org $)-($ .project $)-((app_image_tag))"
+            app_port: 8080
+            hosts_service: ((hosts_service))
+            hosts_package: ((hosts_package))
+            hosts_user: ((hosts_user))
+
+      - put: mailjet-send
+        params:
+          file: merged-stack/mailjet-message.json
+
+  # Destroy the demo infrastructure after its creation (after a timer and every hour)
+  - name: destroy-infra
+    max_in_flight: 1
+    build_logs_to_retain: 10
+    plan:
+      - in_parallel:
+        - get: git_stack-terraform
+          trigger: false
+        - get: git_config-terraform
+          trigger: false
+        - get: tfstate
+          trigger: true
+
+        # In case of fail, it will help to retry every 1h to make sure the terraform is destroyed
+        - get: every-1h
+          trigger: true
+
+      # Timer to make sure the infra is destroyed at least 30 minutes after creation
+      - task: wait-a-bit
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source:
+              repository: cycloid/cycloid-toolkit
+          run:
+            path: /bin/bash
+            args:
+              - '-ec'
+              - |
+                sleep 3600
+
+      - task: merge-stack-and-config
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source:
+              repository: cycloid/cycloid-toolkit
+              tag: latest
+          run:
+            path: /usr/bin/merge-stack-and-config
+          inputs:
+          - name: git_config-terraform
+            path: "config"
+          - name: git_stack-terraform
+            path: "stack"
+          outputs:
+          - name: merged-stack
+            path: "merged-stack"
+        params:
+          CONFIG_PATH: ($ .config_root $)/terraform/($ .use_case $)
+          STACK_PATH: ($ .stack_path $)/terraform/($ .use_case $)
+
+      - put: tfstate
+        params:
+          action: destroy
+          terraform_source: merged-stack/
+        get_params:
+          action: destroy
+
+      # - task: pipeline-cleanup
+      #   config:
+      #     platform: linux
+      #     image_resource:
+      #       type: registry-image
+      #       source:
+      #         repository: cycloid/cycloid-toolkit
+      #     run:
+      #       path: /bin/bash
+      #       args:
+      #         - '-ec'
+      #         - |
+      #           echo "Pause pipeline ${PROJECT}/${ENV} in org ${CY_ORG}:"
+      #           cy pipeline pause \
+      #           --org ${CY_ORG} \
+      #           --project ${PROJECT} \
+      #           --env ${ENV} >output
+      #           if [[ "$?" != "0" ]]; then
+      #               echo "Pause Pipeline Error: cy returned code $?"
+      #               cat output
+      #               exit 1
+      #           fi
+
+      #     params:
+      #       CY_API_KEY: ((cy_api_key))
+      #       CY_API_URL: ($ .api_url $)
+      #       CY_ORG: ($ .org $)
+      #       PROJECT: ($ .project $)
+      #       ENV: ($ .env $)

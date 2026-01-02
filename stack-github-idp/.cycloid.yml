@@ -46,19 +46,3 @@ config:
       variables:
         path: pipeline/pr-monitor/variables.sample.yml
         destination: '($ .config_root $)/pipeline/pr-monitor/variables.yml'
-
-  testenv:
-    name: 'Test Environment (Automatic)'
-    description: 'Deploy an Application Test Environment using ArgoCD manifests. This is usually done automatically when a new pull request is created.'
-    pipeline:
-      pipeline:
-        path: pipeline/testenv/pipeline.yml
-      variables:
-        path: pipeline/testenv/variables.sample.yml
-        destination: '($ .config_root $)/pipeline/testenv/variables.yml'
-    custom:
-      var_path: ($ .config_root $)/vars/templating.json
-      templates:
-      - paths:
-        - templating/
-        destination: ($ .config_root $)/templating/

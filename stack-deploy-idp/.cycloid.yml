@@ -1,18 +1,27 @@
 ---
 # Configuration of the Cycloid stack
 version: '4'
-name: 'Deploy Application Release'
+name: 'Deploy Container Image'
 canonical: stack-deploy-idp
 author: Cycloid
 description: |
-  Deploy an application release to a Kubernetes cluster using ArgoCD manifests.
+  Deploy an application from a container image to a Kubernetes using ArgoCD or to IaaS cloud instance using Terraform and Ansible.
 image: |
-  https://cycloid-demo-stacks-logo.s3.eu-west-1.amazonaws.com/argocd.svg
+  https://cycloid-demo-stacks-logo.s3.eu-west-1.amazonaws.com/deployment.png
 keywords:
-  - 'kubernetes'
-  - 'argocd'
+  - 'deployment'
   - 'application'
   - 'release'
+  - 'test'
+  - 'kubernetes'
+  - 'argocd'
+  - 'container'
+  - 'instanceé'
+  - provider:kubernetes
+  - provider:aws
+  # - provider:azure
+  # - provider:gcp
+  # - provider:vmware
 technologies:
 - technology: terraform
   version: 1.8.3
@@ -20,14 +29,21 @@ technologies:
 config:
   argocd:
     name: 'ArgoCD'
-    description: 'Deploy the application release to a Kubernetes cluster using ArgoCD manifests.'
+    description: 'Deploy an Application Container Image using ArgoCD manifests.'
     cloud_provider: kubernetes
     pipeline:
       pipeline:
-        path: pipeline/pipeline.yml
+        path: pipeline/argocd/pipeline.yml
       variables:
-        path: pipeline/variables.sample.yml
-        destination: '($ .config_root $)/pipeline/variables.yml'
+        path: pipeline/argocd/variables.sample.yml
+        destination: '($ .config_root $)/pipeline/argocd/variables.yml'
+    custom:
+      var_path: ($ .config_root $)/vars/templating.json
+      templates:
+      - paths:
+        - templating/
+        destination: ($ .config_root $)/templating/
+
   aws:
     name: 'AWS'
     description: 'Deploy the application release to an EC2 instance using Terraform and Ansible.'
@@ -42,17 +58,18 @@ config:
       main:
         path: 'terraform/aws/main.tf'
         destination: '($ .config_root $)/terraform/aws/main.tf'
-  azure:
-    name: 'Azure'
-    description: 'Deploy the application release to an Azure virtual machine using Terraform and Ansible.'
-    cloud_provider: azure
-    pipeline:
-      pipeline:
-        path: pipeline/pipeline.yml
-      variables:
-        path: pipeline/variables.sample.yml
-        destination: '($ .config_root $)/pipeline/variables.yml'
-    terraform:
-      main:
-        path: 'terraform/azure/main.tf'
-        destination: '($ .config_root $)/terraform/azure/main.tf'
+
+  # azure:
+  #   name: 'Azure'
+  #   description: 'Deploy the application release to an Azure virtual machine using Terraform and Ansible.'
+  #   cloud_provider: azure
+  #   pipeline:
+  #     pipeline:
+  #       path: pipeline/pipeline.yml
+  #     variables:
+  #       path: pipeline/variables.sample.yml
+  #       destination: '($ .config_root $)/pipeline/variables.yml'
+  #   terraform:
+  #     main:
+  #       path: 'terraform/azure/main.tf'
+  #       destination: '($ .config_root $)/terraform/azure/main.tf'

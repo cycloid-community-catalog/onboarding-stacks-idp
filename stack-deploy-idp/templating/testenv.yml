@@ -2,27 +2,27 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: ${ORG}-${PROJECT}-${ENV}
+  name: ($ .org $)-($ .project $)-($ .env $)-($ .component $)
 ---
 # Deployment
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ${ORG}-${PROJECT}-${ENV}
-  namespace: ${ORG}-${PROJECT}-${ENV}
+  name: ($ .org $)-($ .project $)-($ .env $)-($ .component $)
+  namespace: ($ .org $)-($ .project $)-($ .env $)-($ .component $)
 spec:
-  replicas: ${APP_REPLICAS}
+  replicas: ($ .app_replicas $)
   selector:
     matchLabels:
-      app: ${ORG}-${PROJECT}-${ENV}
+      app: ($ .org $)-($ .project $)-($ .env $)-($ .component $)
   template:
     metadata:
       labels:
-        app: ${ORG}-${PROJECT}-${ENV}
+        app: ($ .org $)-($ .project $)-($ .env $)-($ .component $)
     spec:
       containers:
-        - name: ${ORG}-${PROJECT}-${ENV}
-          image: ${DH_REPO}:${DH_IMAGE_TAG}
+        - name: ($ .org $)-($ .project $)-($ .env $)-($ .component $)
+          image: ($ .dockerhub_repository $):($ .org $)-($ .project $)-($ .app_image_tag $)
           ports:
             - containerPort: 8080
           imagePullPolicy: Always
@@ -31,11 +31,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: ${ORG}-${PROJECT}-${ENV}
-  namespace: ${ORG}-${PROJECT}-${ENV}
+  name: ($ .org $)-($ .project $)-($ .env $)-($ .component $)
+  namespace: ($ .org $)-($ .project $)-($ .env $)-($ .component $)
 spec:
   selector:
-    app: ${ORG}-${PROJECT}-${ENV}
+    app: ($ .org $)-($ .project $)-($ .env $)-($ .component $)
   ports:
     - port: 80
       targetPort: 8080
@@ -44,37 +44,37 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: ${ORG}-${PROJECT}-${ENV}
-  namespace: ${ORG}-${PROJECT}-${ENV}
+  name: ($ .org $)-($ .project $)-($ .env $)-($ .component $)
+  namespace: ($ .org $)-($ .project $)-($ .env $)-($ .component $)
   annotations:
     nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
 spec:
   ingressClassName: nginx
   rules:
-    - host: ${ORG}-${PROJECT}-${ENV}.${K8S_EXTERNAL_IP}.nip.io
+    - host: ($ .component $).($ .org $)-($ .project $)-($ .env $).($ .dns_zone $)
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: ${ORG}-${PROJECT}-${ENV}
+                name: ($ .org $)-($ .project $)-($ .env $)-($ .component $)
                 port:
                   number: 80
   tls:
     - hosts:
-        - ${ORG}-${PROJECT}-${ENV}.${K8S_EXTERNAL_IP}.nip.io
-      secretName: ${ORG}-${PROJECT}-${ENV}-tls
-# ---
-# apiVersion: cert-manager.io/v1
-# kind: Certificate
-# metadata:
-#   name: ${ORG}-${PROJECT}-${ENV}
-#   namespace: ${ORG}-${PROJECT}-${ENV}
-# spec:
-#   secretName: ${ORG}-${PROJECT}-${ENV}-tls
-#   issuerRef:
-#     name: ssl-issuer
-#     kind: ClusterIssuer
-#   dnsNames:
-#     - ${ORG}-${PROJECT}-${ENV}.${K8S_EXTERNAL_IP}.nip.io
+        - ($ .component $).($ .org $)-($ .project $)-($ .env $).($ .dns_zone $)
+      secretName: ($ .org $)-($ .project $)-($ .env $)-($ .component $)-tls
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: ($ .org $)-($ .project $)-($ .env $)-($ .component $)
+  namespace: ($ .org $)-($ .project $)-($ .env $)-($ .component $)
+spec:
+  secretName: ($ .org $)-($ .project $)-($ .env $)-($ .component $)-tls
+  issuerRef:
+    name: ssl-issuer
+    kind: ClusterIssuer
+  dnsNames:
+    - ($ .component $).($ .org $)-($ .project $)-($ .env $).($ .dns_zone $)
