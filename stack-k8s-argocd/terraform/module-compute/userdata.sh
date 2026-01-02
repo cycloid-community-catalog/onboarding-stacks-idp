@@ -11,13 +11,20 @@ systemctl enable amazon-ssm-agent
 systemctl start amazon-ssm-agent
 # Enable IP forwarding to reach the validating webhook internally
 sudo sysctl -w net.ipv4.ip_forward=1
-# Install Docker
+# Add Docker's official GPG key:
 until sudo apt-get update; do sleep 1; done
-sudo apt-get install git ca-certificates curl -y
+sudo apt install git ca-certificates curl
 sudo install -m 0755 -d /etc/apt/keyrings
 sudo curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc
 sudo chmod a+r /etc/apt/keyrings/docker.asc
-echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+# Add the repository to Apt sources:
+sudo tee /etc/apt/sources.list.d/docker.sources <<EOF
+Types: deb
+URIs: https://download.docker.com/linux/debian
+Suites: $(. /etc/os-release && echo "$VERSION_CODENAME")
+Components: stable
+Signed-By: /etc/apt/keyrings/docker.asc
+EOF
 until sudo apt-get update; do sleep 1; done
 sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y
 sudo systemctl start docker
