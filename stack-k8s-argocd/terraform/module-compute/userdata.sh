@@ -13,7 +13,7 @@ systemctl start amazon-ssm-agent
 sudo sysctl -w net.ipv4.ip_forward=1
 # Add Docker's official GPG key:
 until sudo apt-get update; do sleep 1; done
-sudo apt install git ca-certificates curl
+sudo apt install git ca-certificates curl apt-transport-https -y
 sudo install -m 0755 -d /etc/apt/keyrings
 sudo curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc
 sudo chmod a+r /etc/apt/keyrings/docker.asc
@@ -25,8 +25,8 @@ Suites: $(. /etc/os-release && echo "$VERSION_CODENAME")
 Components: stable
 Signed-By: /etc/apt/keyrings/docker.asc
 EOF
-sudo apt-get update
-sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y
+until sudo apt-get update; do sleep 1; done
+sudo apt-get install --fix-missing docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y
 sudo systemctl start docker
 sudo systemctl enable docker
 docker --version
