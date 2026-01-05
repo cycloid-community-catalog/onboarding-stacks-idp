@@ -8,7 +8,7 @@ spec:
   source:
     repoURL: ($ .org $)-($ .project $)-($ .env $)-manifests
     targetRevision: main
-    path: ($ .org $)-($ .project $)-($ .env $)-($ .component $)
+    path: ($ .project $)-($ .env $)-($ .component $)
   destination:
     server: https://kubernetes.default.svc
     namespace: ($ .org $)-($ .project $)-($ .env $)-($ .component $)

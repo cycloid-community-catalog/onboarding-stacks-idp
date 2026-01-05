@@ -51,7 +51,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-    - host: ($ .component $).($ .org $)-($ .project $)-($ .env $).($ .dns_zone $)
+    - host: ($ .component $).($ .org $)-($ .env $).($ .dns_zone $)
       http:
         paths:
           - path: /
@@ -63,7 +63,7 @@ spec:
                   number: 80
   tls:
     - hosts:
-        - ($ .component $).($ .org $)-($ .project $)-($ .env $).($ .dns_zone $)
+        - ($ .component $).($ .org $)-($ .env $).($ .dns_zone $)
       secretName: ($ .org $)-($ .project $)-($ .env $)-($ .component $)-tls
 ---
 apiVersion: cert-manager.io/v1
