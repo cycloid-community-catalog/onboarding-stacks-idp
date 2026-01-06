@@ -40,8 +40,8 @@ use_cases:
         type: string
         default: "((azure))"
         required: false
-      - name: "Docker Hub credentials for the new software project"
-        description: "Docker Hub credentials to access the application image registry."
+      - name: "Registry credentials for the new software project"
+        description: "Registry credentials to access the application image registry."
         key: dockerhub_cred
         widget: cy_cred
         widget_config:
@@ -112,8 +112,8 @@ use_cases:
     - name: Team Members
       technologies: [pipeline]
       vars:
-      - name: "CCP/CSP Team members"
-        description: "CCP/CSP team members to invite to the new software project."
+      - name: "Infrastructure Team Members"
+        description: "Infrastructure team members to invite to the new software project."
         key: team_members_infrastructure
         widget: dropdown
         type: array
@@ -161,8 +161,8 @@ use_cases:
         widget_config:
           multiselect: true
 
-      - name: "SODS Team members"
-        description: "SODS team members to invite to the new software project."
+      - name: "Development Team Members"
+        description: "Development team members to invite to the new software project."
         key: team_members_application
         widget: dropdown
         type: array
@@ -210,8 +210,8 @@ use_cases:
         widget_config:
           multiselect: true
 
-      - name: "CSDS Team members"
-        description: "CSDS team members to invite to the new software project."
+      - name: "Integration Team Members"
+        description: "Integration team members to invite to the new software project."
         key: team_members_integration
         widget: dropdown
         type: array

@@ -1,11 +1,11 @@
 ---
 # Configuration of the Cycloid stack
 version: '4'
-name: 'CBS Project Onboarding'
+name: 'IDP Project Onboarding'
 canonical: stack-onboarding-idp
 author: Cycloid
 description: |
-  Onboard a new software project by creating a new Cycloid Organization, Projects and Environments to manage it, deploy a Kubernetes ArgoCD cluster to deploy the application and invite the team members with the RBAC roles they need to manage the project.
+  Onboard a new software project by creating a new Cycloid Organization, Projects and Environments and invite the team members with the RBAC roles they need to manage the project and test environment.
 image: |
   https://cycloid-demo-stacks-logo.s3.eu-west-1.amazonaws.com/git-argocd.png
 keywords:
