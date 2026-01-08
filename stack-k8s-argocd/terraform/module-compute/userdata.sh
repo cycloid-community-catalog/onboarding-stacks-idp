@@ -121,6 +121,7 @@ kubectl -n argocd patch secret argocd-secret -p "{\"stringData\": {\"admin.passw
 kubectl -n argocd delete pod -l app.kubernetes.io/name=argocd-server
 until argocd login ${ARGOCD_URL} --username admin --password ${ARGOCD_ADMIN_PASSWORD} --grpc-web --insecure; do sleep 5; done
 argocd version
+sleep 5
 echo "${GIT_PRIVATE_KEY}" >/home/${USERNAME}/.ssh/git-argocd
 argocd repo add ${GIT_SSH_URL} --ssh-private-key-path /home/${USERNAME}/.ssh/git-argocd
 argocd app create app-of-apps --repo ${GIT_SSH_URL} --path . --dest-namespace default --dest-server https://kubernetes.default.svc --directory-recurse --sync-policy auto --auto-prune
