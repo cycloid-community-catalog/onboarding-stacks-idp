@@ -47,7 +47,7 @@ resource "aws_instance" "ec2" {
       USERNAME = var.vm_os_user
       ARGOCD_VERSION = var.argocd_version
       ARGOCD_URL = "argocd.${var.cy_org}-${var.cy_env}.${var.vm_aws_route53_zone}"
-      ARGOCD_ADMIN_PASSWORD = random_password.argocd_admin_password.result
+      ARGOCD_ADMIN_PASSWORD = local.argocd_admin_password
       GIT_SSH_URL = var.git_ssh_url
       GIT_PRIVATE_KEY = var.git_private_key
     }
