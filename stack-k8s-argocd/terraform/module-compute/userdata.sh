@@ -13,7 +13,7 @@ systemctl start amazon-ssm-agent
 sudo sysctl -w net.ipv4.ip_forward=1
 # Add Docker's official GPG key:
 until sudo apt-get update; do sleep 1; done
-sudo apt install git ca-certificates curl apt-transport-https -y
+sudo apt-get install git ca-certificates curl apt-transport-https -y
 sudo install -m 0755 -d /etc/apt/keyrings
 sudo curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc
 sudo chmod a+r /etc/apt/keyrings/docker.asc
