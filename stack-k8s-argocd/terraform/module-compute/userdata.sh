@@ -79,6 +79,22 @@ export HOME=/home/${USERNAME}
 export KUBECONFIG=/home/${USERNAME}/.kube/config
 # Install Ingress Nginx Controller
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
+# Install cert-manager
+kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.13.3/cert-manager.yaml
+# Wait for cert-manager to be ready
+kubectl wait --for=condition=available deployment/cert-manager -n cert-manager --timeout=300s || true
+kubectl wait --for=condition=available deployment/cert-manager-webhook -n cert-manager --timeout=300s || true
+kubectl wait --for=condition=available deployment/cert-manager-cainjector -n cert-manager --timeout=300s || true
+sleep 10
+# Create a self-signed ClusterIssuer for development/testing
+cat <<-EOF | kubectl apply -f -
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: ssl-issuer
+spec:
+  selfSigned: {}
+EOF
 # Install ArgoCD
 kubectl create namespace argocd
 kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/${ARGOCD_VERSION}/manifests/install.yaml

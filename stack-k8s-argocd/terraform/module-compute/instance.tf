@@ -1,5 +1,5 @@
 resource "aws_security_group" "ec2" {
-  name        = "${var.cy_org}-${var.cy_project}-${var.cy_env}-${var.cy_component}"
+  name        = "${var.cy_org}-${var.cy_env}-${var.cy_component}"
   vpc_id      = module.vpc.vpc_id
 }
 
@@ -54,7 +54,7 @@ resource "aws_instance" "ec2" {
   ))
 
   tags = {
-    Name = "${var.cy_org}-${var.cy_project}-${var.cy_env}-${var.cy_component}"
+    Name = "${var.cy_org}-${var.cy_env}-${var.cy_component}"
     role = "argocd-server"
   }
 

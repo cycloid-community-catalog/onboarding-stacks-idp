@@ -118,23 +118,23 @@ jobs:
         - |
           set +e
           echo "Pushing manifests..."
-          mkdir -p git_manifests/($ .project $)-($ .env $)-($ .component $)
+          mkdir -p git_manifests/($ .component $)
           # Uses as is the Cycloid generated manifests
-          cp -r git_config/($ .config_root $)/templating/* git_manifests/($ .project $)-($ .env $)-($ .component $)/
+          cp -r git_config/($ .config_root $)/templating/* git_manifests/($ .component $)/
           # Uncomment the following if you have custom variables to replace in the manifests
           # for file in git_config/($ .config_root $)/templating/*; do
           #   echo "Processing $file"
-          #   envsubst < $file > git_manifests/($ .project $)-($ .env $)-($ .component $)/$(basename $file)
+          #   envsubst < $file > git_manifests/($ .component $)/$(basename $file)
           # done
           cd git_manifests
           git config --global user.email "noreply@cycloid.io"
           git config --global user.name "Cycloid Platform"
           git add .
-          git diff-index --quiet HEAD || git commit -m "Add ($ .project $)-($ .env $)-($ .component $) manifests"
+          git diff-index --quiet HEAD || git commit -m "Add ($ .component $) manifests"
           
           echo "Generating GitHub comment..."
           GH_PR_URL=https://api.github.com/repos/cycloid-demo/${ORG}-${PROJECT}-app/issues/$(echo ($ .component $) | sed 's/pr//g')/comments
-          APP_URL=$(yq e '.spec.rules[0].host' git_manifests/($ .project $)-($ .env $)-($ .component $)/testenv.yml | grep -v "null" | grep -v ^-)
+          APP_URL=$(yq e '.spec.rules[0].host' git_manifests/($ .component $)/testenv.yml | grep -v "null" | grep -v ^-)
           message="✅ Environment deployed at $APP_URL"
           echo $message
           echo "{\"body\": \"$message\"}" | \
