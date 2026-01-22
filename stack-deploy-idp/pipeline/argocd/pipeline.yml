@@ -134,6 +134,7 @@ jobs:
           
           echo "Generating GitHub comment..."
           GH_PR_URL=https://api.github.com/repos/cycloid-demo/${ORG}-${PROJECT}-app/issues/$(echo ($ .component $) | sed 's/pr//g')/comments
+          cat git_manifests/($ .component $)/testenv.yml
           APP_URL=$(yq e '.spec.rules[0].host' git_manifests/($ .component $)/testenv.yml | grep -v "null" | grep -v ^-)
           message="✅ Environment deployed at $APP_URL"
           echo $message

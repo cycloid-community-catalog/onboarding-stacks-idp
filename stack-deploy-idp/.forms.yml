@@ -9,10 +9,10 @@ use_cases:
       technologies: [pipeline, custom]
       vars:
       - name: "Application Image Tag"
-        description: "The application release tag to use for the container image. For example, 'pr1' for a test environment or '1.0.1' for an application release."
+        description: "The application release tag to use for the container image ('1.0.1' for an application release, leave empty for a test environment)."
         key: app_image_tag
         widget: simple_text
-        required: true
+        required: false
         type: string
         default: "1.0.0"
 
