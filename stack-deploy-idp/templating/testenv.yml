@@ -22,7 +22,7 @@ spec:
     spec:
       containers:
         - name: ($ .org $)-($ .env $)-($ .component $)
-          image: ($ .dockerhub_repository $):($ .org $)-($ .project $)-($ if eq .app_image_tag "" .component else .app_image_tag $)
+          image: ($ .dockerhub_repository $):($ .org $)-($ .project $)-($ if eq .app_image_tag "" $)($ .component $)($ else $)($ .app_image_tag $)($ end $)
           ports:
             - containerPort: 8080
           imagePullPolicy: Always
