@@ -65,7 +65,7 @@ jobs:
                     --project "$CY_PROJECT" --env "$CY_ENV" \
                     --component "pr${GH_PR}" \
                     --stack-ref "$stack_deploy" --use-case "argocd" \
-                    -V "config.argocd.app_image_tag=$CY_ORG-$CY_PROJECT-pr${GH_PR}" \
+                    -V "config.application.app_image_tag=pr${GH_PR}" \
                     -V "config.kubernetes.app_replicas=((app_replicas))" \
                     -V "config.dockerhub.dockerhub_repository=((dockerhub_repository))" \
                     -V "config.dns.dns_zone=((dns_zone))" \
