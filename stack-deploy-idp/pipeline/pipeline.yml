@@ -302,7 +302,6 @@ jobs:
             cy_env: ($ .env $)
             cy_component: ($ .component $)
             app_image: ((registry_repository))
-            app_tag: "($ .org $)-($ .project $)-((app_image_tag))"
             app_port: 8080
             hosts_service: ((hosts_service))
             hosts_package: ((hosts_package))

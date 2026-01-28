@@ -54,7 +54,7 @@ vsphere_cred: ((vsphere))
 #
 
 #. app_image_tag (required):  "1.0.0"
-#+ The tag to use for the container image.
+#+ The tag to use for the container image. Example: "pr1" for a pull request environment or "1.0.0" for a release environment.
 app_image_tag: "1.0.0"
 
 

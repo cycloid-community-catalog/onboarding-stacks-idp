@@ -8,15 +8,15 @@ resources:
 #     branch: ((app_git_branch))
 #     private_key: ((app_git_ssh_key))
 
-# Application container image
+# Where we will get the image
 - name: app_image
   type: registry-image
   icon: docker
   source:
-    repository: ((dockerhub_repository))
-    username: ((dockerhub_username))
-    password: ((dockerhub_password))
-    tag: ((dockerhub_image_tag))
+    repository: ((registry_repository))
+    username: ((registry_username))
+    password: ((registry_password))
+    tag: "($ .org $)-($ .project $)-((app_image_tag))"
 
 # The repo with our manifests
 - name: git_manifests
@@ -118,24 +118,23 @@ jobs:
         - |
           set +e
           echo "Pushing manifests..."
-          mkdir -p git_manifests/($ .component $)
+          mkdir -p git_manifests/${APP_IMAGE_TAG}
           # Uses as is the Cycloid generated manifests
-          cp -r git_config/($ .config_root $)/templating/* git_manifests/($ .component $)/
+          cp -r git_config/($ .config_root $)/templating/* git_manifests/${APP_IMAGE_TAG}/
           # Uncomment the following if you have custom variables to replace in the manifests
           # for file in git_config/($ .config_root $)/templating/*; do
           #   echo "Processing $file"
-          #   envsubst < $file > git_manifests/($ .component $)/$(basename $file)
+          #   envsubst < $file > git_manifests/${APP_IMAGE_TAG}/$(basename $file)
           # done
           cd git_manifests
           git config --global user.email "noreply@cycloid.io"
           git config --global user.name "Cycloid Platform"
           git add .
-          git diff-index --quiet HEAD || git commit -m "Add ($ .component $) manifests"
+          git diff-index --quiet HEAD || git commit -m "Add ${APP_IMAGE_TAG} manifests"
           
           echo "Generating GitHub comment..."
           GH_PR_URL=https://api.github.com/repos/cycloid-demo/${ORG}-${PROJECT}-app/issues/$(echo ($ .component $) | sed 's/pr//g')/comments
-          cat git_manifests/($ .component $)/testenv.yml
-          APP_URL=$(yq e '.spec.rules[0].host' git_manifests/($ .component $)/testenv.yml | grep -v "null" | grep -v ^-)
+          APP_URL=$(yq e '.spec.rules[0].host' ${APP_IMAGE_TAG}/testenv.yml | grep -v "null" | grep -v ^-)
           message="✅ Environment deployed at $APP_URL"
           echo $message
           echo "{\"body\": \"$message\"}" | \
@@ -152,6 +151,7 @@ jobs:
         ENV: ($ .env $)
         COMPONENT: ($ .component $)
         GITHUB_TOKEN: ((github-pat.token))
+        APP_IMAGE_TAG: ((app_image_tag))
   - put: git_manifests
     params:
       repository: git_manifests

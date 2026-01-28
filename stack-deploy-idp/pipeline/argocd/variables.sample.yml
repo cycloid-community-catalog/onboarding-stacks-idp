@@ -1,22 +1,27 @@
 #
+# Application Image Tag
+#
+
+#. app_image_tag (required):  ""
+#+ The tag to use for the container image. Example: "pr1" for a pull request environment or "1.0.0" for a release environment.
+app_image_tag: ""
+
+
+#
 # Registry
 #
 
-#. dockerhub_repository (required): "olivier2t/app-test-env"
+#. registry_repository (required): ''
 #+ The repository path to use for the container images.
-dockerhub_repository: "olivier2t/app-test-env"
+registry_repository: "olivier2t/app-prod"
 
-#. dockerhub_username (required): "((dockerhub.username))"
+#. registry_username (required): ''
 #+ The username to access the registry.
-dockerhub_username: "((dockerhub.username))"
+registry_username: "((dockerhub.username))"
 
-#. dockerhub_password (required): "((dockerhub.password))"
+#. registry_password (required): ''
 #+ The password to access the registry.
-dockerhub_password: "((dockerhub.password))"
-
-#. dockerhub_image_tag (required): "($ .org $)-($ .project $)-($ .component $)"
-#+ The tag to use for the container image.
-dockerhub_image_tag: "($ .org $)-($ .project $)-($ .component $)"
+registry_password: "((dockerhub.password))"
 
 
 #
