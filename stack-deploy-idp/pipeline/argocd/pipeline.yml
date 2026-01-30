@@ -133,8 +133,8 @@ jobs:
           git diff-index --quiet HEAD || git commit -m "Add ${APP_IMAGE_TAG} manifests"
           
           echo "Generating GitHub comment..."
-          GH_PR_URL=https://api.github.com/repos/cycloid-demo/${ORG}-${PROJECT}-app/issues/$(echo ($ .component $) | sed 's/pr//g')/comments
-          APP_URL=$(yq e '.spec.rules[0].host' ${APP_IMAGE_TAG}/testenv.yml | grep -v "null" | grep -v ^-)
+          GH_PR_URL=https://api.github.com/repos/cycloid-demo/${ORG}-${PROJECT}-app/issues/$(echo ${APP_IMAGE_TAG} | sed 's/pr//g')/comments
+          APP_URL="https://($ .component $).${ORG}-${ENV}.${DNS_ZONE}"
           message="✅ Environment deployed at $APP_URL"
           echo $message
           echo "{\"body\": \"$message\"}" | \
@@ -149,9 +149,9 @@ jobs:
         ORG: ($ .org $)
         PROJECT: ($ .project $)
         ENV: ($ .env $)
-        COMPONENT: ($ .component $)
         GITHUB_TOKEN: ((github-pat.token))
         APP_IMAGE_TAG: ((app_image_tag))
+        DNS_ZONE: ((dns_zone))
   - put: git_manifests
     params:
       repository: git_manifests

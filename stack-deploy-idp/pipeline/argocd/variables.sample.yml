@@ -73,6 +73,14 @@ app_replicas: 3
 kubeconfig_content: "((infrastructure-($ .env $)-kubeconfig.kubeconfig))"
 
 #
+# DNS Zone
+#
+
+#. dns_zone (required): 'demo.cycloid.io'
+#+ DNS zone to use for the application.
+dns_zone: "demo.cycloid.io"
+
+#
 # Default variables
 #
 
