@@ -181,8 +181,7 @@ jobs:
         - -ec
         - |
           echo "Deleting..."
-          cd git_manifests
-          rm -rf ($ .project $)-($ .env $)-($ .component $)/
+          rm -rf git_manifests/${APP_IMAGE_TAG}
           git config --global user.email "noreply@cycloid.io"
           git config --global user.name "Cycloid Platform"
           git add .
