@@ -30,18 +30,6 @@ variable "vm_os_user" {
   default     = "admin"
 }
 
-variable "res_selector" {
-  description = "Whether to create a new VPC or select an existing one"
-}
-
-variable "vpc_id_inventory" {
-  description = "VPC where to deploy the resources"
-}
-
-variable "vpc_id_manual" {
-  description = "VPC where to deploy the resources"
-}
-
 variable "database_enabled" {
   description = "Does you application needs a database?"
 }

@@ -24,18 +24,6 @@ module "compute" {
   #+ Ingress TCP ports allowed from the internet
   vm_ports_in = [22, 80, 443, 3000, 8080]
 
-  #. res_selector: ''
-  #+ Whether to create a new VPC or select an existing one
-  res_selector = ""
-
-  #. vpc_id_inventory: ''
-  #+ VPC where to deploy the resources
-  vpc_id_inventory = ""
-
-  #. vpc_id_manual: ''
-  #+ VPC where to deploy the resources
-  vpc_id_manual = ""
-
   #. database_enabled: ''
   #+ Does you application needs a database?
   database_enabled = ""
