@@ -64,7 +64,7 @@ app_image_tag: "1.0.0"
 
 #. registry_repository (required): ''
 #+ The repository path to use for the container images.
-registry_repository: "olivier2t/app-prod"
+registry_repository: "olivier2t/app-test-env"
 
 #. registry_username (required): ''
 #+ The username to access the registry.
