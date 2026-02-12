@@ -58,6 +58,10 @@ config:
       main:
         path: 'terraform/aws/main.tf'
         destination: '($ .config_root $)/terraform/aws/main.tf'
+    ansible:
+      docker:
+        path: 'ansible/environments/docker.yml.sample'
+        destination: '($ .config_root $)/ansible/environments/docker.yml'
 
   # azure:
   #   name: 'Azure'
