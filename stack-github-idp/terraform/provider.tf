@@ -1,7 +1,7 @@
 provider "cycloid" {
-  organization_canonical = var.cy_org
+  default_organization = var.cy_org
   api_key                = var.cy_api_key
-  url                    = var.cy_api_url
+  api_url                = var.cy_api_url
 }
 
 provider "github" {
