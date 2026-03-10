@@ -41,7 +41,13 @@ resources:
   icon: github-circle
   source:
     uri: ($ .scs_url $)
-    branch: ($ .scs_branch $)
+    ($- if eq .stack_version_type "branch" $)
+    branch: ($ .stack_version_ref $)
+    ($- end $) 
+    ($- if eq .stack_version_type "tag" $)
+    tag_filter: ($ .stack_version_ref $)
+    fetch_tags: true
+    ($- end $) 
     ($- if eq .scs_cred_type "basic_auth" $)
     username: ((($ .scs_cred_path $).username))
     password: ((($ .scs_cred_path $).password))
@@ -436,3 +442,34 @@ jobs:
           terraform_source: merged-stack/
         get_params:
           action: destroy
+
+      - task: pause-pipeline
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source:
+              repository: cycloid/cycloid-toolkit
+          run:
+            path: /bin/bash
+            args:
+              - '-ec'
+              - |
+                echo "Pause pipeline ${PROJECT}/${ENV}/${COMPONENT} in org ${CY_ORG}"
+                cy pipeline pause \
+                --org ${CY_ORG} \
+                --project ${PROJECT} \
+                --env ${ENV} \
+                --component ${COMPONENT} >output
+                if [[ "$?" != "0" ]]; then
+                    echo "Pause Pipeline Error: cy returned code $?"
+                    cat output
+                    exit 1
+                fi
+          params:
+            CY_API_KEY: ((cy_api_key))
+            CY_API_URL: ($ .api_url $)
+            CY_ORG: ($ .org $)
+            PROJECT: ($ .project $)
+            ENV: ($ .env $)
+            COMPONENT: ($ .component $)
