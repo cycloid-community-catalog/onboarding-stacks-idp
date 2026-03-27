@@ -1,0 +1,3 @@
+# Cycloid pipeline variables, you can put pipeline specific defaults
+
+terraform_version: "1.14.6"

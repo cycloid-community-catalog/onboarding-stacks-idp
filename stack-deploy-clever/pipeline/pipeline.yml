@@ -1,0 +1,139 @@
+# Cycloid pipeline — Clever Cloud Three-Tier Application
+# Jobs: terraform-plan · terraform-apply · terraform-destroy
+
+shared:
+- &task-merge-stack-and-config
+  task: merge-stack-and-config
+  config:
+    platform: linux
+    image_resource:
+      type: registry-image
+      source:
+        repository: cycloid/cycloid-toolkit
+        tag: latest
+    run:
+      path: /usr/bin/merge-stack-and-config
+    inputs:
+    - name: git-stack
+      path: stack
+    - name: git-config
+      path: config
+    outputs:
+    - name: merged-stack
+    params:
+      STACK_PATH: ($ .stack_path $)
+      CONFIG_PATH: ($ .config_root $)/terraform
+
+groups:
+- name: overview
+  jobs:
+  - terraform-plan
+  - terraform-apply
+- name: destroy
+  jobs:
+  - terraform-destroy
+
+resource_types:
+- name: terraform
+  type: registry-image
+  source:
+    repository: cycloid/terraform-resource
+    tag: ((terraform_version))
+
+resources:
+- name: git-stack
+  type: git
+  icon: github-circle
+  source:
+    uri: "($ .catalog_repository_url $)"
+    ($- if eq .stack_version_type "tag" $)
+    tag_filter: ($ .stack_version_ref $)
+    fetch_tags: true
+    ($- else $)
+    branch: ($ coalesce .stack_version_ref .catalog_repository_branch $)
+    ($- end $)
+    ($- if eq .catalog_repository_credential_type "basic_auth" $)
+    username: ((($ .catalog_repository_credential_path $).username))
+    password: ((($ .catalog_repository_credential_path $).password))
+    ($- else if eq .catalog_repository_credential_type "ssh" $)
+    private_key: ((($ .catalog_repository_credential_path $).ssh_key))
+    ($- end $)
+    paths:
+    - ($ .stack_path $)/*
+
+- name: git-config
+  type: git
+  icon: github-circle
+  source:
+    uri: "($ .config_repository_url $)"
+    branch: ($ .config_repository_branch $)
+    ($- if eq .config_repository_credential_type "basic_auth" $)
+    username: ((($ .config_repository_credential_path $).username))
+    password: ((($ .config_repository_credential_path $).password))
+    ($- else if eq .config_repository_credential_type "ssh" $)
+    private_key: ((($ .config_repository_credential_path $).ssh_key))
+    ($- end $)
+    paths:
+    - ($ .config_root $)/*
+
+- name: tfstate
+  type: terraform
+  icon: terraform
+  source:
+    env_name: "($ .environment $)"
+    backend_type: http
+    backend_config:
+      address: '($ .api_url $)/inventory?jwt=($ .inventory_jwt $)'
+      skip_cert_verification: true
+    env:
+      CY_API_KEY: ((admin-api-key.key))
+      CY_API_URL: "($ .api_url $)"
+      CY_ORG: "($ .organization $)"
+
+jobs:
+- name: terraform-plan
+  serial: true
+  plan:
+  - in_parallel:
+    - get: git-stack
+      trigger: true
+    - get: git-config
+      trigger: true
+  - !!merge <<: *task-merge-stack-and-config
+  - put: tfstate
+    params:
+      plan_only: true
+      terraform_source: merged-stack/
+
+- name: terraform-apply
+  serial: true
+  plan:
+  - in_parallel:
+    - get: git-stack
+      trigger: false
+      passed: [terraform-plan]
+    - get: git-config
+      trigger: false
+      passed: [terraform-plan]
+    - get: tfstate
+      trigger: false
+      passed: [terraform-plan]
+  - !!merge <<: *task-merge-stack-and-config
+  - put: tfstate
+    params:
+      plan_run: true
+      terraform_source: merged-stack/
+
+- name: terraform-destroy
+  serial: true
+  plan:
+  - in_parallel:
+    - get: git-stack
+      trigger: false
+    - get: git-config
+      trigger: false
+  - !!merge <<: *task-merge-stack-and-config
+  - put: tfstate
+    params:
+      action: destroy
+      terraform_source: merged-stack/

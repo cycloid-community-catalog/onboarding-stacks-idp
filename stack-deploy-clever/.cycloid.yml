@@ -1,0 +1,21 @@
+version: "4"
+name: Clever Cloud Docker Application
+canonical: stack-deploy-clever
+author: Cycloid
+description: >
+  Deploys a Docker application on Clever Cloud. Includes a PostgreSQL database, isolated via a network group.
+image: https://www.clever-cloud.com/images/clever-cloud.svg
+
+config:
+  deploy:
+    name: Deploy
+    pipeline:
+      pipeline:
+        path: pipeline/pipeline.yml
+      variables:
+        path: pipeline/variables.sample.yml
+        destination: "($ .config_root $)/pipeline/variables.yml"
+    terraform:
+      main:
+        path: terraform/main.tf
+        destination: "($ .config_root $)/terraform/main.tf"

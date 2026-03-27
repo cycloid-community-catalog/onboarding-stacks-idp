@@ -1,0 +1,158 @@
+version: "2"
+use_cases:
+- name: deploy
+  sections:
+  - name: General
+    groups:
+    - name: Application Settings
+      technologies: [terraform]
+      vars:
+      - name: Region
+        key: tf_region
+        widget: dropdown
+        type: string
+        default: "grahds"
+        values:
+        - par
+        - rbx
+        - grahds
+        description: Clever Cloud region where resources will be deployed.
+
+      - name: Application Subdomain
+        key: app_subdomain
+        widget: simple_text
+        type: string
+        required: true
+        description: >
+          Subdomain used as the shared FQDN for frontend and backend vhosts (e.g. my-app.cleverapps.io).
+  - name: Network
+    groups:
+    - name: Network Group
+      technologies: [terraform]
+      vars:
+      - name: Network Group Name
+        key: network_group_name
+        widget: simple_text
+        type: string
+        required: true
+        description: Name of the Clever Cloud network group that isolates database traffic.
+
+      - name: Network Group Description
+        key: network_group_description
+        widget: simple_text
+        type: string
+        default: ""
+        description: Optional description for the network group.
+
+      - name: Network Group Tags
+        key: network_group_tags
+        widget: auto_complete
+        type: array
+        default: []
+        values: ["($ .environment $)"]
+        widget_config:
+          multiselect: true
+        description: Tags to apply to the network group.
+
+  - name: Database
+    groups:
+    - name: PostgreSQL
+      technologies: [terraform]
+      vars:
+      - name: Database Name
+        key: postgresql_name
+        widget: simple_text
+        type: string
+        required: true
+        description: Name of the PostgreSQL add-on.
+
+      - name: Database Plan
+        key: postgresql_plan
+        widget: dropdown
+        type: string
+        default: "xxs_sml"
+        values:
+        - xxs_sml
+        - s_sml
+        - m_sml
+        description: PostgreSQL plan size.
+
+  - name: Docker Application
+    groups:
+    - name: Docker Application
+      technologies: [terraform]
+      vars:
+      - name: Docker Application Name
+        key: docker_name
+        widget: simple_text
+        type: string
+        required: true
+        description: Name of the Docker application.
+
+      - name: Min Instance Count
+        key: docker_min_instance_count
+        widget: slider_list
+        type: integer
+        default: 1
+        values:
+        - 1
+        - 2
+        - 3
+        - 4
+        description: Minimum number of Docker application instances.
+
+      - name: Max Instance Count
+        key: docker_max_instance_count
+        widget: slider_list
+        type: integer
+        default: 2
+        values:
+        - 1
+        - 2
+        - 3
+        - 4
+        description: Maximum number of Docker application instances.
+
+      - name: Smallest Instance Flavor
+        key: docker_smallest_flavor
+        widget: dropdown
+        type: string
+        default: "XS"
+        values:
+        - XS
+        - S
+        - M
+        description: Smallest instance flavor for the Docker application.
+
+      - name: Biggest Instance Flavor
+        key: docker_biggest_flavor
+        widget: dropdown
+        type: string
+        default: "XS"
+        values:
+        - XS
+        - S
+        - M
+        description: Biggest instance flavor the Docker application can scale up to.
+
+      - name: API Path Prefix
+        key: docker_path_begin
+        widget: simple_text
+        type: string
+        required: true
+        description: URL path prefix routing traffic to the Docker application (e.g. /api).
+
+      - name: Exposed HTTP Port
+        key: docker_exposed_http_port
+        widget: number
+        type: integer
+        required: true
+        description: Port exposed by the Docker application for HTTP traffic.
+
+      - name: Docker Hub Image
+        key: docker_image
+        widget: simple_text
+        type: string
+        required: true
+        description: >-
+          Docker Hub image reference (e.g. nginx:alpine or org/app:1.0).
