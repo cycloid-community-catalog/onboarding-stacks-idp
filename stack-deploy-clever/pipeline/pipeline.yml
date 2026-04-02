@@ -21,7 +21,8 @@ shared:
     outputs:
     - name: merged-stack
     params:
-      STACK_PATH: ($ .stack_path $)
+      # Terraform root must match terraform_source (merged-stack/). Same pattern as stack-postgresql.
+      STACK_PATH: ($ .stack_path $)/terraform
       CONFIG_PATH: ($ .config_root $)/terraform
 
 groups:
@@ -59,7 +60,8 @@ resources:
     private_key: ((($ .catalog_repository_credential_path $).ssh_key))
     ($- end $)
     paths:
-    - ($ .stack_path $)/*
+    - ($ .stack_path $)/terraform/*
+    - ($ .stack_path $)/terraform/module-clever/*
 
 - name: git-config
   type: git
