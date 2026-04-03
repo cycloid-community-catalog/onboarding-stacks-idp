@@ -19,7 +19,8 @@ resource "clevercloud_postgresql" "app_postgresql" {
   ]
 }
 
-# Docker Application — image from Docker Hub; PostgreSQL add-on linked via dependencies
+# Docker application: Clever clones app_git_repository at git_ref, then runs docker build (Dockerfile in repo).
+# On first create, the Terraform provider pushes that tree to Clever’s deploy remote (GitDeploy).
 resource "clevercloud_docker" "app_docker" {
   name               = var.docker_name
   region             = var.tf_region
@@ -30,9 +31,18 @@ resource "clevercloud_docker" "app_docker" {
 
   container_port = var.docker_exposed_http_port
 
-  registry_url      = var.dockerhub_registry_url
-  registry_user     = var.dockerhub_username
-  registry_password = var.dockerhub_password
+  registry_url      = local.docker_registry_url
+  registry_user     = local.docker_registry_user
+  registry_password = local.docker_registry_password
+
+  app_folder = local.app_git_folder_trimmed != "" ? local.app_git_folder_trimmed : null
+  dockerfile = var.app_dockerfile_name != "" && var.app_dockerfile_name != "Dockerfile" ? var.app_dockerfile_name : null
+
+  deployment {
+    repository           = var.app_git_repository
+    commit               = local.git_ref
+    authentication_basic = local.resolved_git_auth_basic
+  }
 
   networkgroups = [
     {
@@ -49,10 +59,6 @@ resource "clevercloud_docker" "app_docker" {
   dependencies = [clevercloud_postgresql.app_postgresql.id]
 
   environment = {
-    # Docker image from Docker Hub
-    CC_MOUNT_DOCKER_IMAGE = var.docker_image
-
-    # Add-on endpoint (libpq / many runtimes)
     DATABASE_URL = clevercloud_postgresql.app_postgresql.uri
   }
 }

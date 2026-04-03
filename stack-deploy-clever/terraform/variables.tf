@@ -62,9 +62,35 @@ variable "docker_exposed_http_port" {
   type = number
 }
 
-variable "docker_image" {
+variable "app_git_repository" {
+  type        = string
+  description = "HTTPS URL of the application Git repository (contains Dockerfile)."
+}
+
+variable "app_git_branch" {
   type    = string
-  default = "nginx:alpine"
+  default = "main"
+}
+
+variable "app_release_tag" {
+  type    = string
+  default = ""
+}
+
+variable "app_git_folder" {
+  type    = string
+  default = ""
+}
+
+variable "app_dockerfile_name" {
+  type    = string
+  default = "Dockerfile"
+}
+
+variable "app_git_auth_basic" {
+  type      = string
+  sensitive = true
+  default   = null
 }
 
 variable "dockerhub_registry_url" {

@@ -1,39 +1,59 @@
 # Cycloid pipeline variables — values are merged into the generated pipeline/variables.yml
 
 #
-# Clever Cloud / application (aligned with .forms.yml → Terraform variables)
+# Application Git (Clever clones this repo and runs docker build from your Dockerfile)
+#
+
+#. app_git_repository (required): https://github.com/my-org/my-app.git
+#+ HTTPS URL of the repository that contains the Dockerfile.
+app_git_repository: https://github.com/my-org/my-app.git
+
+#. app_git_branch (required): main
+#+ Branch used when app_release_tag is empty (latest commit on that branch).
+app_git_branch: main
+
+#. app_release_tag (required): ''
+#+ Set to a tag (e.g. 1.0.1) to deploy that tag; leave empty to use app_git_branch.
+app_release_tag: ""
+
+#. app_git_folder (required): ''
+#+ Optional subfolder in the repo where the Dockerfile lives (e.g. apps/api).
+app_git_folder: ""
+
+#. app_dockerfile_name (required): Dockerfile
+#+ Dockerfile name relative to the application folder.
+app_dockerfile_name: Dockerfile
+
+#. app_git_auth_basic (required): ''
+#+ Optional private repo auth as username:token (e.g. GitHub PAT). Leave empty for public repos.
+app_git_auth_basic: ""
+
+#
+# Clever Cloud / infrastructure
 #
 
 #. tf_region (required): grahds
-#+ Clever Cloud region (par, rbx, grahds).
 tf_region: grahds
 
 #. app_subdomain (required): my-app
-#+ Subdomain for Clever vhosts (e.g. my-app.cleverapps.io).
 app_subdomain: my-app
 
 #. network_group_name (required): my-network
-#+ Clever Cloud network group isolating database traffic.
 network_group_name: my-network
 
 #. network_group_description (required): ''
-#+ Optional description for the network group.
 network_group_description: ""
 
 #. network_group_tags (required): []
-#+ Tags for the network group (list of strings).
 network_group_tags: []
 
 #. postgresql_name (required): pg-myapp
-#+ PostgreSQL add-on name.
 postgresql_name: pg-myapp
 
 #. postgresql_plan (required): xxs_sml
-#+ PostgreSQL plan size.
 postgresql_plan: xxs_sml
 
 #. docker_name (required): app-myapp
-#+ Docker application name on Clever Cloud.
 docker_name: app-myapp
 
 #. docker_min_instance_count (required): 1
@@ -49,15 +69,10 @@ docker_smallest_flavor: XS
 docker_biggest_flavor: XS
 
 #. docker_path_begin (required): /api
-#+ URL path prefix routed to the Docker app.
 docker_path_begin: /api
 
 #. docker_exposed_http_port (required): 8080
-#+ HTTP port exposed by the container.
 docker_exposed_http_port: 8080
-
-#. docker_image (required): nginx:alpine
-docker_image: nginx:alpine
 
 #. dockerhub_registry_url (required): ''
 dockerhub_registry_url: ""
@@ -73,9 +88,7 @@ dockerhub_password: ""
 #
 
 #. cy_api_key (required): ((admin-api-key.key))
-#+ Cycloid API key for the cycloid Terraform provider (credentials lookup).
 cy_api_key: ((admin-api-key.key))
 
 #. terraform_version (required): '1.14.6'
-#+ Terraform version for cycloid/terraform-resource.
 terraform_version: "1.14.6"

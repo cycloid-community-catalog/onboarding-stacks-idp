@@ -7,24 +7,51 @@ use_cases:
     - name: Application Settings
       technologies: [terraform]
       vars:
-      - name: Region
-        key: tf_region
-        widget: dropdown
-        type: string
-        default: "grahds"
-        values:
-        - par
-        - rbx
-        - grahds
-        description: Clever Cloud region where resources will be deployed.
-
-      - name: Application Subdomain
-        key: app_subdomain
+      - name: Application Git repository
+        key: app_git_repository
         widget: simple_text
         type: string
         required: true
         description: >
-          Subdomain used as the shared FQDN for frontend and backend vhosts (e.g. my-app.cleverapps.io).
+          HTTPS URL of the Git repository that contains the Dockerfile (e.g. https://github.com/my-org/my-app.git).
+          Clever Cloud clones this repo and runs docker build from it.
+
+      - name: Application Git branch
+        key: app_git_branch
+        widget: simple_text
+        type: string
+        required: true
+        default: main
+        description: >
+          Branch to deploy when no release tag is set. Ignored when a release tag is set.
+
+      - name: Application release tag
+        key: app_release_tag
+        widget: simple_text
+        type: string
+        required: false
+        default: ""
+        description: >
+          Git tag to deploy (e.g. 1.0.1 → refs/tags/1.0.1). Leave empty to deploy the latest commit from the branch above.
+
+      - name: Application folder in repository
+        key: app_git_folder
+        widget: simple_text
+        type: string
+        required: false
+        default: ""
+        description: >
+          Optional path from the repository root to the application folder that contains the Dockerfile (e.g. apps/api).
+
+      - name: Dockerfile name
+        key: app_dockerfile_name
+        widget: simple_text
+        type: string
+        required: true
+        default: Dockerfile
+        description: >
+          Dockerfile name relative to the application folder (use CC_DOCKERFILE semantics on Clever Cloud).
+
   - name: Network
     groups:
     - name: Network Group
@@ -149,10 +176,21 @@ use_cases:
         required: true
         description: Port exposed by the Docker application for HTTP traffic.
 
-      - name: Docker Hub Image
-        key: docker_image
+      - name: Region
+        key: tf_region
+        widget: dropdown
+        type: string
+        default: "grahds"
+        values:
+        - par
+        - rbx
+        - grahds
+        description: Clever Cloud region where resources will be deployed.
+
+      - name: Application Subdomain
+        key: app_subdomain
         widget: simple_text
         type: string
         required: true
-        description: >-
-          Docker Hub image reference (e.g. nginx:alpine or org/app:1.0).
+        description: >
+          Subdomain used as the shared FQDN for frontend and backend vhosts (e.g. my-app.cleverapps.io).
