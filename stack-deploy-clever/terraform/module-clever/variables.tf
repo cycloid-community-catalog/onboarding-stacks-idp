@@ -3,12 +3,24 @@ locals {
   postgresql_fqdn = "${local.app_prefix}.services.clever-cloud.com"
   app_prefix      = "${var.cy_component}-${var.cy_environment}-${var.cy_project}"
 
+  # cy_cred basic_auth is often an object {username, password}; Clever needs a single "user:password" string.
+  app_git_basic_auth_normalized = var.app_git_basic_auth == null ? null : (
+    try(trimspace(tostring(var.app_git_basic_auth)), "") != "" ? trimspace(tostring(var.app_git_basic_auth)) : (
+      try(
+        "${try(trimspace(tostring(var.app_git_basic_auth.username)), "")}:${try(trimspace(tostring(var.app_git_basic_auth.password)), "")}",
+        "${try(trimspace(tostring(var.app_git_basic_auth.user)), "")}:${try(trimspace(tostring(var.app_git_basic_auth.password)), "")}",
+        "${try(trimspace(tostring(var.app_git_basic_auth.username)), "")}:${try(trimspace(tostring(var.app_git_basic_auth.token)), "")}",
+        null
+      )
+    )
+  )
+
   # Clever deployment.authentication_basic: user:password. Priority: manual string > cy_cred > username+token.
   resolved_git_auth_basic = (
     var.app_git_auth_basic != null && trimspace(var.app_git_auth_basic) != ""
     ) ? trimspace(var.app_git_auth_basic) : (
-    var.app_git_basic_auth != null && trimspace(var.app_git_basic_auth) != ""
-    ) ? trimspace(var.app_git_basic_auth) : (
+    local.app_git_basic_auth_normalized != null && trimspace(local.app_git_basic_auth_normalized) != ""
+    ) ? local.app_git_basic_auth_normalized : (
     var.app_git_token != null && trimspace(var.app_git_token) != ""
     ? "${var.app_git_username}:${var.app_git_token}"
     : null
@@ -190,8 +202,8 @@ variable "app_git_auth_basic" {
 }
 
 variable "app_git_basic_auth" {
-  description = "Optional basic_auth credential from StackForms cy_cred (user:password). Used when app_git_auth_basic is empty."
-  type        = string
+  description = "Optional cy_cred basic_auth: string \"user:pass\" or object {username, password} (Cycloid JSON)."
+  type        = any
   sensitive   = true
   default     = null
 }

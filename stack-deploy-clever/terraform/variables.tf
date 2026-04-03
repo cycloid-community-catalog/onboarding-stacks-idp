@@ -111,8 +111,8 @@ variable "app_git_token" {
 }
 
 variable "app_git_basic_auth" {
-  type        = string
-  description = "StackForms cy_cred (basic_auth); resolves to user:password for Clever Git HTTPS clone."
+  type        = any
+  description = "StackForms cy_cred (basic_auth): string \"user:pass\" or object {username,password} from Cycloid."
   sensitive   = true
   default     = null
 }
