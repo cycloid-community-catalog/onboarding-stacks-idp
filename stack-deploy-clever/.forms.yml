@@ -56,7 +56,6 @@ use_cases:
         key: app_git_username
         widget: cy_inventory_resource
         widget_config:
-          attribute: username
           filters:
             # Restrict to your custom inventory resource type (adjust to match Resources > Inventory in Cycloid).
             type: custom
@@ -73,7 +72,6 @@ use_cases:
         key: app_git_token
         widget: cy_inventory_resource
         widget_config:
-          attribute: password
           filters:
             type: custom
             project: ($ .project $)
