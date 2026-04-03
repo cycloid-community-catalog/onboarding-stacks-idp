@@ -59,7 +59,7 @@ use_cases:
           attribute: username
           filters:
             # Restrict to your custom inventory resource type (adjust to match Resources > Inventory in Cycloid).
-            type: git_https_credential
+            type: custom
             project: ($ .project $)
             environment: ($ .environment $)
         type: string
@@ -75,7 +75,7 @@ use_cases:
         widget_config:
           attribute: password
           filters:
-            type: git_https_credential
+            type: custom
             project: ($ .project $)
             environment: ($ .environment $)
         type: string
