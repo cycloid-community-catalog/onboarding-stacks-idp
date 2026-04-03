@@ -37,7 +37,7 @@ resource "clevercloud_docker" "app_docker" {
   deployment {
     repository           = var.app_git_repository
     commit               = local.git_ref
-    authentication_basic = local.resolved_git_auth_basic
+    authentication_basic = local.git_authentication_basic
   }
 
   networkgroups = [

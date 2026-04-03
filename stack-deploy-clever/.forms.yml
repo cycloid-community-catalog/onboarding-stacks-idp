@@ -177,12 +177,12 @@ use_cases:
         - M
         description: Biggest instance flavor the Docker application can scale up to.
 
-      - name: API Path Prefix
+      - name: App Path Prefix
         key: docker_path_begin
         widget: simple_text
         type: string
         required: true
-        description: URL path prefix routing traffic to the Docker application (e.g. /api).
+        description: URL path prefix routing traffic to the Docker application (e.g. /app).
 
       - name: Exposed HTTP Port
         key: docker_exposed_http_port

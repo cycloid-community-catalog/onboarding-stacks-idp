@@ -111,9 +111,6 @@ resources:
       app_release_tag: ((app_release_tag))
       app_git_folder: ((app_git_folder))
       app_dockerfile_name: ((app_dockerfile_name))
-      app_git_auth_basic: ((app_git_auth_basic))
-      app_git_username: ((app_git_username))
-      app_git_token: ((app_git_token))
       app_git_basic_auth: ((app_git_basic_auth))
 
 jobs:

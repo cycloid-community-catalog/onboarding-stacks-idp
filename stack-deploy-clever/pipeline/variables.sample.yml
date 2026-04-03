@@ -24,18 +24,6 @@ app_git_folder: ""
 #+ Dockerfile name relative to the application folder.
 app_dockerfile_name: Dockerfile
 
-#. app_git_username (required): x-access-token
-#+ From StackForms Asset Inventory (cy_inventory_resource) or set manually. GitHub PAT pattern: x-access-token.
-app_git_username: x-access-token
-
-#. app_git_token (required): ''
-#+ From StackForms inventory or vault. Public repos: leave empty.
-app_git_token: ""
-
-#. app_git_auth_basic (required): ''
-#+ Optional manual \"username:token\" (highest priority if set).
-app_git_auth_basic: ""
-
 #. app_git_basic_auth (required): ''
 #+ StackForms cy_cred basic_auth (pipeline); leave empty for public repos or use username+token below.
 app_git_basic_auth: ""

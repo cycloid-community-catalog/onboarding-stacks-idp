@@ -91,25 +91,6 @@ variable "app_dockerfile_name" {
   default = "Dockerfile"
 }
 
-variable "app_git_auth_basic" {
-  type      = string
-  sensitive = true
-  default   = null
-}
-
-variable "app_git_username" {
-  type        = string
-  description = "Git clone username (StackForms inventory or manual; GitHub PAT: x-access-token)."
-  default     = "x-access-token"
-}
-
-variable "app_git_token" {
-  type        = string
-  description = "Git clone token/PAT (StackForms inventory or manual). Required for private GitHub without auth."
-  sensitive   = true
-  default     = null
-}
-
 variable "app_git_basic_auth" {
   type        = any
   description = "StackForms cy_cred (basic_auth): string \"user:pass\" or object {username,password} from Cycloid."

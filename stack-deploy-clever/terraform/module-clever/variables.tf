@@ -3,29 +3,6 @@ locals {
   postgresql_fqdn = "${local.app_prefix}.services.clever-cloud.com"
   app_prefix      = "${var.cy_component}-${var.cy_environment}-${var.cy_project}"
 
-  # cy_cred basic_auth is often an object {username, password}; Clever needs a single "user:password" string.
-  app_git_basic_auth_normalized = var.app_git_basic_auth == null ? null : (
-    try(trimspace(tostring(var.app_git_basic_auth)), "") != "" ? trimspace(tostring(var.app_git_basic_auth)) : (
-      try(
-        "${try(trimspace(tostring(var.app_git_basic_auth.username)), "")}:${try(trimspace(tostring(var.app_git_basic_auth.password)), "")}",
-        "${try(trimspace(tostring(var.app_git_basic_auth.user)), "")}:${try(trimspace(tostring(var.app_git_basic_auth.password)), "")}",
-        "${try(trimspace(tostring(var.app_git_basic_auth.username)), "")}:${try(trimspace(tostring(var.app_git_basic_auth.token)), "")}",
-        null
-      )
-    )
-  )
-
-  # Clever deployment.authentication_basic: user:password. Priority: manual string > cy_cred > username+token.
-  resolved_git_auth_basic = (
-    var.app_git_auth_basic != null && trimspace(var.app_git_auth_basic) != ""
-    ) ? trimspace(var.app_git_auth_basic) : (
-    local.app_git_basic_auth_normalized != null && trimspace(local.app_git_basic_auth_normalized) != ""
-    ) ? local.app_git_basic_auth_normalized : (
-    var.app_git_token != null && trimspace(var.app_git_token) != ""
-    ? "${var.app_git_username}:${var.app_git_token}"
-    : null
-  )
-
   git_ref = trimspace(var.app_release_tag) != "" ? (
     startswith(trimspace(var.app_release_tag), "refs/") ? trimspace(var.app_release_tag) : "refs/tags/${trimspace(var.app_release_tag)}"
     ) : (
@@ -33,6 +10,9 @@ locals {
   )
 
   app_git_folder_trimmed = trimspace(var.app_git_folder)
+
+  # Clever deployment.authentication_basic: "user:password". Input may be a string or Cycloid cy_cred object.
+  git_authentication_basic = var.app_git_basic_auth == null ? null : var.app_git_basic_auth.username != null && var.app_git_basic_auth.password != null ? "${var.app_git_basic_auth.username}:${var.app_git_basic_auth.password}" : null
 }
 
 # =============================================================================
@@ -194,29 +174,9 @@ variable "app_dockerfile_name" {
   default     = "Dockerfile"
 }
 
-variable "app_git_auth_basic" {
-  description = "Optional manual \"username:token\" for Git HTTPS clone (highest priority)."
-  type        = string
-  sensitive   = true
-  default     = null
-}
-
 variable "app_git_basic_auth" {
   description = "Optional cy_cred basic_auth: string \"user:pass\" or object {username, password} (Cycloid JSON)."
   type        = any
-  sensitive   = true
-  default     = null
-}
-
-variable "app_git_username" {
-  description = "Git HTTPS username when combining with app_git_token (e.g. x-access-token for GitHub PAT)."
-  type        = string
-  default     = "x-access-token"
-}
-
-variable "app_git_token" {
-  description = "Git HTTPS token/PAT when not using app_git_auth_basic or app_git_basic_auth."
-  type        = string
   sensitive   = true
   default     = null
 }
