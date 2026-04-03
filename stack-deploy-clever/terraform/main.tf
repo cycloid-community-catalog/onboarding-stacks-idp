@@ -13,10 +13,7 @@ module "clever_cloud" {
   app_release_tag       = var.app_release_tag
   app_git_folder        = var.app_git_folder
   app_dockerfile_name  = var.app_dockerfile_name
-  app_git_auth_basic   = var.app_git_auth_basic
   app_git_basic_auth   = var.app_git_basic_auth
-  app_git_username     = var.app_git_username
-  app_git_token        = var.app_git_token
 
   network_group_name        = var.network_group_name
   network_group_description = var.network_group_description

@@ -5,7 +5,7 @@
 #
 
 #. app_git_repository (required): https://github.com/my-org/my-app.git
-#+ HTTPS URL only (SSH/git@ is not supported). Private GitHub repos need app_git_token or app_git_auth_basic.
+#+ HTTPS URL only (SSH/git@ is not supported). Private GitHub repos need app_git_basic_auth.
 app_git_repository: https://github.com/my-org/my-app.git
 
 #. app_git_branch (required): main
