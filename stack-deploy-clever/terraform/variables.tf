@@ -99,13 +99,13 @@ variable "app_git_auth_basic" {
 
 variable "app_git_username" {
   type        = string
-  description = "Git clone username when using app_git_token (GitHub: x-access-token)."
+  description = "Git clone username (StackForms inventory or manual; GitHub PAT: x-access-token)."
   default     = "x-access-token"
 }
 
 variable "app_git_token" {
   type        = string
-  description = "Git clone token/PAT for private repos. GitHub returns \"Repository not found\" if this is missing."
+  description = "Git clone token/PAT (StackForms inventory or manual). Required for private GitHub without auth."
   sensitive   = true
   default     = null
 }

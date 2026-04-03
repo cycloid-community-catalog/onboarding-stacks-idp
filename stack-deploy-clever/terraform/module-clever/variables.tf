@@ -191,13 +191,13 @@ variable "app_git_auth_basic" {
 }
 
 variable "app_git_username" {
-  description = "Git HTTPS clone username when using app_git_token (GitHub PAT: use x-access-token)."
+  description = "Git HTTPS clone username (often from StackForms cy_inventory_resource attribute username; GitHub PAT: x-access-token)."
   type        = string
   default     = "x-access-token"
 }
 
 variable "app_git_token" {
-  description = "Git HTTPS clone password/token for private repositories (e.g. GitHub PAT). Ignored if app_git_auth_basic is set."
+  description = "Git HTTPS clone password/token (often from cy_inventory_resource attribute password). Ignored if app_git_auth_basic is set."
   type        = string
   sensitive   = true
   default     = null

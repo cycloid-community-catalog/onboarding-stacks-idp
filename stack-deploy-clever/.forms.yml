@@ -52,24 +52,38 @@ use_cases:
         description: >
           Dockerfile name relative to the application folder (use CC_DOCKERFILE semantics on Clever Cloud).
 
-      - name: Git HTTPS username
+      - name: Git HTTPS username (Asset Inventory)
         key: app_git_username
-        widget: simple_text
+        widget: cy_inventory_resource
+        widget_config:
+          attribute: username
+          filters:
+            # Restrict to your custom inventory resource type (adjust to match Resources > Inventory in Cycloid).
+            type: git_https_credential
+            project: ($ .project $)
+            environment: ($ .environment $)
         type: string
-        required: true
+        required: false
         default: x-access-token
         description: >
-          Username for private Git HTTPS clone. For GitHub with a PAT, use x-access-token (or your GitHub username).
+          Select an Asset Inventory resource that exposes a username attribute (e.g. x-access-token for GitHub PAT).
+          Pick the same resource as for Git token below. For public repositories, leave unselected and the default is used.
 
-      - name: Git token (PAT)
+      - name: Git token (Asset Inventory)
         key: app_git_token
-        widget: simple_text
+        widget: cy_inventory_resource
+        widget_config:
+          attribute: password
+          filters:
+            type: git_https_credential
+            project: ($ .project $)
+            environment: ($ .environment $)
         type: string
         required: false
         default: ""
         description: >
-          Personal access token or password for private repositories (stored in config / vault).
-          Leave empty only for public repositories.
+          Select the same inventory resource as above; the password attribute should hold the token or PAT.
+          Inventory resources must expose username and password fields. Leave unselected for public repositories.
 
   - name: Network
     groups:

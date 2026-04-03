@@ -25,11 +25,11 @@ app_git_folder: ""
 app_dockerfile_name: Dockerfile
 
 #. app_git_username (required): x-access-token
-#+ Git HTTPS username when using app_git_token (GitHub PAT pattern).
+#+ From StackForms Asset Inventory (cy_inventory_resource) or set manually. GitHub PAT pattern: x-access-token.
 app_git_username: x-access-token
 
 #. app_git_token (required): ''
-#+ Private repos: Git HTTPS token (e.g. GitHub PAT). In Concourse you can use a vault ref such as ((github_pat.token)). Public repos: leave empty.
+#+ From StackForms inventory or vault. Public repos: leave empty.
 app_git_token: ""
 
 #. app_git_auth_basic (required): ''
