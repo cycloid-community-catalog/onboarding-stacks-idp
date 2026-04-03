@@ -1,3 +1,81 @@
-# Cycloid pipeline variables, you can put pipeline specific defaults
+# Cycloid pipeline variables — values are merged into the generated pipeline/variables.yml
 
+#
+# Clever Cloud / application (aligned with .forms.yml → Terraform variables)
+#
+
+#. tf_region (required): grahds
+#+ Clever Cloud region (par, rbx, grahds).
+tf_region: grahds
+
+#. app_subdomain (required): my-app
+#+ Subdomain for Clever vhosts (e.g. my-app.cleverapps.io).
+app_subdomain: my-app
+
+#. network_group_name (required): my-network
+#+ Clever Cloud network group isolating database traffic.
+network_group_name: my-network
+
+#. network_group_description (required): ''
+#+ Optional description for the network group.
+network_group_description: ""
+
+#. network_group_tags (required): []
+#+ Tags for the network group (list of strings).
+network_group_tags: []
+
+#. postgresql_name (required): pg-myapp
+#+ PostgreSQL add-on name.
+postgresql_name: pg-myapp
+
+#. postgresql_plan (required): xxs_sml
+#+ PostgreSQL plan size.
+postgresql_plan: xxs_sml
+
+#. docker_name (required): app-myapp
+#+ Docker application name on Clever Cloud.
+docker_name: app-myapp
+
+#. docker_min_instance_count (required): 1
+docker_min_instance_count: 1
+
+#. docker_max_instance_count (required): 2
+docker_max_instance_count: 2
+
+#. docker_smallest_flavor (required): XS
+docker_smallest_flavor: XS
+
+#. docker_biggest_flavor (required): XS
+docker_biggest_flavor: XS
+
+#. docker_path_begin (required): /api
+#+ URL path prefix routed to the Docker app.
+docker_path_begin: /api
+
+#. docker_exposed_http_port (required): 8080
+#+ HTTP port exposed by the container.
+docker_exposed_http_port: 8080
+
+#. docker_image (required): nginx:alpine
+docker_image: nginx:alpine
+
+#. dockerhub_registry_url (required): ''
+dockerhub_registry_url: ""
+
+#. dockerhub_username (required): ''
+dockerhub_username: ""
+
+#. dockerhub_password (required): ''
+dockerhub_password: ""
+
+#
+# Default variables
+#
+
+#. cy_api_key (required): ((admin-api-key.key))
+#+ Cycloid API key for the cycloid Terraform provider (credentials lookup).
+cy_api_key: ((admin-api-key.key))
+
+#. terraform_version (required): '1.14.6'
+#+ Terraform version for cycloid/terraform-resource.
 terraform_version: "1.14.6"

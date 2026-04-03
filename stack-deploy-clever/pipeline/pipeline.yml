@@ -87,10 +87,29 @@ resources:
     backend_config:
       address: '($ .api_url $)/inventory?jwt=($ .inventory_jwt $)'
       skip_cert_verification: true
-    env:
-      CY_API_KEY: ((admin-api-key.key))
-      CY_API_URL: "($ .api_url $)"
-      CY_ORG: "($ .organization $)"
+    # Passed as Terraform -var (see terraform/variables.tf). env alone does not set var.*.
+    vars:
+      cy_api_key: ((cy_api_key))
+      cy_api_url: ($ .api_url $)
+      cy_org: ($ .organization $)
+      tf_region: ((tf_region))
+      app_subdomain: ((app_subdomain))
+      network_group_name: ((network_group_name))
+      network_group_description: ((network_group_description))
+      network_group_tags: ((network_group_tags))
+      postgresql_name: ((postgresql_name))
+      postgresql_plan: ((postgresql_plan))
+      docker_name: ((docker_name))
+      docker_min_instance_count: ((docker_min_instance_count))
+      docker_max_instance_count: ((docker_max_instance_count))
+      docker_smallest_flavor: ((docker_smallest_flavor))
+      docker_biggest_flavor: ((docker_biggest_flavor))
+      docker_path_begin: ((docker_path_begin))
+      docker_exposed_http_port: ((docker_exposed_http_port))
+      docker_image: ((docker_image))
+      dockerhub_registry_url: ((dockerhub_registry_url))
+      dockerhub_username: ((dockerhub_username))
+      dockerhub_password: ((dockerhub_password))
 
 jobs:
 - name: terraform-plan
