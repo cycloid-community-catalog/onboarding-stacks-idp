@@ -14,7 +14,7 @@ use_cases:
         required: true
         description: >
           HTTPS URL of the Git repository that contains the Dockerfile (e.g. https://github.com/my-org/my-app.git).
-          Clever Cloud clones this repo and runs docker build from it.
+          SSH URLs are not supported. Private repositories require a Git token (see below); without it, GitHub returns "Repository not found".
 
       - name: Application Git branch
         key: app_git_branch
@@ -51,6 +51,25 @@ use_cases:
         default: Dockerfile
         description: >
           Dockerfile name relative to the application folder (use CC_DOCKERFILE semantics on Clever Cloud).
+
+      - name: Git HTTPS username
+        key: app_git_username
+        widget: simple_text
+        type: string
+        required: true
+        default: x-access-token
+        description: >
+          Username for private Git HTTPS clone. For GitHub with a PAT, use x-access-token (or your GitHub username).
+
+      - name: Git token (PAT)
+        key: app_git_token
+        widget: simple_text
+        type: string
+        required: false
+        default: ""
+        description: >
+          Personal access token or password for private repositories (stored in config / vault).
+          Leave empty only for public repositories.
 
   - name: Network
     groups:

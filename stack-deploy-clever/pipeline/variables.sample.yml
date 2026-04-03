@@ -5,7 +5,7 @@
 #
 
 #. app_git_repository (required): https://github.com/my-org/my-app.git
-#+ HTTPS URL of the repository that contains the Dockerfile.
+#+ HTTPS URL only (SSH/git@ is not supported). Private GitHub repos need app_git_token or app_git_auth_basic.
 app_git_repository: https://github.com/my-org/my-app.git
 
 #. app_git_branch (required): main
@@ -24,8 +24,16 @@ app_git_folder: ""
 #+ Dockerfile name relative to the application folder.
 app_dockerfile_name: Dockerfile
 
+#. app_git_username (required): x-access-token
+#+ Git HTTPS username when using app_git_token (GitHub PAT pattern).
+app_git_username: x-access-token
+
+#. app_git_token (required): ''
+#+ Private repos: Git HTTPS token (e.g. GitHub PAT). In Concourse you can use a vault ref such as ((github_pat.token)). Public repos: leave empty.
+app_git_token: ""
+
 #. app_git_auth_basic (required): ''
-#+ Optional private repo auth as username:token (e.g. GitHub PAT). Leave empty for public repos.
+#+ Optional alternative: single string \"username:token\" (overrides username+token if set).
 app_git_auth_basic: ""
 
 #

@@ -6,7 +6,14 @@ locals {
   docker_registry_url      = (var.dockerhub_registry_url != null && var.dockerhub_registry_url != "") ? var.dockerhub_registry_url : null
   docker_registry_user       = (var.dockerhub_username != null && var.dockerhub_username != "") ? var.dockerhub_username : null
   docker_registry_password   = (var.dockerhub_password != null && var.dockerhub_password != "") ? var.dockerhub_password : null
-  resolved_git_auth_basic    = (var.app_git_auth_basic != null && trimspace(var.app_git_auth_basic) != "") ? var.app_git_auth_basic : null
+  # Prefer explicit user:password; else username + token (GitHub: x-access-token + PAT).
+  resolved_git_auth_basic = (
+    var.app_git_auth_basic != null && trimspace(var.app_git_auth_basic) != ""
+    ) ? trimspace(var.app_git_auth_basic) : (
+    var.app_git_token != null && trimspace(var.app_git_token) != ""
+    ? "${var.app_git_username}:${var.app_git_token}"
+    : null
+  )
 
   git_ref = trimspace(var.app_release_tag) != "" ? (
     startswith(trimspace(var.app_release_tag), "refs/") ? trimspace(var.app_release_tag) : "refs/tags/${trimspace(var.app_release_tag)}"
@@ -146,6 +153,10 @@ variable "docker_exposed_http_port" {
 variable "app_git_repository" {
   description = "HTTPS URL of the Git repository that contains the Dockerfile (Clever clones it on deploy)."
   type        = string
+  validation {
+    condition     = can(regex("^https://", var.app_git_repository))
+    error_message = "app_git_repository must start with https:// (SSH/git@ is not supported)."
+  }
 }
 
 variable "app_git_branch" {
@@ -173,7 +184,20 @@ variable "app_dockerfile_name" {
 }
 
 variable "app_git_auth_basic" {
-  description = "Optional HTTP basic auth for private Git HTTPS clone: \"username:token_or_password\" (e.g. GitHub PAT)."
+  description = "Optional full HTTP basic auth string for Git clone: \"username:token\". If empty, app_git_username + app_git_token are used."
+  type        = string
+  sensitive   = true
+  default     = null
+}
+
+variable "app_git_username" {
+  description = "Git HTTPS clone username when using app_git_token (GitHub PAT: use x-access-token)."
+  type        = string
+  default     = "x-access-token"
+}
+
+variable "app_git_token" {
+  description = "Git HTTPS clone password/token for private repositories (e.g. GitHub PAT). Ignored if app_git_auth_basic is set."
   type        = string
   sensitive   = true
   default     = null

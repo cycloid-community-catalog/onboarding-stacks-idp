@@ -112,6 +112,8 @@ resources:
       app_git_folder: ((app_git_folder))
       app_dockerfile_name: ((app_dockerfile_name))
       app_git_auth_basic: ((app_git_auth_basic))
+      app_git_username: ((app_git_username))
+      app_git_token: ((app_git_token))
       dockerhub_registry_url: ((dockerhub_registry_url))
       dockerhub_username: ((dockerhub_username))
       dockerhub_password: ((dockerhub_password))

@@ -64,7 +64,11 @@ variable "docker_exposed_http_port" {
 
 variable "app_git_repository" {
   type        = string
-  description = "HTTPS URL of the application Git repository (contains Dockerfile)."
+  description = "HTTPS URL of the application Git repository (contains Dockerfile). SSH URLs are not supported."
+  validation {
+    condition     = can(regex("^https://", var.app_git_repository))
+    error_message = "app_git_repository must start with https:// (Clever Terraform clones over HTTPS only)."
+  }
 }
 
 variable "app_git_branch" {
@@ -91,6 +95,19 @@ variable "app_git_auth_basic" {
   type      = string
   sensitive = true
   default   = null
+}
+
+variable "app_git_username" {
+  type        = string
+  description = "Git clone username when using app_git_token (GitHub: x-access-token)."
+  default     = "x-access-token"
+}
+
+variable "app_git_token" {
+  type        = string
+  description = "Git clone token/PAT for private repos. GitHub returns \"Repository not found\" if this is missing."
+  sensitive   = true
+  default     = null
 }
 
 variable "dockerhub_registry_url" {
