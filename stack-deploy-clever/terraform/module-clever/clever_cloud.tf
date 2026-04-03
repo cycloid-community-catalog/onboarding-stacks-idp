@@ -31,10 +31,6 @@ resource "clevercloud_docker" "app_docker" {
 
   container_port = var.docker_exposed_http_port
 
-  registry_url      = local.docker_registry_url
-  registry_user     = local.docker_registry_user
-  registry_password = local.docker_registry_password
-
   app_folder = local.app_git_folder_trimmed != "" ? local.app_git_folder_trimmed : null
   dockerfile = var.app_dockerfile_name != "" && var.app_dockerfile_name != "Dockerfile" ? var.app_dockerfile_name : null
 

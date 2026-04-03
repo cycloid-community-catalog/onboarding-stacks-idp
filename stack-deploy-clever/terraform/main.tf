@@ -12,10 +12,11 @@ module "clever_cloud" {
   app_git_branch        = var.app_git_branch
   app_release_tag       = var.app_release_tag
   app_git_folder        = var.app_git_folder
-  app_dockerfile_name = var.app_dockerfile_name
-  app_git_auth_basic  = var.app_git_auth_basic
-  app_git_username    = var.app_git_username
-  app_git_token       = var.app_git_token
+  app_dockerfile_name  = var.app_dockerfile_name
+  app_git_auth_basic   = var.app_git_auth_basic
+  app_git_basic_auth   = var.app_git_basic_auth
+  app_git_username     = var.app_git_username
+  app_git_token        = var.app_git_token
 
   network_group_name        = var.network_group_name
   network_group_description = var.network_group_description
@@ -30,9 +31,5 @@ module "clever_cloud" {
   docker_smallest_flavor    = var.docker_smallest_flavor
   docker_biggest_flavor     = var.docker_biggest_flavor
   docker_path_begin         = var.docker_path_begin
-  docker_exposed_http_port  = var.docker_exposed_http_port
-
-  dockerhub_registry_url = var.dockerhub_registry_url
-  dockerhub_username     = var.dockerhub_username
-  dockerhub_password     = var.dockerhub_password
+  docker_exposed_http_port = var.docker_exposed_http_port
 }

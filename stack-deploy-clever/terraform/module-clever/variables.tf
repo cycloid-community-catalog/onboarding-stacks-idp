@@ -3,13 +3,12 @@ locals {
   postgresql_fqdn = "${local.app_prefix}.services.clever-cloud.com"
   app_prefix      = "${var.cy_component}-${var.cy_environment}-${var.cy_project}"
 
-  docker_registry_url      = (var.dockerhub_registry_url != null && var.dockerhub_registry_url != "") ? var.dockerhub_registry_url : null
-  docker_registry_user       = (var.dockerhub_username != null && var.dockerhub_username != "") ? var.dockerhub_username : null
-  docker_registry_password   = (var.dockerhub_password != null && var.dockerhub_password != "") ? var.dockerhub_password : null
-  # Prefer explicit user:password; else username + token (GitHub: x-access-token + PAT).
+  # Clever deployment.authentication_basic: user:password. Priority: manual string > cy_cred > username+token.
   resolved_git_auth_basic = (
     var.app_git_auth_basic != null && trimspace(var.app_git_auth_basic) != ""
     ) ? trimspace(var.app_git_auth_basic) : (
+    var.app_git_basic_auth != null && trimspace(var.app_git_basic_auth) != ""
+    ) ? trimspace(var.app_git_basic_auth) : (
     var.app_git_token != null && trimspace(var.app_git_token) != ""
     ? "${var.app_git_username}:${var.app_git_token}"
     : null
@@ -184,39 +183,27 @@ variable "app_dockerfile_name" {
 }
 
 variable "app_git_auth_basic" {
-  description = "Optional full HTTP basic auth string for Git clone: \"username:token\". If empty, app_git_username + app_git_token are used."
+  description = "Optional manual \"username:token\" for Git HTTPS clone (highest priority)."
+  type        = string
+  sensitive   = true
+  default     = null
+}
+
+variable "app_git_basic_auth" {
+  description = "Optional basic_auth credential from StackForms cy_cred (user:password). Used when app_git_auth_basic is empty."
   type        = string
   sensitive   = true
   default     = null
 }
 
 variable "app_git_username" {
-  description = "Git HTTPS clone username (often from StackForms cy_inventory_resource attribute username; GitHub PAT: x-access-token)."
+  description = "Git HTTPS username when combining with app_git_token (e.g. x-access-token for GitHub PAT)."
   type        = string
   default     = "x-access-token"
 }
 
 variable "app_git_token" {
-  description = "Git HTTPS clone password/token (often from cy_inventory_resource attribute password). Ignored if app_git_auth_basic is set."
-  type        = string
-  sensitive   = true
-  default     = null
-}
-
-variable "dockerhub_registry_url" {
-  description = "Optional private registry API URL. For private Docker Hub images use https://index.docker.io/v1/"
-  type        = string
-  default     = null
-}
-
-variable "dockerhub_username" {
-  description = "Optional Docker Hub username (private images)."
-  type        = string
-  default     = null
-}
-
-variable "dockerhub_password" {
-  description = "Optional Docker Hub password or access token (private images)."
+  description = "Git HTTPS token/PAT when not using app_git_auth_basic or app_git_basic_auth."
   type        = string
   sensitive   = true
   default     = null

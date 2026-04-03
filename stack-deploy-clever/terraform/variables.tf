@@ -110,20 +110,11 @@ variable "app_git_token" {
   default     = null
 }
 
-variable "dockerhub_registry_url" {
-  type    = string
-  default = null
-}
-
-variable "dockerhub_username" {
-  type    = string
-  default = null
-}
-
-variable "dockerhub_password" {
-  type      = string
-  sensitive = true
-  default   = null
+variable "app_git_basic_auth" {
+  type        = string
+  description = "StackForms cy_cred (basic_auth); resolves to user:password for Clever Git HTTPS clone."
+  sensitive   = true
+  default     = null
 }
 
 variable "cy_org" {

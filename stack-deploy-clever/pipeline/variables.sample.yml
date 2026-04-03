@@ -33,8 +33,12 @@ app_git_username: x-access-token
 app_git_token: ""
 
 #. app_git_auth_basic (required): ''
-#+ Optional alternative: single string \"username:token\" (overrides username+token if set).
+#+ Optional manual \"username:token\" (highest priority if set).
 app_git_auth_basic: ""
+
+#. app_git_basic_auth (required): ''
+#+ StackForms cy_cred basic_auth (pipeline); leave empty for public repos or use username+token below.
+app_git_basic_auth: ""
 
 #
 # Clever Cloud / infrastructure
@@ -81,15 +85,6 @@ docker_path_begin: /api
 
 #. docker_exposed_http_port (required): 8080
 docker_exposed_http_port: 8080
-
-#. dockerhub_registry_url (required): ''
-dockerhub_registry_url: ""
-
-#. dockerhub_username (required): ''
-dockerhub_username: ""
-
-#. dockerhub_password (required): ''
-dockerhub_password: ""
 
 #
 # Default variables
