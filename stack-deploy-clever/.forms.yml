@@ -12,6 +12,7 @@ use_cases:
         widget: simple_text
         type: string
         required: true
+        default: "https://github.com/cycloid-demo/($ .organization $)-($ .project $)-app.git"
         description: >
           HTTPS clone URL of the Git repository that contains the Dockerfile (e.g. https://github.com/my-org/my-app.git).
           Clever’s Terraform integration only supports HTTPS cloning with optional HTTP basic auth (token), not SSH or SSH keys.
@@ -63,6 +64,7 @@ use_cases:
           display_keys: false
           cred_types:
             - basic_auth
+        default: ((github-app))
         type: string
         required: false
         description: >
@@ -79,13 +81,14 @@ use_cases:
         widget: simple_text
         type: string
         required: true
+        default: "($ .organization $)-($ .project $)-($ .environment $)-($ .component $)-network"
         description: Name of the Clever Cloud network group that isolates database traffic.
 
       - name: Network Group Description
         key: network_group_description
         widget: simple_text
         type: string
-        default: ""
+        default: "Network Group for ($ .organization $)-($ .project $)-($ .environment $)-($ .component $)"
         description: Optional description for the network group.
 
       - name: Network Group Tags
@@ -108,6 +111,7 @@ use_cases:
         widget: simple_text
         type: string
         required: true
+        default: "($ .organization $)-($ .project $)-($ .environment $)-($ .component $)-db"
         description: Name of the PostgreSQL add-on.
 
       - name: Database Plan
@@ -131,6 +135,7 @@ use_cases:
         widget: simple_text
         type: string
         required: true
+        default: "($ .organization $)-($ .project $)-($ .environment $)-($ .component $)-app"
         description: Name of the Docker application.
 
       - name: Min Instance Count
@@ -184,6 +189,7 @@ use_cases:
         widget: simple_text
         type: string
         required: true
+        default: "/"
         description: URL path prefix routing traffic to the Docker application (e.g. /app).
 
       - name: Exposed HTTP Port
@@ -191,6 +197,7 @@ use_cases:
         widget: number
         type: integer
         required: true
+        default: 8080
         description: Port exposed by the Docker application for HTTP traffic.
 
       - name: Region
@@ -209,5 +216,6 @@ use_cases:
         widget: simple_text
         type: string
         required: true
+        default: "($ .organization $)-($ .project $)-($ .environment $)-($ .component $)"
         description: >
           Subdomain used as the shared FQDN for frontend and backend vhosts (e.g. my-app.cleverapps.io).
