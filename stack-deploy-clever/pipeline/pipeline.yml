@@ -139,7 +139,7 @@ jobs:
       trigger: false
       passed: [terraform-plan]
     - get: tfstate
-      trigger: false
+      trigger: true
       passed: [terraform-plan]
   - !!merge <<: *task-merge-stack-and-config
   - put: tfstate
