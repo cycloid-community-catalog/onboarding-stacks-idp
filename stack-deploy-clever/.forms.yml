@@ -13,8 +13,9 @@ use_cases:
         type: string
         required: true
         description: >
-          HTTPS URL of the Git repository that contains the Dockerfile (e.g. https://github.com/my-org/my-app.git).
-          SSH URLs are not supported. Private repositories require a Git token (see below); without it, GitHub returns "Repository not found".
+          HTTPS clone URL of the Git repository that contains the Dockerfile (e.g. https://github.com/my-org/my-app.git).
+          Clever’s Terraform integration only supports HTTPS cloning with optional HTTP basic auth (token), not SSH or SSH keys.
+          For a private repo, set Git Credentials below (e.g. GitHub username + fine-grained PAT).
 
       - name: Application Git branch
         key: app_git_branch
@@ -65,7 +66,8 @@ use_cases:
         type: string
         required: false
         description: >
-          Basic authentication credentials for the Git repository. Leave empty for public repositories.
+          HTTPS Git authentication (username and password or token). Leave empty for public repositories.
+          This is not an SSH private key; Clever deploy from Terraform does not support SSH clone URLs.
 
   - name: Network
     groups:

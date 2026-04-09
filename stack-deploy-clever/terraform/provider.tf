@@ -2,7 +2,8 @@ terraform {
   required_providers {
     clevercloud = {
       source  = "CleverCloud/clevercloud"
-      version = "~> 1.8"
+      # Peers refresh bug (destroy/plan): github.com/CleverCloud/terraform-provider-clevercloud/issues/337 — pipeline destroy sets TF_CLI_ARGS_destroy.
+      version = "~> 1.11.0"
     }
     cycloid = {
       source  = "cycloidio/cycloid"

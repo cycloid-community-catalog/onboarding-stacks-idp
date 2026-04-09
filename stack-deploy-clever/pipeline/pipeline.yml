@@ -156,7 +156,11 @@ jobs:
     - get: git-config
       trigger: false
   - !!merge <<: *task-merge-stack-and-config
+  # Clever provider issue: refresh fails when network group has peers (apps linked).
+  # https://github.com/CleverCloud/terraform-provider-clevercloud/issues/337
   - put: tfstate
     params:
       action: destroy
       terraform_source: merged-stack/
+      env:
+        TF_CLI_ARGS_destroy: "-refresh=false"

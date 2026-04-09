@@ -1,4 +1,7 @@
 # Network Group
+# If terraform plan/destroy fails with "cannot unmarshal ... NetworkGroup.peers" after apps
+# are attached, the Clever provider cannot parse the peers payload (see provider issue #337).
+# Workaround: terraform destroy -refresh=false, or TF_CLI_ARGS_destroy=-refresh=false (used in pipeline destroy).
 resource "clevercloud_networkgroup" "app_cy_network_group" {
   name        = var.network_group_name
   description = var.network_group_description
@@ -21,6 +24,7 @@ resource "clevercloud_postgresql" "app_postgresql" {
 
 # Docker application: Clever clones app_git_repository at git_ref, then runs docker build (Dockerfile in repo).
 # On first create, the Terraform provider pushes that tree to Clever’s deploy remote (GitDeploy).
+# Clever’s Terraform provider only supports HTTPS clone with deployment.authentication_basic (no git@ / SSH keys).
 resource "clevercloud_docker" "app_docker" {
   name               = var.docker_name
   region             = var.tf_region

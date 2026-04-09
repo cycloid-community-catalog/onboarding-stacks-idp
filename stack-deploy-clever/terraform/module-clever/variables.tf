@@ -142,11 +142,11 @@ variable "docker_exposed_http_port" {
 }
 
 variable "app_git_repository" {
-  description = "HTTPS URL of the Git repository that contains the Dockerfile (Clever clones it on deploy)."
+  description = "HTTPS clone URL of the Git repository (Dockerfile). SSH/git@ is not supported by the Clever Terraform provider."
   type        = string
   validation {
     condition     = can(regex("^https://", var.app_git_repository))
-    error_message = "app_git_repository must start with https:// (SSH/git@ is not supported)."
+    error_message = "app_git_repository must start with https:// (Clever provider clones with HTTPS + optional authentication_basic only)."
   }
 }
 
@@ -175,7 +175,7 @@ variable "app_dockerfile_name" {
 }
 
 variable "app_git_basic_auth" {
-  description = "Optional cy_cred basic_auth: string \"user:pass\" or object {username, password} (Cycloid JSON)."
+  description = "Optional HTTPS Git auth as \"user:token\" or cy_cred basic_auth object. For private GitHub repos use a PAT (see Clever provider docs). SSH keys are not supported."
   type        = any
   sensitive   = true
   default     = null

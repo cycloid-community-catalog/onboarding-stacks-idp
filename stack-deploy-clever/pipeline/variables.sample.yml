@@ -5,7 +5,7 @@
 #
 
 #. app_git_repository (required): https://github.com/my-org/my-app.git
-#+ HTTPS URL only (SSH/git@ is not supported). Private GitHub repos need app_git_basic_auth.
+#+ HTTPS URL only. Clever Terraform clones with optional authentication_basic (no SSH / no deploy keys). Private repos: set app_git_basic_auth (e.g. USER:PAT).
 app_git_repository: https://github.com/my-org/my-app.git
 
 #. app_git_branch (required): main
