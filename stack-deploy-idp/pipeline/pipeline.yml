@@ -300,9 +300,9 @@ jobs:
             hosts_package: ((hosts_package))
             hosts_user: ((hosts_user))
 
-      - put: mailjet-send
-        params:
-          file: merged-stack/mailjet-message.json
+      # - put: mailjet-send
+      #   params:
+      #     file: merged-stack/mailjet-message.json
 
   # Destroy the demo infrastructure after its creation (after a timer and every hour)
   - name: destroy-infra
