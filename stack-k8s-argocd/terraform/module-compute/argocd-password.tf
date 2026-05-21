@@ -4,10 +4,10 @@ resource "random_password" "argocd_admin_password" {
 }
 
 resource "cycloid_credential" "argocd_admin_password" {
-  name                   = "${var.cy_project}-${var.cy_env}-argocd-admin-password"
+  name                   = "argocd-admin-password"
   description            = "ArgoCD admin password."
-  path                   = "${var.cy_project}-${var.cy_env}-argocd-admin-password"
-  canonical              = "${var.cy_project}-${var.cy_env}-argocd-admin-password"
+  path                   = "argocd-admin-password"
+  canonical              = "argocd-admin-password"
 
   type = "basic_auth"
   body = {
