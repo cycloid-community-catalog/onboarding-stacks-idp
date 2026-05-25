@@ -321,6 +321,27 @@ jobs:
               done
 
 
+              # Connect Plugin Registry
+              curl -sS -X POST \
+                -H "Authorization: Bearer ${CY_API_KEY}" \
+                -H "Content-Type: application/vnd.cycloid.io.v1+json" \
+                -d '{
+                      "name": "local",
+                      "url": "http://cycloid-plugin-registry:4000"
+                    }' \
+                "${CY_API_URL}/organizations/${CHILD_ORG}/plugin_registries"
+
+              # Connect Plugin Manager
+              curl -sS -X POST \
+                -H "Authorization: Bearer ${CY_API_KEY}" \
+                -H "Content-Type: application/vnd.cycloid.io.v1+json" \
+                -d '{
+                      "name": "default-plugin-manager",
+                      "url": "http://cycloid-plugin-manager:4001",
+                      "auto_register": true
+                    }' \
+                "${CY_API_URL}/organizations/${CHILD_ORG}/plugin_managers"
+
               curl -X POST "${CY_API_URL}/organizations/${CHILD_ORG}/roles"\
                 -H "Content-type: application/vnd.cycloid.io.v1+json" \
                 -H "authorization: Bearer ${CY_API_KEY}" \

@@ -13,9 +13,5 @@ terraform {
     cycloid = {
       source = "cycloidio/cycloid"
     }
-    time = {
-      source  = "hashicorp/time"
-      version = "~> 0.12"
-    }
   }
 }
