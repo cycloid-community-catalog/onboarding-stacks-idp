@@ -2,26 +2,26 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: ($ .org $)-($ .env $)-($ .component $)
+  name: ($ .org $)-($ .component $)
 ---
 # Deployment
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ($ .org $)-($ .env $)-($ .component $)
-  namespace: ($ .org $)-($ .env $)-($ .component $)
+  name: ($ .org $)-($ .component $)
+  namespace: ($ .org $)-($ .component $)
 spec:
   replicas: ($ .app_replicas $)
   selector:
     matchLabels:
-      app: ($ .org $)-($ .env $)-($ .component $)
+      app: ($ .org $)-($ .component $)
   template:
     metadata:
       labels:
-        app: ($ .org $)-($ .env $)-($ .component $)
+        app: ($ .org $)-($ .component $)
     spec:
       containers:
-        - name: ($ .org $)-($ .env $)-($ .component $)
+        - name: ($ .org $)-($ .component $)
           image: ($ .dockerhub_repository $):($ .org $)-($ .project $)-($ .app_image_tag $)
           ports:
             - containerPort: 8080
@@ -31,11 +31,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: ($ .org $)-($ .env $)-($ .component $)
-  namespace: ($ .org $)-($ .env $)-($ .component $)
+  name: ($ .org $)-($ .component $)
+  namespace: ($ .org $)-($ .component $)
 spec:
   selector:
-    app: ($ .org $)-($ .env $)-($ .component $)
+    app: ($ .org $)-($ .component $)
   ports:
     - port: 80
       targetPort: 8080
@@ -44,37 +44,37 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: ($ .org $)-($ .env $)-($ .component $)
-  namespace: ($ .org $)-($ .env $)-($ .component $)
+  name: ($ .org $)-($ .component $)
+  namespace: ($ .org $)-($ .component $)
   annotations:
     nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
 spec:
   ingressClassName: nginx
   rules:
-    - host: ($ .component $).($ .org $)-($ .env $).($ .dns_zone $)
+    - host: ($ .component $).($ .org $).($ .dns_zone $)
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: ($ .org $)-($ .env $)-($ .component $)
+                name: ($ .org $)-($ .component $)
                 port:
                   number: 80
   tls:
     - hosts:
-        - ($ .component $).($ .org $)-($ .env $).($ .dns_zone $)
-      secretName: ($ .org $)-($ .env $)-($ .component $)-tls
+        - ($ .component $).($ .org $).($ .dns_zone $)
+      secretName: ($ .org $)-($ .component $)-tls
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: ($ .org $)-($ .env $)-($ .component $)
-  namespace: ($ .org $)-($ .env $)-($ .component $)
+  name: ($ .org $)-($ .component $)
+  namespace: ($ .org $)-($ .component $)
 spec:
-  secretName: ($ .org $)-($ .env $)-($ .component $)-tls
+  secretName: ($ .org $)-($ .component $)-tls
   issuerRef:
     name: ssl-issuer
     kind: ClusterIssuer
   dnsNames:
-    - ($ .component $).($ .org $)-($ .env $).($ .dns_zone $)
+    - ($ .component $).($ .org $).($ .dns_zone $)

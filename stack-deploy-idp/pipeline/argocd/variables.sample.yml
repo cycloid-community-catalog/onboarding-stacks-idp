@@ -46,7 +46,7 @@ registry_password: "((dockerhub.password))"
 
 #. manifests_git_url (required): ''
 #+ Git repository URL where the manifests are stored.
-manifests_git_url: "git@github.com:cycloid-demo/($ .org $)-($ .env $)-manifests.git"
+manifests_git_url: "git@github.com:cycloid-demo/($ .org $)-manifests.git"
 
 #. manifests_git_branch (required): ''
 #+ Git branch where the manifests are stored.
@@ -54,7 +54,7 @@ manifests_git_branch: "main"
 
 #. manifests_git_ssh_key (required): ''
 #+ The SSH private key to access the git repository.
-manifests_git_ssh_key: "((($ .org $)-($ .env $)-manifests-git-ssh.ssh_key))"
+manifests_git_ssh_key: "((($ .org $)-manifests-git-ssh.ssh_key))"
 
 #
 # Application
