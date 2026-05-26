@@ -10,7 +10,7 @@ output "ssh" {
 
 output "url" {
   description = "The URL of the wepapp"
-  value       = "http://${module.compute.vm_public_ip}"
+  value       = "https://${module.compute.vm_public_ip}"
 }
 
 output "instance_id" {
