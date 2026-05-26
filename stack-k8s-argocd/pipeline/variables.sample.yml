@@ -12,6 +12,18 @@ aws_region: eu-west-1
 
 
 #
+# DockerHub
+#
+
+#. dockerhub_username (required): "((dockerhub.username))"
+#+ DockerHub username for ArgoCD Image Updater registry access.
+dockerhub_username: "((dockerhub.username))"
+
+#. dockerhub_password (required): "((dockerhub.password))"
+#+ DockerHub password (PAT) for ArgoCD Image Updater registry access.
+dockerhub_password: "((dockerhub.password))"
+
+#
 # GitHub
 #
 

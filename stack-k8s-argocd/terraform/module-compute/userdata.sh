@@ -98,6 +98,15 @@ EOF
 # Install ArgoCD
 kubectl create namespace argocd
 kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/${ARGOCD_VERSION}/manifests/install.yaml
+# Install ArgoCD Image Updater
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj-labs/argocd-image-updater/stable/manifests/install.yaml
+kubectl wait --for=condition=available deployment/argocd-image-updater -n argocd --timeout=300s || true
+# Create DockerHub registry secret for Image Updater
+kubectl create secret docker-registry dockerhub-creds \
+  -n argocd \
+  --docker-server=https://index.docker.io/v1/ \
+  --docker-username="${DOCKERHUB_USERNAME}" \
+  --docker-password="${DOCKERHUB_PASSWORD}" || true
 # Install ArgoCD CLI
 sudo curl -sSL -o /usr/local/bin/argocd https://github.com/argoproj/argo-cd/releases/download/${ARGOCD_VERSION}/argocd-linux-amd64
 sudo chmod +x /usr/local/bin/argocd

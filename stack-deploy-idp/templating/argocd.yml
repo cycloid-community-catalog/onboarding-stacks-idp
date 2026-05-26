@@ -3,6 +3,10 @@ kind: Application
 metadata:
   name: ($ .org $)-($ .component $)
   namespace: argocd
+  annotations:
+    argocd-image-updater.argoproj.io/image-list: app=($ .dockerhub_repository $):($ .org $)-($ .project $)-($ .app_image_tag $)
+    argocd-image-updater.argoproj.io/app.update-strategy: digest
+    argocd-image-updater.argoproj.io/app.pull-secret: secret:argocd/dockerhub-creds
 spec:
   project: default
   source:

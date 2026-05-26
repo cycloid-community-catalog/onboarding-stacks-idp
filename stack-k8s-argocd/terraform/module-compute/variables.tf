@@ -52,6 +52,18 @@ variable "argocd_version" {
   default     = "v3.0.11"
 }
 
+variable "dockerhub_username" {
+  description = "DockerHub username for ArgoCD Image Updater registry access."
+  type        = string
+  sensitive   = true
+}
+
+variable "dockerhub_password" {
+  description = "DockerHub password (PAT) for ArgoCD Image Updater registry access."
+  type        = string
+  sensitive   = true
+}
+
 variable "git_ssh_url" {
   description = "SSH URL to access the Git repository"
 }

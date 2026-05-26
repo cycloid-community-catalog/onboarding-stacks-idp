@@ -13,6 +13,19 @@ variable "aws_region" {
   default     = "eu-west-1"
 }
 
+# DockerHub variables
+variable "dockerhub_username" {
+  description = "DockerHub username for ArgoCD Image Updater registry access."
+  type        = string
+  sensitive   = true
+}
+
+variable "dockerhub_password" {
+  description = "DockerHub password (PAT) for ArgoCD Image Updater registry access."
+  type        = string
+  sensitive   = true
+}
+
 # GitHub variables
 variable "github_pat" {
   description = "GitHub Personal Access Token allowing to create the new ArgoCD repository. The token must be in the format of 'ghp_<token>', stored in the password field and be created with the 'repo' scope."

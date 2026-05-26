@@ -40,6 +40,14 @@ module "compute" {
   #+ ArgoCD version to deploy
   argocd_version = ""
 
+  #. dockerhub_username: ''
+  #+ DockerHub username for ArgoCD Image Updater registry access
+  dockerhub_username = var.dockerhub_username
+
+  #. dockerhub_password: ''
+  #+ DockerHub password (PAT) for ArgoCD Image Updater registry access
+  dockerhub_password = var.dockerhub_password
+
   #. git_ssh_url: ''
   #+ SSH URL to access the Git repository
   git_ssh_url = github_repository.manifests.ssh_clone_url

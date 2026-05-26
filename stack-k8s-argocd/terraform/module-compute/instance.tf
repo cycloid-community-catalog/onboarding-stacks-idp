@@ -48,6 +48,8 @@ resource "aws_instance" "ec2" {
       ARGOCD_VERSION = var.argocd_version
       ARGOCD_URL = "argocd.${var.cy_org}.${var.vm_aws_route53_zone}"
       ARGOCD_ADMIN_PASSWORD = local.argocd_admin_password
+      DOCKERHUB_USERNAME = var.dockerhub_username
+      DOCKERHUB_PASSWORD = var.dockerhub_password
       GIT_SSH_URL = var.git_ssh_url
       GIT_PRIVATE_KEY = var.git_private_key
     }
