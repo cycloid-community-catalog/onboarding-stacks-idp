@@ -49,11 +49,9 @@ resources:
     ($- if eq .stack_version_type "tag" $)
     tag_filter: ($ .stack_version_ref $)
     fetch_tags: true
-    ($- else if eq .stack_version_type "branch" $)
-    branch: ($ .stack_version_ref $)
     ($- else $)
-    branch: ($ .scs_branch $)
-    ($- end $) 
+    branch: ($ coalesce .stack_version_ref .catalog_repository_branch $)
+    ($- end $)
     ($- if eq .scs_cred_type "basic_auth" $)
     username: ((($ .scs_cred_path $).username))
     password: ((($ .scs_cred_path $).password))
@@ -61,8 +59,10 @@ resources:
     ($- if eq .scs_cred_type "ssh" $)
     private_key: ((($ .scs_cred_path $).ssh_key))
     ($- end $)
+    ($- if ne .stack_version_type "tag" $)
     paths:
       - ($ .stack_path $)/terraform/($ .use_case $)/*
+    ($- end $)
 
 # The Terraform config (will be merged with the stack)
 - name: git_config-terraform
@@ -90,11 +90,9 @@ resources:
     ($- if eq .stack_version_type "tag" $)
     tag_filter: ($ .stack_version_ref $)
     fetch_tags: true
-    ($- else if eq .stack_version_type "branch" $)
-    branch: ($ .stack_version_ref $)
     ($- else $)
-    branch: ($ .scs_branch $)
-    ($- end $) 
+    branch: ($ coalesce .stack_version_ref .catalog_repository_branch $)
+    ($- end $)
     ($- if eq .scs_cred_type "basic_auth" $)
     username: ((($ .scs_cred_path $).username))
     password: ((($ .scs_cred_path $).password))
@@ -102,8 +100,10 @@ resources:
     ($- if eq .scs_cred_type "ssh" $)
     private_key: ((($ .scs_cred_path $).ssh_key))
     ($- end $)
+    ($- if ne .stack_version_type "tag" $)
     paths:
       - ($ .stack_path $)/ansible/*
+    ($- end $)
 
 # The Ansible config (will be merged with the stack)
 - name: git_config-ansible

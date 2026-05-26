@@ -59,9 +59,11 @@ resources:
     ($- else if eq .catalog_repository_credential_type "ssh" $)
     private_key: ((($ .catalog_repository_credential_path $).ssh_key))
     ($- end $)
+    ($- if ne .stack_version_type "tag" $)
     paths:
     - ($ .stack_path $)/terraform/*
     - ($ .stack_path $)/terraform/module-clever/*
+    ($- end $)
 
 - name: git-config
   type: git
