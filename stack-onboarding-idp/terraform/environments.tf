@@ -33,16 +33,16 @@ locals {
   }
 
   managed_environment_variables = [
-    { key = "aws_region", type = "string", value = "eu-west-1" },
-    { key = "cost_center", type = "string", value = "PRJ-2026-INFRA" },
-    { key = "data_classification", type = "string", value = "internal" },
-    { key = "dns_zone", type = "string", value = "demo.cycloid.io" },
-    { key = "gcp_project", type = "string", value = "cycloid-demo" },
-    { key = "gcp_region", type = "string", value = "europe-west1" },
-    { key = "gcp_zone", type = "string", value = "europe-west1-b" },
-    { key = "landing_zone_id", type = "string", value = "lz-dev-eu-001" },
-    { key = "replicas", type = "string", value = "2" },
-    { key = "vpc_id", type = "string", value = "vpc-020d5f766346ac179" },
+    { key = "aws_region", type = "string", value = "eu-west-1", description = "", sensitive = false },
+    { key = "cost_center", type = "string", value = "PRJ-2026-INFRA", description = "", sensitive = false },
+    { key = "data_classification", type = "string", value = "internal", description = "", sensitive = false },
+    { key = "dns_zone", type = "string", value = "demo.cycloid.io", description = "", sensitive = false },
+    { key = "gcp_project", type = "string", value = "cycloid-demo", description = "", sensitive = false },
+    { key = "gcp_region", type = "string", value = "europe-west1", description = "", sensitive = false },
+    { key = "gcp_zone", type = "string", value = "europe-west1-b", description = "", sensitive = false },
+    { key = "landing_zone_id", type = "string", value = "lz-dev-eu-001", description = "", sensitive = false },
+    { key = "replicas", type = "string", value = "2", description = "", sensitive = false },
+    { key = "vpc_id", type = "string", value = "vpc-020d5f766346ac179", description = "", sensitive = false },
   ]
 
   managed_environment_cloud_accounts = compact([
