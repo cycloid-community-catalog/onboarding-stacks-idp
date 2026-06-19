@@ -36,7 +36,7 @@ locals {
   }
 
   managed_environment_variables_parsed = try(
-    yamldecode(trim(var.managed_environment_variables)),
+    yamldecode(replace(trim(var.managed_environment_variables), "\\n", "\n")),
     var.managed_environment_variables,
   )
 
