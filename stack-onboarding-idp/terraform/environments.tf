@@ -35,7 +35,7 @@ locals {
     PRD        = "production"
   }
 
-  managed_environment_variables_string = trim(try(
+  managed_environment_variables_string = trimspace(try(
     jsondecode(var.managed_environment_variables),
     var.managed_environment_variables,
   ))
