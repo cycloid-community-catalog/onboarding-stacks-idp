@@ -35,9 +35,26 @@ locals {
     PRD        = "production"
   }
 
-  managed_environment_variables_parsed = try(
-    yamldecode(replace(trim(var.managed_environment_variables), "\\n", "\n")),
+  managed_environment_variables_string = trim(try(
+    jsondecode(var.managed_environment_variables),
     var.managed_environment_variables,
+  ))
+
+  managed_environment_variables_normalized = replace(
+    replace(
+      replace(
+        replace(local.managed_environment_variables_string, "\\n", "\n"),
+        "\\\"", "\""
+      ),
+      "\\t", "\t"
+    ),
+    "\\r", ""
+  )
+
+  managed_environment_variables_parsed = (
+    can(tolist(var.managed_environment_variables))
+    ? var.managed_environment_variables
+    : yamldecode(local.managed_environment_variables_normalized)
   )
 
   managed_environment_variables = [
