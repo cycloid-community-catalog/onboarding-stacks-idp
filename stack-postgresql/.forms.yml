@@ -5,32 +5,6 @@ use_cases:
   sections:
   - name: Amazon Relational Database Service (RDS)
     groups:
-    - name: Access Configuration
-      technologies: [pipeline]
-      vars:
-      - name: "AWS Account"
-        description: "The AWS account where to deploy the infrastructure."
-        key: aws_cred
-        widget: cy_cred
-        widget_config:
-          display_keys: false
-          cred_types:
-            - aws
-        type: string
-        default: "((aws))"
-        required: true
-      - name: "AWS Region"
-        description: "AWS region where to deploy the resources."
-        key: aws_region
-        widget: auto_complete
-        type: string
-        values_ref: https://cycloid-demo-stackforms-values.s3.eu-west-1.amazonaws.com/aws-regions.json
-        default: eu-west-1
-        validations: 
-        - regexp: "^[a-z]{2}-[a-z]+-\\d+$" 
-          error_message: "Please enter a valid AWS region such as us-east-1"
-        required: true
-
     - name: RDS Configuration
       technologies: [terraform]
       vars:
@@ -111,6 +85,16 @@ use_cases:
         type: array
         required: true
 
+    - name: Environment
+      technologies: [pipeline]
+      vars:
+      - name: "AWS Region"
+        description: "AWS region from environment configuration (used to filter subnet inventory)."
+        key: aws_region
+        widget: hidden
+        type: string
+        default: "($ .env_vars.aws_region $)"
+
     - name: Day-2 Operations
       technologies: [pipeline]
       vars:
@@ -127,21 +111,6 @@ use_cases:
   sections:
   - name: Database
     groups:
-    - name: Access Configuration
-      technologies: [pipeline]
-      vars:
-      - name: "Azure credentials"
-        description: "The azure credential used to deploy the infrastructure. It contains subscription_id, tenant_id, client_id, and client_secret."
-        key: azure_cred
-        widget: cy_cred
-        widget_config:
-          display_keys: false
-          cred_types:
-            - azure
-        type: string
-        default: "((azure))"
-        required: true
-
     - name: Database Configuration
       technologies: [terraform]
       vars:
@@ -216,14 +185,6 @@ use_cases:
           - regexp: "^[a-z0-9]+$"
             error_message: "Must begin with a letter and contain alphanumeric chars"
         required: true
-      - name: "Azure Location"
-        description: "Azure location."
-        key: azure_location
-        widget: auto_complete
-        type: string
-        values_ref: https://cycloid-demo-stackforms-values.s3.eu-west-1.amazonaws.com/azure-locations.json
-        default: "West Europe"
-        required: true
       - name: "Create or Select Resource Group"
         description: "Whether to create a new Resource group or select existing ones."
         key: res_selector
@@ -259,6 +220,16 @@ use_cases:
         widget: simple_text
         type: string
         required: true
+
+    - name: Environment
+      technologies: [pipeline]
+      vars:
+      - name: "Azure Location"
+        description: "Azure location from environment configuration."
+        key: azure_location
+        widget: hidden
+        type: string
+        default: "($ .env_vars.azure_location $)"
 
     - name: Day-2 Operations
       technologies: [pipeline]

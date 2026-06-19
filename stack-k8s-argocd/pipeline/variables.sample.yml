@@ -1,15 +1,10 @@
 #
-# Cloud Provider
+# Cloud credentials and settings are provided by the managed environment.
 #
-
-#. aws_cred (required): ((aws))
-#+ Amazon credentials containing access key and secret key for Terraform. See value format [here](https://docs.cycloid.io/advanced-guide/integrate-and-use-cycloid-credentials-manager.html#vault-in-the-pipeline)
-aws_cred: ((aws))
-
-#. aws_default_region (required): eu-west-1
-#+ AWS region to use for Terraform.
-aws_region: eu-west-1
-
+# AWS:
+# - Cloud account: env_providers.aws.access_key, env_providers.aws.secret_key
+# - Region: env_vars.aws_region
+#
 
 #
 # DockerHub
@@ -57,14 +52,6 @@ vm_instance_status: "Started"
 #+ The number of minutes to wait before automatically destroying the infrastructure after creation.
 destroy_timer_in_minutes: 10
 
-
-#
-# Advanced Configuration
-#
-
-#. enable_advanced_config (required): false
-#+ Enable advanced infrastructure configuration to configure the infrastructure with custom credentials and settings.
-enable_advanced_config: false
 
 #
 # Default variables

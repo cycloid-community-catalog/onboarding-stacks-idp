@@ -1,11 +1,11 @@
 ---
 # Configuration of the Cycloid stack
 version: '4'
-name: 'GitHub Software Project'
+name: 'Scaffold Software Project'
 canonical: stack-github-idp
 author: Cycloid
 description: |
-  Create a GitHub repository and scaffold a new project with my organization best practices and security rules. Manage the project test environments in a GitOps way.
+  Create a Git repository and scaffold a new project with my organization best practices and security rules. Manage the project test environments in a GitOps way.
 image: |
   https://cycloid-demo-stacks-logo.s3.eu-west-1.amazonaws.com/git.png
 keywords:

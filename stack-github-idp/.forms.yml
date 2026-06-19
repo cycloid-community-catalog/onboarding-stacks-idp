@@ -3,7 +3,7 @@ version: "2"
 use_cases:
 - name: project
   sections:
-  - name: GitHub Configuration
+  - name: Git Configuration
     groups:
     - name: Repository Configuration
       technologies: [pipeline]
@@ -27,7 +27,7 @@ use_cases:
         - {label: "Java Spring Boot WebApp", value: "java-spring-boot"}
         default: "NodeJS WebApp"
       - name: "Repository Description"
-        description: "Description for the GitHub repository"
+        description: "Description for the Git repository"
         key: github_repo_description
         widget: simple_text
         type: string
@@ -70,7 +70,7 @@ use_cases:
         default: "demo.cycloid.io"
         required: true
       # - name: "Repository Visibility"
-      #   description: "Visibility level of the GitHub repository"
+      #   description: "Visibility level of the Git repository"
       #   key: github_repo_visibility
       #   widget: dropdown
       #   type: map
@@ -80,11 +80,11 @@ use_cases:
       #   - {label: "Private", value: "private"}
       #   - {label: "Public", value: "public"}
 
-    # - name: GitHub Access
+    # - name: Git Access
     #   technologies: [pipeline]
     #   vars:
-    #   - name: "GitHub Personal Access Token"
-    #     description: "GitHub Personal Access Token with repo scope to manage repositories and SSH keys."
+    #   - name: "Git Personal Access Token"
+    #     description: "Git Personal Access Token with repo scope to manage repositories and SSH keys."
     #     key: github_pat
     #     widget: cy_cred
     #     widget_config:
@@ -94,7 +94,7 @@ use_cases:
     #     type: string
     #     default: "((github-pat.token))"
     #     required: true
-    #   - name: "GitHub Organization"
+    #   - name: "Git Organization"
     #     description: "This is the organization that will be used to create the repository."
     #     key: github_organization
     #     widget: simple_text
@@ -144,7 +144,7 @@ use_cases:
       technologies: [pipeline]
       vars:
       - name: "pat"
-        description: "GitHub Personal Access Token with repo scope to read the application repository."
+        description: "Git Personal Access Token with repo scope to read the application repository."
         key: github_pat
         widget: cy_cred
         widget_config:
