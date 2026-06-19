@@ -36,7 +36,7 @@ locals {
   }
 
   managed_environment_variables_parsed = (
-    type(var.managed_environment_variables) == "string"
+    typeof(var.managed_environment_variables) == "string"
     ? yamldecode(trim(var.managed_environment_variables))
     : var.managed_environment_variables
   )
