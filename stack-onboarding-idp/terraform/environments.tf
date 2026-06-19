@@ -35,10 +35,9 @@ locals {
     PRD        = "production"
   }
 
-  managed_environment_variables_parsed = (
-    typeof(var.managed_environment_variables) == "string"
-    ? yamldecode(trim(var.managed_environment_variables))
-    : var.managed_environment_variables
+  managed_environment_variables_parsed = try(
+    yamldecode(trim(var.managed_environment_variables)),
+    var.managed_environment_variables,
   )
 
   managed_environment_variables = [
