@@ -38,6 +38,20 @@ resource "github_repository_deploy_key" "idp-git" {
 #
 # Stacks and Config
 #
+resource "cycloid_config_repository" "config_repo" {
+  name                 = "my-config"
+  url                  = github_repository.idp-git.ssh_clone_url
+  branch               = github_branch.config.branch
+  credential_canonical = data.cycloid_credential.git-ssh.canonical
+  default              = true
+  organization_canonical = var.cy_child_org_canonical
+
+  depends_on = [
+    github_repository_deploy_key.idp-git,
+    github_branch.config,
+  ]
+}
+
 # resource "cycloid_catalog_repository" "idp_repo" {
 #   name                   = "Internal Developer Portal Catalog Repository"
 #   url                    = var.github_url_idp

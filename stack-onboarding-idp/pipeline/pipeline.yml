@@ -214,21 +214,6 @@ jobs:
                 sleep 1
               done
 
-              # Create config repository
-              MAX_RETRIES=3
-              COUNT=0
-              while [ $COUNT -lt $MAX_RETRIES ]; do
-                set +e
-                cy config-repository create --branch config --cred ${CHILD_ORG}-cycloid-git-ssh --name my-config --url "git@github.com:cycloid-demo/${CHILD_ORG}-cycloid.git" --default --org "${CHILD_ORG}"
-                if [ $? -eq 0 ]; then
-                  echo "Config Repository created successfully."
-                  break
-                fi
-                COUNT=$((COUNT + 1))
-                echo "Attempt $COUNT failed... retrying"
-                sleep 1
-              done
-
               # Create stacks repositories
               MAX_RETRIES=3
               COUNT=0
