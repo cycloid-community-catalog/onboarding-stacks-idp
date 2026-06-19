@@ -39,11 +39,11 @@ resource "github_repository_deploy_key" "idp-git" {
 # Stacks and Config
 #
 resource "cycloid_config_repository" "config_repo" {
-  name                 = "my-config"
-  url                  = github_repository.idp-git.ssh_clone_url
-  branch               = github_branch.config.branch
-  credential_canonical = data.cycloid_credential.git-ssh.canonical
-  default              = true
+  name                   = "my-config"
+  url                    = github_repository.idp-git.ssh_clone_url
+  branch                 = github_branch.config.branch
+  credential_canonical   = data.cycloid_credential.git-ssh.canonical
+  default                = true
   organization_canonical = var.cy_child_org_canonical
 
   depends_on = [
@@ -52,45 +52,32 @@ resource "cycloid_config_repository" "config_repo" {
   ]
 }
 
-# resource "cycloid_catalog_repository" "idp_repo" {
-#   name                   = "Internal Developer Portal Catalog Repository"
-#   url                    = var.github_url_idp
-#   branch                 = var.github_branch_idp
-#   owner                  = var.project_owner
-#   organization_canonical = var.cy_child_org_canonical
-# }
+resource "cycloid_catalog_repository" "my_stacks" {
+  name                   = "my-stacks"
+  url                    = github_repository.idp-git.ssh_clone_url
+  branch                 = github_branch.stacks.branch
+  credential_canonical   = data.cycloid_credential.git-ssh.canonical
+  owner                  = var.project_owner
+  organization_canonical = var.cy_child_org_canonical
 
-# resource "cycloid_catalog_repository" "catalog_repo" {
-#   name                   = "Your Catalog Repository"
-#   url                    = github_repository.idp-git.ssh_clone_url
-#   branch                 = github_branch.stacks.branch
-#   credential_canonical   = cycloid_credential.git-ssh.canonical
-#   owner                  = var.project_owner
-#   organization_canonical = var.cy_child_org_canonical
-# }
+  depends_on = [
+    github_repository_deploy_key.idp-git,
+    github_branch.stacks,
+  ]
+}
 
-# resource "cycloid_config_repository" "config_repo" {
-#   name                   = "Your Config Repository"
-#   url                    = github_repository.idp-git.ssh_clone_url
-#   branch                 = github_branch.config.branch
-#   credential_canonical   = cycloid_credential.git-ssh.canonical
-#   default                = true
-#   organization_canonical = var.cy_child_org_canonical
-# }
+resource "cycloid_catalog_repository" "idp_stacks" {
+  name                   = "idp-stacks"
+  url                    = var.github_url_idp
+  branch                 = var.github_branch_idp
+  owner                  = var.project_owner
+  organization_canonical = var.cy_child_org_canonical
+}
 
-# resource "tls_private_key" "github_generated_key" {
-#   algorithm   = "ED25519"
-# }
-
-# resource "cycloid_credential" "git-ssh" {
-#   name                   = "${var.cy_child_org_canonical}-cycloid-git-ssh"
-#   description            = "SSH Key Pair used to access stacks and config Cycloid GitHub repository for ${var.cy_child_org_canonical} IDP organization."
-#   path                   = "${var.cy_child_org_canonical}-cycloid-git-ssh"
-#   canonical              = "${var.cy_child_org_canonical}-cycloid-git-ssh"
-#   organization_canonical = var.cy_child_org_canonical
-
-#   type = "ssh"
-#   body = {
-#     ssh_key = chomp(tls_private_key.github_generated_key.private_key_openssh)
-#   }
-# }
+resource "cycloid_catalog_repository" "cmp_stacks" {
+  name                   = "onboarding-stacks-cmp"
+  url                    = var.github_url_cmp
+  branch                 = var.github_branch_cmp
+  owner                  = var.project_owner
+  organization_canonical = var.cy_child_org_canonical
+}

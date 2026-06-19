@@ -49,6 +49,16 @@ variable "github_branch_idp" {
   default     = "master"
 }
 
+variable "github_url_cmp" {
+  description = "GitHub URL for the CMP onboarding stacks"
+  default     = "https://github.com/cycloid-community-catalog/onboarding-stacks-cmp.git"
+}
+
+variable "github_branch_cmp" {
+  description = "GitHub branch for the CMP onboarding stacks"
+  default     = "master"
+}
+
 # Members
 # variable "team_members_infrastructure" {
 #   description = "Infrastructure team members to invite to the new software project."
