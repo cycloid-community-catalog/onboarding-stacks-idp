@@ -23,26 +23,32 @@ resource "cycloid_cloud_account" "azure" {
 }
 
 locals {
-  managed_environments = toset(["DEV", "STAGING", "PREPROD", "PRODUCTION"])
+  managed_environments = toset(var.managed_environments)
 
   managed_environment_types = {
     DEV        = "development"
     STAGING    = "staging"
     PREPROD    = "staging"
     PRODUCTION = "production"
+    OTH-DEV    = "development"
+    PPE        = "staging"
+    PRD        = "production"
   }
 
+  managed_environment_variables_parsed = (
+    type(var.managed_environment_variables) == "string"
+    ? yamldecode(trim(var.managed_environment_variables))
+    : var.managed_environment_variables
+  )
+
   managed_environment_variables = [
-    { key = "aws_region", type = "string", value = "eu-west-1", description = "", sensitive = false },
-    { key = "cost_center", type = "string", value = "PRJ-2026-INFRA", description = "", sensitive = false },
-    { key = "data_classification", type = "string", value = "internal", description = "", sensitive = false },
-    { key = "dns_zone", type = "string", value = "demo.cycloid.io", description = "", sensitive = false },
-    { key = "gcp_project", type = "string", value = "cycloid-demo", description = "", sensitive = false },
-    { key = "gcp_region", type = "string", value = "europe-west1", description = "", sensitive = false },
-    { key = "gcp_zone", type = "string", value = "europe-west1-b", description = "", sensitive = false },
-    { key = "landing_zone_id", type = "string", value = "lz-dev-eu-001", description = "", sensitive = false },
-    { key = "replicas", type = "string", value = "2", description = "", sensitive = false },
-    { key = "vpc_id", type = "string", value = "vpc-020d5f766346ac179", description = "", sensitive = false },
+    for v in local.managed_environment_variables_parsed : {
+      key         = v.key
+      type        = try(v.type, "string")
+      value       = tostring(v.value)
+      description = try(v.description, "")
+      sensitive   = try(v.sensitive, false)
+    }
   ]
 
   managed_environment_cloud_accounts = compact([
@@ -58,7 +64,7 @@ resource "cycloid_environment" "managed" {
   project      = cycloid_project.infrastructure.canonical
   canonical    = each.key
   name         = each.key
-  type         = local.managed_environment_types[each.key]
+  type         = lookup(local.managed_environment_types, each.key, "development")
   owner        = var.project_owner
 
   cloud_account_canonicals = local.managed_environment_cloud_accounts

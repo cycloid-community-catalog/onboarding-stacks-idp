@@ -70,6 +70,17 @@ variable "project_owner" {
   type        = string
 }
 
+variable "managed_environments" {
+  description = "Canonical names of managed environments to create in the child organization."
+  type        = list(string)
+  default     = ["DEV", "STAGING", "PREPROD", "PRODUCTION"]
+}
+
+variable "managed_environment_variables" {
+  description = "YAML list of environment variables to set on each managed environment."
+  type        = any
+}
+
 # Cycloid
 variable "cy_api_url" {
   type        = string
