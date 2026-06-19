@@ -78,7 +78,7 @@ variable "managed_environments" {
 
 variable "managed_environment_variables" {
   description = "YAML list of environment variables to set on each managed environment."
-  type        = any
+  type        = string
 }
 
 # Cycloid

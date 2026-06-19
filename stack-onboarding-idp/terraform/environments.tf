@@ -51,11 +51,7 @@ locals {
     "\\r", ""
   )
 
-  managed_environment_variables_parsed = (
-    can(tolist(var.managed_environment_variables))
-    ? var.managed_environment_variables
-    : yamldecode(local.managed_environment_variables_normalized)
-  )
+  managed_environment_variables_parsed = yamldecode(local.managed_environment_variables_normalized)
 
   managed_environment_variables = [
     for v in local.managed_environment_variables_parsed : {
