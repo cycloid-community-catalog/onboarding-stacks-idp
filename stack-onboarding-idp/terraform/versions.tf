@@ -11,7 +11,8 @@ terraform {
       version = "= 6.7.5"
     }
     cycloid = {
-      source = "cycloidio/cycloid"
+      source  = "cycloidio/cycloid"
+      version = "~> 0.7"
     }
   }
 }
