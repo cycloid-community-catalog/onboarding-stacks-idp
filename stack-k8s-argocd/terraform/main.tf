@@ -18,7 +18,7 @@ module "compute" {
 
   #. vm_disk_size: 20
   #+ Disk size for the VM (Go)
-  vm_disk_size = ""
+  vm_disk_size = 20
 
   #. vm_aws_route53_zone: "demo.cycloid.io"
   #+ Route53 Hosted Zone (e.g. demo.cycloid.io) where DNS records will be created
