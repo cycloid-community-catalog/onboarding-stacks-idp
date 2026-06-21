@@ -59,11 +59,6 @@ use_cases:
         key: managed_environments
         widget: dropdown
         type: array
-        default:
-        - dev
-        - staging
-        - preprod
-        - production
         required: true
         values:
         - {label: "Development (dev)", value: "dev"}
