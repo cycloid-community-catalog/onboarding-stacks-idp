@@ -66,13 +66,13 @@ use_cases:
         - PRODUCTION
         required: true
         values:
-        - {label: "Development (DEV)", value: "DEV"}
-        - {label: "Staging (STAGING)", value: "STAGING"}
-        - {label: "Pre-production (PREPROD)", value: "PREPROD"}
-        - {label: "Production (PRODUCTION)", value: "PRODUCTION"}
-        - {label: "Other Development (OTH-DEV)", value: "OTH-DEV"}
-        - {label: "Pre-production (PPE)", value: "PPE"}
-        - {label: "Production (PRD)", value: "PRD"}
+        - {label: "Development (dev)", value: "dev"}
+        - {label: "Staging (staging)", value: "staging"}
+        - {label: "Pre-production (preprod)", value: "preprod"}
+        - {label: "Production (production)", value: "production"}
+        - {label: "Other Development (oth-dev)", value: "oth-dev"}
+        - {label: "Pre-production (ppe)", value: "ppe"}
+        - {label: "Production (prd)", value: "prd"}
         widget_config:
           multiselect: true
       - name: "Environment variables"

@@ -48,13 +48,13 @@ cy_child_org_canonical: ""
 # Managed environments
 #
 
-#. managed_environments (required): ["DEV", "STAGING", "PREPROD", "PRODUCTION"]
+#. managed_environments (required): ["dev", "staging", "preprod", "production"]
 #+ Cycloid managed environments to create in the child organization. Each environment is linked to the Infrastructure and Application projects.
 managed_environments:
-  - DEV
-  - STAGING
-  - PREPROD
-  - PRODUCTION
+  - dev
+  - staging
+  - preprod
+  - production
 
 #. managed_environment_variables (required): |
 #+ YAML list of variables to set on each managed environment. Each entry requires key, type, and value. Optional fields: description, sensitive.
