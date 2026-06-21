@@ -83,7 +83,7 @@ variable "project_owner" {
 variable "managed_environments" {
   description = "Canonical names of managed environments to create in the child organization."
   type        = list(string)
-  default     = ["DEV", "STAGING", "PREPROD", "PRODUCTION"]
+  default     = ["dev", "staging", "preprod", "production"]
 }
 
 variable "managed_environment_variables" {

@@ -60,10 +60,10 @@ use_cases:
         widget: dropdown
         type: array
         default:
-        - DEV
-        - STAGING
-        - PREPROD
-        - PRODUCTION
+        - dev
+        - staging
+        - preprod
+        - production
         required: true
         values:
         - {label: "Development (dev)", value: "dev"}

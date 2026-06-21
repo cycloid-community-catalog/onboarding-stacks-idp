@@ -26,13 +26,13 @@ locals {
   managed_environments = toset(var.managed_environments)
 
   managed_environment_types = {
-    DEV        = "development"
-    STAGING    = "staging"
-    PREPROD    = "staging"
-    PRODUCTION = "production"
-    OTH-DEV    = "development"
-    PPE        = "staging"
-    PRD        = "production"
+    dev        = "development"
+    staging    = "staging"
+    preprod    = "staging"
+    production = "production"
+    oth-dev    = "development"
+    ppe        = "staging"
+    prd        = "production"
   }
 
   managed_environment_variables_string = trimspace(try(
