@@ -78,7 +78,7 @@ cy plugin logs cycloid-plugin-argocd | grep -E 'missing component|component tab'
 Or open `/_cy/context-debug` on the widget iframe URL for a JSON snapshot of
 parsed context and proxy headers.
 
-Rebuild and upgrade to **2.0.3** after changing TLS or proxy behaviour.
+Rebuild and upgrade to **2.0.4** after proxy changes.
 
 ## Local smoke test
 

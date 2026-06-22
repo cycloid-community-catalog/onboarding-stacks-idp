@@ -3,7 +3,7 @@ import { request as httpRequest } from "node:http";
 import { request as httpsRequest } from "node:https";
 import { brotliDecompressSync, gunzipSync, inflateSync } from "node:zlib";
 
-const PLUGIN_VERSION = "2.0.3";
+const PLUGIN_VERSION = "2.0.4";
 
 const port = Number(process.env.PORT);
 if (!Number.isFinite(port) || port <= 0) {
@@ -15,7 +15,6 @@ const ARGOCD_USERNAME = process.env.ARGOCD_USERNAME?.trim() || "admin";
 const ARGOCD_PASSWORD = process.env.ARGOCD_PASSWORD ?? "cycloid";
 const ARGOCD_ZONE = process.env.ARGOCD_ZONE?.trim() || "demo.cycloid.io";
 const ARGOCD_UI_PROJECT = "argocd";
-const UI_MOUNT = "/ui";
 const SESSION_TTL_MS = 12 * 60 * 60 * 1000;
 
 function parseBoolEnv(value: string | undefined, defaultValue: boolean): boolean {
@@ -26,7 +25,6 @@ function parseBoolEnv(value: string | undefined, defaultValue: boolean): boolean
   return defaultValue;
 }
 
-// Demo Argo CD instances commonly use self-signed ingress certs.
 const ARGOCD_INSECURE_TLS = parseBoolEnv(
   process.env.ARGOCD_INSECURE_TLS ?? process.env.argocd_insecure_tls,
   true,
@@ -170,16 +168,6 @@ function resolveContext(req: IncomingMessage, url: URL): ComponentContext | null
   );
 }
 
-function contextQueryString(ctx: ComponentContext): string {
-  const params = new URLSearchParams({
-    org: ctx.org,
-    project: ctx.project,
-    env: ctx.env,
-    component: ctx.component,
-  });
-  return `?${params.toString()}`;
-}
-
 function iframeBaseFromPathValue(value: string): string {
   const match = /(\/organizations\/[^\s?#]*\/iframe)/.exec(value);
   if (match) return match[1]!;
@@ -244,12 +232,6 @@ function escapeHtml(s: string): string {
     .replaceAll('"', "&quot;");
 }
 
-type ReqInit = {
-  method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
-  headers?: Record<string, string>;
-  body?: string;
-};
-
 function isGzipBody(body: Buffer): boolean {
   return body.length >= 2 && body[0] === 0x1f && body[1] === 0x8b;
 }
@@ -280,6 +262,12 @@ function prepareUpstreamHeaders(
   Object.assign(headers, extras);
   return headers;
 }
+
+type ReqInit = {
+  method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
+  headers?: Record<string, string>;
+  body?: string;
+};
 
 function upstreamRequest(
   target: URL,
@@ -313,7 +301,10 @@ function upstreamRequest(
           resolve({
             status: res.statusCode ?? 0,
             headers: res.headers,
-            body: Buffer.concat(chunks),
+            body: decodeUpstreamBody(
+              Buffer.concat(chunks),
+              String(res.headers["content-encoding"] ?? ""),
+            ),
           });
         });
       },
@@ -375,12 +366,6 @@ function stripPluginQuery(search: string): string {
   return qs ? `?${qs}` : "";
 }
 
-function toUiPath(pluginPath: string): string {
-  if (pluginPath === UI_MOUNT || pluginPath === `${UI_MOUNT}/`) return "/";
-  if (pluginPath.startsWith(`${UI_MOUNT}/`)) return pluginPath.slice(UI_MOUNT.length) || "/";
-  return pluginPath;
-}
-
 function rewriteLocation(location: string, publicBase: string): string {
   if (!publicBase) return location;
   const trimmed = location.trim();
@@ -405,35 +390,60 @@ function rewriteLocation(location: string, publicBase: string): string {
 
   if (pathAndQuery.startsWith(publicBase)) return `${pathAndQuery}${hash}`;
   if (pathAndQuery.startsWith("?")) return `${publicBase}${pathAndQuery}${hash}`;
-  if (pathAndQuery.startsWith("/")) return `${publicBase}${UI_MOUNT}${pathAndQuery}${hash}`;
+  if (pathAndQuery.startsWith("/")) return `${publicBase}${pathAndQuery}${hash}`;
   return `${publicBase}/${pathAndQuery}${hash}`;
+}
+
+function rewriteArgocdAbsoluteUrls(html: string, conn: ArgoConn, publicBase: string): string {
+  if (!publicBase || !html.includes(conn.host)) return html;
+  const escaped = conn.host.replace(/\./g, "\\.");
+  return html.replace(new RegExp(`https?:\\/\\/${escaped}`, "gi"), publicBase);
 }
 
 function rewriteRootRelativeUrls(html: string, publicBase: string): string {
   if (!publicBase || !html.includes("/")) return html;
-  const prefix = `${publicBase}${UI_MOUNT}`;
-  return html.replace(/(\s(?:action|href|src)\s*=\s*["'])\/(?!\/)/gi, `$1${prefix}/`);
+  return html.replace(/(\s(?:action|href|src)\s*=\s*["'])\/(?!\/)/gi, `$1${publicBase}/`);
 }
 
 const IFRAME_CLIENT_SCRIPT = `<script>(function(){
 function iframePrefix(){var p=location.pathname;var i=p.indexOf("/iframe");if(i<0)return"";return p.slice(0,i+"/iframe".length)}
-function uiPrefix(){var b=iframePrefix();return b?b+"/ui":""}
-var base=uiPrefix();
-if(base&&!document.querySelector("base")){var el=document.createElement("base");el.href=location.origin+base+"/";(document.head||document.documentElement).prepend(el)}
-function fixUrl(u){if(!u||/^https?:\\/\\//i.test(u)||u.indexOf("//")===0)return u;if(u.charAt(0)==="/")return location.origin+base+u;return u}
+var base=iframePrefix();
+if(base&&!document.querySelector("base")){
+  var el=document.createElement("base");
+  el.href=location.origin+base+"/";
+  (document.head||document.documentElement).prepend(el);
+}
+function fixUrl(u){
+  if(!u||/^https?:\\/\\//i.test(u)||u.indexOf("//")===0)return u;
+  if(!base)return u;
+  if(u.charAt(0)==="/")return location.origin+base+u;
+  return u;
+}
 function patch(){
   document.querySelectorAll("a[href^='/']").forEach(function(el){el.setAttribute("href",fixUrl(el.getAttribute("href")))});
   document.querySelectorAll('form[action^="/"]').forEach(function(el){el.setAttribute("action",fixUrl(el.getAttribute("action")))});
 }
 patch();
 new MutationObserver(patch).observe(document.documentElement,{childList:true,subtree:true});
+var of=window.fetch;
+window.fetch=function(input,init){
+  try{
+    var url=typeof input==="string"?input:(input&&input.url);
+    if(url&&url.charAt(0)==="/"&&base){
+      var fixed=location.origin+base+url;
+      return of(typeof input==="string"?fixed:new Request(fixed,init),init);
+    }
+  }catch(e){}
+  return of.apply(this,arguments);
+};
 })();</script>`;
 
-function injectHtmlFixes(html: string, publicBase: string): string {
+function injectHtmlFixes(html: string, publicBase: string, conn: ArgoConn): string {
   if (!html.includes("<")) return html;
-  let out = rewriteRootRelativeUrls(html, publicBase);
+  let out = rewriteArgocdAbsoluteUrls(html, conn, publicBase);
+  out = rewriteRootRelativeUrls(out, publicBase);
   if (publicBase && !/<base[\s>]/i.test(out)) {
-    const href = `${publicBase}${UI_MOUNT}/`.replace(/"/g, "&quot;");
+    const href = `${publicBase}/`.replace(/"/g, "&quot;");
     const tag = `<base href="${href}">`;
     out = /<head[\s>]/i.test(out)
       ? out.replace(/<head(\s[^>]*)?>/i, (m) => `${m}${tag}`)
@@ -471,47 +481,13 @@ async function readRequestBody(req: IncomingMessage): Promise<Buffer | undefined
   return Buffer.concat(chunks);
 }
 
-function renderShell(ctx: ComponentContext, publicBase: string, appPath: string): string {
-  const qs = contextQueryString(ctx);
-  const iframeSrc = publicBase
-    ? `${publicBase}${UI_MOUNT}${appPath}${qs}`
-    : `.${UI_MOUNT}${appPath}${qs}`;
-  const title = `Argo CD — ${ctx.component}`;
-  return `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>${escapeHtml(title)}</title>
-  <style>
-    html, body { margin: 0; height: 100%; background: #0b1c3d; }
-    iframe { display: block; width: 100%; height: 100%; border: 0; }
-    .error {
-      font-family: system-ui, sans-serif;
-      padding: 1.5rem;
-      color: #1a2233;
-      background: #fff3f3;
-      border: 1px solid #f5c2c7;
-      margin: 1rem;
-      border-radius: 8px;
-    }
-  </style>
-</head>
-<body>
-  <iframe
-    title="${escapeHtml(title)}"
-    src="${escapeHtml(iframeSrc)}"
-    allow="clipboard-read; clipboard-write"
-  ></iframe>
-</body>
-</html>`;
-}
-
 function renderError(message: string): string {
   return `<!DOCTYPE html>
 <html lang="en">
 <head><meta charset="utf-8" /><title>Argo CD</title></head>
-<body><div class="error">${escapeHtml(message)}</div></body>
+<body style="font-family:system-ui,sans-serif;padding:1.5rem">
+  <p style="color:#b71c1c;background:#ffebee;padding:1rem;border-radius:8px">${escapeHtml(message)}</p>
+</body>
 </html>`;
 }
 
@@ -534,7 +510,7 @@ async function proxyArgoCd(
     return;
   }
 
-  const upstreamPath = `${toUiPath(pathname)}${stripPluginQuery(search)}`;
+  const upstreamPath = `${pathname}${stripPluginQuery(search)}`;
   const target = new URL(upstreamPath, conn.baseUrl);
   const method = (req.method ?? "GET").toUpperCase();
   const incomingHeaders: Record<string, string> = {};
@@ -572,7 +548,7 @@ async function proxyArgoCd(
         const responseHeaders = filterProxyHeaders(upstreamRes.headers, publicBase);
 
         if (contentType.includes("text/html")) {
-          const html = Buffer.from(injectHtmlFixes(raw.toString("utf8"), publicBase), "utf8");
+          const html = Buffer.from(injectHtmlFixes(raw.toString("utf8"), publicBase, conn), "utf8");
           responseHeaders["content-length"] = String(html.length);
           res.writeHead(upstreamRes.statusCode ?? 502, responseHeaders);
           res.end(html);
@@ -621,11 +597,9 @@ const server = createServer(async (req, res) => {
     return send(res, 200, {
       context: ctx,
       url: req.url ?? null,
-      pathname: url.pathname,
+      pathname,
       referer: req.headers.referer ?? req.headers.referrer ?? null,
       forwardedUri: req.headers["x-forwarded-uri"] ?? null,
-      originalUrl: req.headers["x-original-url"] ?? null,
-      cycloidPluginUri: req.headers["x-cycloid-plugin-uri"] ?? null,
       publicBase: publicBase || null,
     });
   }
@@ -633,8 +607,7 @@ const server = createServer(async (req, res) => {
   if (!ctx) {
     console.warn(
       `[WARN] missing component context: method=${method} url=${req.url ?? "-"} ` +
-        `referer=${String(req.headers.referer ?? req.headers.referrer ?? "-")} ` +
-        `x-forwarded-uri=${String(req.headers["x-forwarded-uri"] ?? "-")}`,
+        `referer=${String(req.headers.referer ?? req.headers.referrer ?? "-")}`,
     );
     if (method === "GET" && (pathname === "/" || pathname === "/index.html")) {
       return send(
@@ -649,20 +622,17 @@ const server = createServer(async (req, res) => {
     return send(res, 400, { error: "Missing component context (org, env, component)" });
   }
 
-  if (method === "GET" && (pathname === "/" || pathname === "/index.html")) {
-    const appPath = appUiPath(ctx);
+  const upstreamPath =
+    pathname === "/" || pathname === "/index.html" ? appUiPath(ctx) : pathname;
+
+  if (pathname === "/" || pathname === "/index.html") {
     console.log(
       `[INFO] component tab: org=${ctx.org} env=${ctx.env} component=${ctx.component} app=${appName(ctx)}`,
     );
-    return send(res, 200, renderShell(ctx, publicBase || "", appPath), "text/html; charset=utf-8");
   }
 
-  if (pathname === UI_MOUNT || pathname.startsWith(`${UI_MOUNT}/`)) {
-    const body = await readRequestBody(req);
-    return proxyArgoCd(req, res, pathname, url.search, ctx, publicBase, body);
-  }
-
-  send(res, 404, { error: "Not Found" });
+  const body = await readRequestBody(req);
+  return proxyArgoCd(req, res, upstreamPath, url.search, ctx, publicBase, body);
 });
 
 server.listen(port, "0.0.0.0", () => {
