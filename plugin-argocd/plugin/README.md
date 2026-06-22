@@ -1,0 +1,67 @@
+# Cycloid plugin — ArgoCD (component tab)
+
+Cycloid plugin that embeds the **Argo CD** application view for the current component in an **iframe** component tab — same pattern as [plugin-adminer](https://github.com/cycloid-community-catalog/onboarding-stacks-cmp/tree/master/plugin-adminer) and [plugin-postgresql-users](https://github.com/cycloid-community-catalog/onboarding-stacks-cmp/tree/master/plugin-postgresql-users).
+
+## Widget
+
+| Tab | Type | Placement |
+|-----|------|-----------|
+| **ArgoCD** | `iframe` | `component` (`tab_name: ArgoCD`) |
+
+The plugin resolves the Cycloid component context (`org`, `env`, `component`) from the iframe request, logs into `https://argocd.<org>.demo.cycloid.io`, and proxies the Argo CD UI for application `<org>-<env>-<component>`.
+
+## Install
+
+Only Argo CD credentials are required at install time (defaults match the demo stacks):
+
+```bash
+cy plugin install argocd \
+  --config argocd_username=admin \
+  --config argocd_password=cycloid
+```
+
+| `key` | Env var | Default | Description |
+|-------|---------|---------|-------------|
+| `argocd_username` | `ARGOCD_USERNAME` | `admin` | Argo CD local account |
+| `argocd_password` | `ARGOCD_PASSWORD` | `cycloid` | Argo CD password |
+
+Optional runtime override:
+
+| Env var | Default | Description |
+|---------|---------|-------------|
+| `ARGOCD_ZONE` | `demo.cycloid.io` | DNS zone suffix (`argocd.<org>.<zone>`) |
+
+## Enable on a component
+
+1. **Install** at org level with credentials (or accept defaults).
+2. On the component: **Plugins** → enable this plugin.
+3. Open the **ArgoCD** tab on that component.
+
+## Files
+
+| File | Purpose |
+|------|---------|
+| `manifest.yaml` | Install form (username / password) |
+| `widgets.yaml` | `iframe` on `placement.type: component` |
+| `server.ts` | Node HTTP server: login + Argo CD UI reverse proxy |
+| `Dockerfile` | `node:22-bookworm-slim`, no build step |
+
+## Build
+
+```bash
+cd plugin
+docker build -t cycloid-plugin-argocd:2.0.0 .
+```
+
+## Local smoke test
+
+```bash
+cd plugin
+PORT=8080 ARGOCD_USERNAME=admin ARGOCD_PASSWORD=cycloid \
+  node --experimental-strip-types server.ts
+```
+
+```bash
+curl -fsS http://localhost:8080/_cy/ping
+open 'http://localhost:8080/?org=myorg&env=dev&component=pr1'
+```

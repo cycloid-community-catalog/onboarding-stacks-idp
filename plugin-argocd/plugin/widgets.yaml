@@ -1,0 +1,9 @@
+# iframe + component: ArgoCD application UI in a per-component tab (same pattern as
+# plugin-adminer and plugin-postgresql-users in onboarding-stacks-cmp).
+- type: iframe
+  placement:
+    type: component
+    config:
+      tab_name: ArgoCD
+  widget:
+    query: "/"

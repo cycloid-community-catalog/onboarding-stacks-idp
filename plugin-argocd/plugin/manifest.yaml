@@ -1,0 +1,19 @@
+description: "Embed the ArgoCD application view for this component in a Cycloid component tab."
+icon: "https://raw.githubusercontent.com/cncf/artwork/main/projects/argo/icon/color/argo-icon-color.svg"
+
+configuration:
+  - name: "ArgoCD Username"
+    description: "Local ArgoCD account used to authenticate with the ArgoCD API."
+    key: argocd_username
+    widget: simple_text
+    type: string
+    default: "admin"
+    required: false
+
+  - name: "ArgoCD Password"
+    description: "Password for the ArgoCD account above."
+    key: argocd_password
+    widget: simple_text
+    type: string
+    default: "cycloid"
+    required: false
