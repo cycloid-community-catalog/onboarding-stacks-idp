@@ -46,11 +46,18 @@ Optional runtime override:
 | `server.ts` | Node HTTP server: login + Argo CD UI reverse proxy |
 | `Dockerfile` | `node:22-bookworm-slim`, no build step |
 
-## Build
+## Build and publish
 
 ```bash
-cd plugin
-docker build -t cycloid-plugin-argocd:2.0.0 .
+cd plugin-argocd
+chmod +x scripts/build-and-push.sh
+IMAGE=<registry>/cycloid-plugin-argocd ./scripts/build-and-push.sh
+```
+
+The image tag is read from `plugin/package.json` (semver). Example:
+
+```bash
+IMAGE=cycloid-docker-registry:5000/cycloid-plugin-argocd ./scripts/build-and-push.sh
 ```
 
 ## Local smoke test
