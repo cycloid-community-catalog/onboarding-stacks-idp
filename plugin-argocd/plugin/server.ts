@@ -3,7 +3,7 @@ import { request as httpRequest } from "node:http";
 import { request as httpsRequest } from "node:https";
 import { brotliDecompressSync, gunzipSync, inflateSync } from "node:zlib";
 
-const PLUGIN_VERSION = "2.0.4";
+const PLUGIN_VERSION = "2.0.6";
 
 const port = Number(process.env.PORT);
 if (!Number.isFinite(port) || port <= 0) {
@@ -14,7 +14,8 @@ if (!Number.isFinite(port) || port <= 0) {
 const ARGOCD_USERNAME = process.env.ARGOCD_USERNAME?.trim() || "admin";
 const ARGOCD_PASSWORD = process.env.ARGOCD_PASSWORD ?? "cycloid";
 const ARGOCD_ZONE = process.env.ARGOCD_ZONE?.trim() || "demo.cycloid.io";
-const ARGOCD_UI_PROJECT = "argocd";
+const ARGOCD_ENTRY_PATH =
+  process.env.ARGOCD_ENTRY_PATH?.trim() || "/applications/argocd/app-of-apps";
 const SESSION_TTL_MS = 12 * 60 * 60 * 1000;
 
 function parseBoolEnv(value: string | undefined, defaultValue: boolean): boolean {
@@ -44,21 +45,12 @@ const sessions = new Map<string, SessionEntry>();
 
 console.log(
   `[INFO] plugin v${PLUGIN_VERSION}: user='${ARGOCD_USERNAME}' zone='${ARGOCD_ZONE}' ` +
-    `insecure_tls=${ARGOCD_INSECURE_TLS}`,
+    `entry='${ARGOCD_ENTRY_PATH}' insecure_tls=${ARGOCD_INSECURE_TLS}`,
 );
 
 function argocdConn(org: string): ArgoConn {
   const host = `argocd.${org}.${ARGOCD_ZONE}`;
   return { host, baseUrl: `https://${host}` };
-}
-
-function appName(ctx: ComponentContext): string {
-  return `${ctx.org}-${ctx.env}-${ctx.component}`;
-}
-
-function appUiPath(ctx: ComponentContext): string {
-  const name = appName(ctx);
-  return `/applications/${encodeURIComponent(ARGOCD_UI_PROJECT)}/${encodeURIComponent(name)}`;
 }
 
 function parseRequestUrl(req: IncomingMessage): URL {
@@ -510,8 +502,16 @@ async function proxyArgoCd(
     return;
   }
 
-  const upstreamPath = `${pathname}${stripPluginQuery(search)}`;
-  const target = new URL(upstreamPath, conn.baseUrl);
+  const upstreamPath =
+    pathname === "/" || pathname === "/index.html" ? ARGOCD_ENTRY_PATH : pathname;
+
+  if (pathname === "/" || pathname === "/index.html") {
+    console.log(
+      `[INFO] component tab: org=${ctx.org} env=${ctx.env} component=${ctx.component} → ${upstreamPath}`,
+    );
+  }
+
+  const target = new URL(`${upstreamPath}${stripPluginQuery(search)}`, conn.baseUrl);
   const method = (req.method ?? "GET").toUpperCase();
   const incomingHeaders: Record<string, string> = {};
   for (const [key, value] of Object.entries(req.headers)) {
@@ -622,17 +622,8 @@ const server = createServer(async (req, res) => {
     return send(res, 400, { error: "Missing component context (org, env, component)" });
   }
 
-  const upstreamPath =
-    pathname === "/" || pathname === "/index.html" ? appUiPath(ctx) : pathname;
-
-  if (pathname === "/" || pathname === "/index.html") {
-    console.log(
-      `[INFO] component tab: org=${ctx.org} env=${ctx.env} component=${ctx.component} app=${appName(ctx)}`,
-    );
-  }
-
   const body = await readRequestBody(req);
-  return proxyArgoCd(req, res, upstreamPath, url.search, ctx, publicBase, body);
+  return proxyArgoCd(req, res, pathname, url.search, ctx, publicBase, body);
 });
 
 server.listen(port, "0.0.0.0", () => {
