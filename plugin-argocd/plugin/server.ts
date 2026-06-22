@@ -3,7 +3,7 @@ import { request as httpRequest } from "node:http";
 import { request as httpsRequest } from "node:https";
 import { brotliDecompressSync, gunzipSync, inflateSync } from "node:zlib";
 
-const PLUGIN_VERSION = "2.0.6";
+const PLUGIN_VERSION = "2.0.7";
 
 const port = Number(process.env.PORT);
 if (!Number.isFinite(port) || port <= 0) {
@@ -14,8 +14,7 @@ if (!Number.isFinite(port) || port <= 0) {
 const ARGOCD_USERNAME = process.env.ARGOCD_USERNAME?.trim() || "admin";
 const ARGOCD_PASSWORD = process.env.ARGOCD_PASSWORD ?? "cycloid";
 const ARGOCD_ZONE = process.env.ARGOCD_ZONE?.trim() || "demo.cycloid.io";
-const ARGOCD_ENTRY_PATH =
-  process.env.ARGOCD_ENTRY_PATH?.trim() || "/applications/argocd/app-of-apps";
+const ARGOCD_ENTRY_PATH = process.env.ARGOCD_ENTRY_PATH?.trim() || "/applications";
 const SESSION_TTL_MS = 12 * 60 * 60 * 1000;
 
 function parseBoolEnv(value: string | undefined, defaultValue: boolean): boolean {
