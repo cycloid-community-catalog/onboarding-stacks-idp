@@ -2,7 +2,7 @@ import { createServer, type IncomingMessage, type IncomingHttpHeaders, type Serv
 import { request as httpRequest } from "node:http";
 import { request as httpsRequest } from "node:https";
 
-const PLUGIN_VERSION = "2.0.1";
+const PLUGIN_VERSION = "2.0.2";
 
 const port = Number(process.env.PORT);
 if (!Number.isFinite(port) || port <= 0) {
@@ -17,6 +17,20 @@ const ARGOCD_UI_PROJECT = "argocd";
 const UI_MOUNT = "/ui";
 const SESSION_TTL_MS = 12 * 60 * 60 * 1000;
 
+function parseBoolEnv(value: string | undefined, defaultValue: boolean): boolean {
+  if (value === undefined || value.trim() === "") return defaultValue;
+  const v = value.trim().toLowerCase();
+  if (["1", "true", "yes", "on"].includes(v)) return true;
+  if (["0", "false", "no", "off"].includes(v)) return false;
+  return defaultValue;
+}
+
+// Demo Argo CD instances commonly use self-signed ingress certs.
+const ARGOCD_INSECURE_TLS = parseBoolEnv(
+  process.env.ARGOCD_INSECURE_TLS ?? process.env.argocd_insecure_tls,
+  true,
+);
+
 type ComponentContext = {
   org: string;
   project: string;
@@ -30,7 +44,8 @@ type SessionEntry = { token: string; updatedAt: number };
 const sessions = new Map<string, SessionEntry>();
 
 console.log(
-  `[INFO] plugin v${PLUGIN_VERSION}: user='${ARGOCD_USERNAME}' zone='${ARGOCD_ZONE}'`,
+  `[INFO] plugin v${PLUGIN_VERSION}: user='${ARGOCD_USERNAME}' zone='${ARGOCD_ZONE}' ` +
+    `insecure_tls=${ARGOCD_INSECURE_TLS}`,
 );
 
 function argocdConn(org: string): ArgoConn {
@@ -256,7 +271,7 @@ function upstreamRequest(
         method: init.method,
         headers,
         servername: isHttps ? target.hostname : undefined,
-        rejectUnauthorized: true,
+        rejectUnauthorized: !ARGOCD_INSECURE_TLS,
       },
       (res) => {
         const chunks: Buffer[] = [];
@@ -505,7 +520,7 @@ async function proxyArgoCd(
       method,
       headers,
       servername: target.protocol === "https:" ? target.hostname : undefined,
-      rejectUnauthorized: true,
+      rejectUnauthorized: !ARGOCD_INSECURE_TLS,
     },
     (upstreamRes) => {
       if (upstreamRes.statusCode === 401) sessions.delete(ctx.org);

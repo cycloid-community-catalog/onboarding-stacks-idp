@@ -30,6 +30,7 @@ Optional runtime override:
 | Env var | Default | Description |
 |---------|---------|-------------|
 | `ARGOCD_ZONE` | `demo.cycloid.io` | DNS zone suffix (`argocd.<org>.<zone>`) |
+| `ARGOCD_INSECURE_TLS` | `true` | Accept self-signed Argo CD ingress certificates (demo stacks) |
 
 ## Enable on a component
 
@@ -77,7 +78,7 @@ cy plugin logs cycloid-plugin-argocd | grep -E 'missing component|component tab'
 Or open `/_cy/context-debug` on the widget iframe URL for a JSON snapshot of
 parsed context and proxy headers.
 
-Rebuild and upgrade to **2.0.1** after changing context resolution.
+Rebuild and upgrade to **2.0.2** after changing TLS or context resolution.
 
 ## Local smoke test
 
