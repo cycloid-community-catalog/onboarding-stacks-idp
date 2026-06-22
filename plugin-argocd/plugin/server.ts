@@ -1,8 +1,9 @@
 import { createServer, type IncomingMessage, type IncomingHttpHeaders, type ServerResponse } from "node:http";
 import { request as httpRequest } from "node:http";
 import { request as httpsRequest } from "node:https";
+import { brotliDecompressSync, gunzipSync, inflateSync } from "node:zlib";
 
-const PLUGIN_VERSION = "2.0.2";
+const PLUGIN_VERSION = "2.0.3";
 
 const port = Number(process.env.PORT);
 if (!Number.isFinite(port) || port <= 0) {
@@ -249,6 +250,37 @@ type ReqInit = {
   body?: string;
 };
 
+function isGzipBody(body: Buffer): boolean {
+  return body.length >= 2 && body[0] === 0x1f && body[1] === 0x8b;
+}
+
+function decodeUpstreamBody(body: Buffer, contentEncoding: string | undefined): Buffer {
+  const enc = (contentEncoding ?? "").toLowerCase();
+  try {
+    if (enc.includes("gzip") || (!enc && isGzipBody(body))) return gunzipSync(body);
+    if (enc.includes("deflate")) return inflateSync(body);
+    if (enc.includes("br")) return brotliDecompressSync(body);
+  } catch {
+    /* return raw body if decoding fails */
+  }
+  return body;
+}
+
+function prepareUpstreamHeaders(
+  incoming: Record<string, string>,
+  extras: Record<string, string> = {},
+): Record<string, string> {
+  const headers: Record<string, string> = {};
+  for (const [key, value] of Object.entries(incoming)) {
+    const lower = key.toLowerCase();
+    if (lower === "host" || lower === "accept-encoding") continue;
+    headers[lower] = value;
+  }
+  headers["accept-encoding"] = "identity";
+  Object.assign(headers, extras);
+  return headers;
+}
+
 function upstreamRequest(
   target: URL,
   init: ReqInit,
@@ -262,6 +294,7 @@ function upstreamRequest(
       headers["content-length"] = String(Buffer.byteLength(init.body));
     }
     headers.host = target.hostname;
+    headers["accept-encoding"] = "identity";
 
     const req = request(
       {
@@ -318,6 +351,7 @@ const STRIPPED_RESPONSE_HEADERS = new Set([
   "content-security-policy-report-only",
   "host",
   "content-length",
+  "content-encoding",
 ]);
 
 const HOP_BY_HOP_HEADERS = new Set([
@@ -503,14 +537,16 @@ async function proxyArgoCd(
   const upstreamPath = `${toUiPath(pathname)}${stripPluginQuery(search)}`;
   const target = new URL(upstreamPath, conn.baseUrl);
   const method = (req.method ?? "GET").toUpperCase();
-  const headers: Record<string, string> = {};
+  const incomingHeaders: Record<string, string> = {};
   for (const [key, value] of Object.entries(req.headers)) {
-    if (value === undefined || key === "host") continue;
-    headers[key] = Array.isArray(value) ? value.join(", ") : value;
+    if (value === undefined) continue;
+    incomingHeaders[key] = Array.isArray(value) ? value.join(", ") : value;
   }
-  headers.authorization = `Bearer ${token}`;
-  headers.cookie = `argocd.token=${token}`;
-  if (body !== undefined) headers["content-length"] = String(body.length);
+  const headers = prepareUpstreamHeaders(incomingHeaders, {
+    authorization: `Bearer ${token}`,
+    cookie: `argocd.token=${token}`,
+    ...(body !== undefined ? { "content-length": String(body.length) } : {}),
+  });
 
   const upstream = (target.protocol === "https:" ? httpsRequest : httpRequest)(
     {
@@ -525,23 +561,27 @@ async function proxyArgoCd(
     (upstreamRes) => {
       if (upstreamRes.statusCode === 401) sessions.delete(ctx.org);
 
-      const contentType = String(upstreamRes.headers["content-type"] ?? "");
-      const responseHeaders = filterProxyHeaders(upstreamRes.headers, publicBase);
-
-      if (!contentType.includes("text/html")) {
-        res.writeHead(upstreamRes.statusCode ?? 502, responseHeaders);
-        upstreamRes.pipe(res);
-        return;
-      }
-
       const chunks: Buffer[] = [];
       upstreamRes.on("data", (chunk: Buffer) => chunks.push(chunk));
       upstreamRes.on("end", () => {
-        const raw = Buffer.concat(chunks).toString("utf8");
-        const html = Buffer.from(injectHtmlFixes(raw, publicBase), "utf8");
-        responseHeaders["content-length"] = String(html.length);
+        const raw = decodeUpstreamBody(
+          Buffer.concat(chunks),
+          String(upstreamRes.headers["content-encoding"] ?? ""),
+        );
+        const contentType = String(upstreamRes.headers["content-type"] ?? "");
+        const responseHeaders = filterProxyHeaders(upstreamRes.headers, publicBase);
+
+        if (contentType.includes("text/html")) {
+          const html = Buffer.from(injectHtmlFixes(raw.toString("utf8"), publicBase), "utf8");
+          responseHeaders["content-length"] = String(html.length);
+          res.writeHead(upstreamRes.statusCode ?? 502, responseHeaders);
+          res.end(html);
+          return;
+        }
+
+        responseHeaders["content-length"] = String(raw.length);
         res.writeHead(upstreamRes.statusCode ?? 502, responseHeaders);
-        res.end(html);
+        res.end(raw);
       });
     },
   );
