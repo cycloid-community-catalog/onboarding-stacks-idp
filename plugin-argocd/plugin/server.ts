@@ -2,7 +2,7 @@ import { createServer, type IncomingMessage, type IncomingHttpHeaders, type Serv
 import { request as httpRequest } from "node:http";
 import { request as httpsRequest } from "node:https";
 
-const PLUGIN_VERSION = "2.0.0";
+const PLUGIN_VERSION = "2.0.1";
 
 const port = Number(process.env.PORT);
 if (!Number.isFinite(port) || port <= 0) {
@@ -89,6 +89,20 @@ function resolvePathname(url: URL, rawPathname: string): string {
   return normalizePluginPath(rawPathname);
 }
 
+const COMPONENT_PATH =
+  /\/organizations\/([^/]+)\/projects\/([^/]+)\/environments\/([^/]+)\/components\/([^/?#]+)/;
+
+function contextFromPathValue(value: string): ComponentContext | null {
+  const match = COMPONENT_PATH.exec(value);
+  if (!match) return null;
+  return {
+    org: decodeURIComponent(match[1]!),
+    project: decodeURIComponent(match[2]!),
+    env: decodeURIComponent(match[3]!),
+    component: decodeURIComponent(match[4]!),
+  };
+}
+
 function contextFromQuery(url: URL): ComponentContext | null {
   const org = url.searchParams.get("org")?.trim();
   const project = url.searchParams.get("project")?.trim() ?? "";
@@ -101,21 +115,66 @@ function contextFromQuery(url: URL): ComponentContext | null {
 function contextFromReferer(req: IncomingMessage): ComponentContext | null {
   const referer = req.headers.referer ?? req.headers.referrer;
   if (typeof referer !== "string" || !referer) return null;
-  const match =
-    /\/organizations\/([^/]+)\/projects\/([^/]+)\/environments\/([^/]+)\/components\/([^/]+)/.exec(
-      referer,
-    );
-  if (!match) return null;
-  return {
-    org: decodeURIComponent(match[1]!),
-    project: decodeURIComponent(match[2]!),
-    env: decodeURIComponent(match[3]!),
-    component: decodeURIComponent(match[4]!),
-  };
+  return contextFromPathValue(referer);
+}
+
+function contextFromForwardedHeaders(req: IncomingMessage): ComponentContext | null {
+  const headerNames = [
+    "x-forwarded-uri",
+    "x-original-url",
+    "x-forwarded-path",
+    "x-cycloid-plugin-uri",
+    "x-request-uri",
+    "x-rewrite-url",
+  ] as const;
+
+  for (const name of headerNames) {
+    const value = req.headers[name];
+    if (typeof value !== "string") continue;
+    const ctx = contextFromPathValue(value);
+    if (ctx) return ctx;
+  }
+
+  for (const value of Object.values(req.headers)) {
+    if (typeof value !== "string" || !value.includes("/organizations/")) continue;
+    const ctx = contextFromPathValue(value);
+    if (ctx) return ctx;
+  }
+
+  return null;
 }
 
 function resolveContext(req: IncomingMessage, url: URL): ComponentContext | null {
-  return contextFromQuery(url) ?? contextFromReferer(req);
+  return (
+    contextFromQuery(url) ??
+    contextFromPathValue(url.pathname) ??
+    (req.url ? contextFromPathValue(req.url) : null) ??
+    contextFromForwardedHeaders(req) ??
+    contextFromReferer(req)
+  );
+}
+
+function contextQueryString(ctx: ComponentContext): string {
+  const params = new URLSearchParams({
+    org: ctx.org,
+    project: ctx.project,
+    env: ctx.env,
+    component: ctx.component,
+  });
+  return `?${params.toString()}`;
+}
+
+function iframeBaseFromPathValue(value: string): string {
+  const match = /(\/organizations\/[^\s?#]*\/iframe)/.exec(value);
+  if (match) return match[1]!;
+  try {
+    const path = new URL(value, "http://local").pathname;
+    const base = iframeBaseFromPathname(path);
+    if (base) return base;
+  } catch {
+    /* ignore */
+  }
+  return iframeBaseFromPathname(value);
 }
 
 function iframeBaseFromPathname(pathname: string): string {
@@ -125,16 +184,28 @@ function iframeBaseFromPathname(pathname: string): string {
 }
 
 function getPublicBase(req: IncomingMessage, url: URL): string {
+  const headerNames = [
+    "x-forwarded-uri",
+    "x-original-url",
+    "x-forwarded-path",
+    "x-cycloid-plugin-uri",
+    "x-request-uri",
+    "x-rewrite-url",
+  ] as const;
+
+  for (const name of headerNames) {
+    const value = req.headers[name];
+    if (typeof value !== "string") continue;
+    const base = iframeBaseFromPathValue(value);
+    if (base) return base;
+  }
+
   const referer = req.headers.referer ?? req.headers.referrer;
   if (typeof referer === "string" && referer) {
-    try {
-      const ref = new URL(referer);
-      const base = iframeBaseFromPathname(ref.pathname);
-      if (base) return base;
-    } catch {
-      /* ignore */
-    }
+    const base = iframeBaseFromPathValue(referer);
+    if (base) return base;
   }
+
   return iframeBaseFromPathname(url.pathname);
 }
 
@@ -352,9 +423,10 @@ async function readRequestBody(req: IncomingMessage): Promise<Buffer | undefined
 }
 
 function renderShell(ctx: ComponentContext, publicBase: string, appPath: string): string {
+  const qs = contextQueryString(ctx);
   const iframeSrc = publicBase
-    ? `${publicBase}${UI_MOUNT}${appPath}`
-    : `.${UI_MOUNT}${appPath}`;
+    ? `${publicBase}${UI_MOUNT}${appPath}${qs}`
+    : `.${UI_MOUNT}${appPath}${qs}`;
   const title = `Argo CD — ${ctx.component}`;
   return `<!DOCTYPE html>
 <html lang="en">
@@ -490,7 +562,25 @@ const server = createServer(async (req, res) => {
   }
   if (method === "POST" && pathname === "/_cy/resync") return send(res, 200, { started: false });
 
+  if (method === "GET" && pathname === "/_cy/context-debug") {
+    return send(res, 200, {
+      context: ctx,
+      url: req.url ?? null,
+      pathname: url.pathname,
+      referer: req.headers.referer ?? req.headers.referrer ?? null,
+      forwardedUri: req.headers["x-forwarded-uri"] ?? null,
+      originalUrl: req.headers["x-original-url"] ?? null,
+      cycloidPluginUri: req.headers["x-cycloid-plugin-uri"] ?? null,
+      publicBase: publicBase || null,
+    });
+  }
+
   if (!ctx) {
+    console.warn(
+      `[WARN] missing component context: method=${method} url=${req.url ?? "-"} ` +
+        `referer=${String(req.headers.referer ?? req.headers.referrer ?? "-")} ` +
+        `x-forwarded-uri=${String(req.headers["x-forwarded-uri"] ?? "-")}`,
+    );
     if (method === "GET" && (pathname === "/" || pathname === "/index.html")) {
       return send(
         res,

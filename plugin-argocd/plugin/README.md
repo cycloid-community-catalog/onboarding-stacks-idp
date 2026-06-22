@@ -60,6 +60,25 @@ The image tag is read from `plugin/package.json` (semver). Example:
 IMAGE=cycloid-docker-registry:5000/cycloid-plugin-argocd ./scripts/build-and-push.sh
 ```
 
+## Troubleshooting
+
+**Missing Cycloid component context**
+
+The plugin resolves `org`, `project`, `env`, and `component` from (in order): the
+widget query string, the request path, Cycloid proxy headers (`x-forwarded-uri`, …),
+and the `Referer` header.
+
+Check what the container received:
+
+```bash
+cy plugin logs cycloid-plugin-argocd | grep -E 'missing component|component tab'
+```
+
+Or open `/_cy/context-debug` on the widget iframe URL for a JSON snapshot of
+parsed context and proxy headers.
+
+Rebuild and upgrade to **2.0.1** after changing context resolution.
+
 ## Local smoke test
 
 ```bash
@@ -70,5 +89,5 @@ PORT=8080 ARGOCD_USERNAME=admin ARGOCD_PASSWORD=cycloid \
 
 ```bash
 curl -fsS http://localhost:8080/_cy/ping
-open 'http://localhost:8080/?org=myorg&env=dev&component=pr1'
+open 'http://localhost:8080/?org=myorg&project=demo&env=dev&component=pr1'
 ```

@@ -6,4 +6,4 @@
     config:
       tab_name: ArgoCD
   widget:
-    query: "/"
+    query: "/?org=($ .org $)&project=($ .project $)&env=($ .env $)&component=($ .component $)"
