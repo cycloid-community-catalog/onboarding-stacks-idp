@@ -81,7 +81,7 @@ cy plugin logs cycloid-plugin-argocd | grep -E 'missing component|component tab'
 Or open `/_cy/context-debug` on the widget iframe URL for a JSON snapshot of
 parsed context and proxy headers.
 
-Rebuild and upgrade to **2.0.10** after API routing fixes.
+Rebuild and upgrade to **2.0.11** after API routing fixes.
 
 ## Local smoke test
 

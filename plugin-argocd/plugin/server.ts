@@ -3,7 +3,7 @@ import { request as httpRequest } from "node:http";
 import { request as httpsRequest } from "node:https";
 import { brotliDecompressSync, gunzipSync, inflateSync } from "node:zlib";
 
-const PLUGIN_VERSION = "2.0.10";
+const PLUGIN_VERSION = "2.0.11";
 
 const port = Number(process.env.PORT);
 if (!Number.isFinite(port) || port <= 0) {
@@ -416,51 +416,34 @@ function buildIframeClientScript(clientEntryPath: string): string {
   const entryPath = JSON.stringify(clientEntryPath);
   return `<script>(function(){
 function iframePrefix(){var p=location.pathname;var i=p.indexOf("/iframe");if(i<0)return"";return p.slice(0,i+"/iframe".length)}
-function proxyRoot(){var b=iframePrefix();return b?location.origin+b+"/":null}
-function fixApiUrl(u){
+function maybeFixUrl(u){
   if(typeof u!=="string"||!u)return u;
-  var root=proxyRoot();
-  if(!root)return u;
+  var base=iframePrefix();
+  if(!base)return u;
   if(/^https?:\\/\\//i.test(u)||u.indexOf("//")===0)return u;
+  if(u.indexOf(base+"/")===0||u===base)return u;
   var broken=/^\\/api\\.[^/]+\\/organizations\\/[^/]+\\/plugin_widgets\\/[^/]+\\/[^/]+\\/iframe(\\/.*)$/.exec(u);
-  if(broken)return root.replace(/\\/$/,"")+broken[1];
-  if(u.charAt(0)==="/")return root.replace(/\\/$/,"")+u;
-  if(u.indexOf("api/")===0)return root+u;
-  try{return new URL(u,root).href}catch(e){return u}
-}
-function syncBaseHref(){
-  var root=proxyRoot();
-  if(!root)return;
-  var href=root.replace(/\\/?$/,"/").replace(/([^:])\\/\\/+/g,"$1/");
-  var bases=document.querySelectorAll("base");
-  if(bases.length){bases.forEach(function(b){b.href=href})}
-  else{var el=document.createElement("base");el.href=href;(document.head||document.documentElement).prepend(el)}
+  if(broken)return base+broken[1];
+  if(u.charAt(0)==="/"&&(u.indexOf("/api/")===0||u.indexOf("/api/v1/")===0))return base+u;
+  return u;
 }
 var base=iframePrefix();
 var entryPath=${entryPath};
-syncBaseHref();
 if(base&&entryPath&&entryPath!=="/"){
   var target=location.origin+base+entryPath;
-  if(location.href!==target){history.replaceState(null,"",target);syncBaseHref();window.dispatchEvent(new PopStateEvent("popstate"))}
+  if(location.href!==target){history.replaceState(null,"",target);window.dispatchEvent(new PopStateEvent("popstate"))}
 }
-function fixUrl(u){return fixApiUrl(u)}
-function patch(){
-  document.querySelectorAll("a[href^='/']").forEach(function(el){el.setAttribute("href",fixUrl(el.getAttribute("href")))});
-  document.querySelectorAll('form[action^="/"]').forEach(function(el){el.setAttribute("action",fixUrl(el.getAttribute("action")))});
-}
-patch();
-new MutationObserver(function(){syncBaseHref();patch()}).observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:["href"]});
 var of=window.fetch;
 window.fetch=function(input,init){
   try{
     var url=typeof input==="string"?input:(input&&input.url);
-    var fixed=fixApiUrl(url);
+    var fixed=maybeFixUrl(url);
     if(fixed&&fixed!==url)return of(typeof input==="string"?fixed:new Request(fixed,init),init);
   }catch(e){}
   return of.apply(this,arguments);
 };
 var ox=XMLHttpRequest.prototype.open;
-XMLHttpRequest.prototype.open=function(method,u){try{u=fixApiUrl(String(u))}catch(e){}return ox.apply(this,[method,u].concat([].slice.call(arguments,2)))};
+XMLHttpRequest.prototype.open=function(method,u){try{u=maybeFixUrl(String(u))}catch(e){}return ox.apply(this,[method,u].concat([].slice.call(arguments,2)))};
 })();</script>`;
 }
 
