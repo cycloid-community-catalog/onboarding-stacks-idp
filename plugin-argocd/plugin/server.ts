@@ -3,7 +3,7 @@ import { request as httpRequest } from "node:http";
 import { request as httpsRequest } from "node:https";
 import { brotliDecompressSync, gunzipSync, inflateSync } from "node:zlib";
 
-const PLUGIN_VERSION = "2.0.12";
+const PLUGIN_VERSION = "2.1.0";
 
 const port = Number(process.env.PORT);
 if (!Number.isFinite(port) || port <= 0) {
@@ -14,8 +14,10 @@ if (!Number.isFinite(port) || port <= 0) {
 const ARGOCD_USERNAME = process.env.ARGOCD_USERNAME?.trim() || "admin";
 const ARGOCD_PASSWORD = process.env.ARGOCD_PASSWORD ?? "cycloid";
 const ARGOCD_ZONE = process.env.ARGOCD_ZONE?.trim() || "demo.cycloid.io";
-// Upstream always loads the SPA shell at / for UI routes. Deep paths such as
-// /applications/... are client-side routes (direct GET returns Go 404 from Argo CD).
+// Nested iframe (v2.0.3 / pre-2.0.4): Cycloid iframe loads a thin shell at /, Argo CD
+// UI runs in an inner iframe under /ui/*. Keeps Argo CD routing/API isolated from the
+// Cycloid proxy URL — avoids replaceState, base-href, and deep-path 404 issues.
+const UI_MOUNT = "/ui";
 const ARGOCD_INDEX_PATH = "/";
 const ARGOCD_ENTRY_PATH =
   process.env.ARGOCD_ENTRY_PATH?.trim() || "/applications/argocd/app-of-apps";
@@ -68,12 +70,26 @@ const sessions = new Map<string, SessionEntry>();
 
 console.log(
   `[INFO] plugin v${PLUGIN_VERSION}: user='${ARGOCD_USERNAME}' zone='${ARGOCD_ZONE}' ` +
-    `index='${ARGOCD_INDEX_PATH}' client_entry='${ARGOCD_ENTRY_PATH}' insecure_tls=${ARGOCD_INSECURE_TLS}`,
+    `ui_mount='${UI_MOUNT}' entry='${ARGOCD_ENTRY_PATH}' insecure_tls=${ARGOCD_INSECURE_TLS}`,
 );
 
 function argocdConn(org: string): ArgoConn {
   const host = `argocd.${org}.${ARGOCD_ZONE}`;
   return { host, baseUrl: `https://${host}` };
+}
+
+function contextQueryString(ctx: ComponentContext): string {
+  const params = new URLSearchParams({
+    org: ctx.org,
+    project: ctx.project,
+    env: ctx.env,
+    component: ctx.component,
+  });
+  return `?${params.toString()}`;
+}
+
+function uiPublicBase(publicBase: string): string {
+  return publicBase ? `${publicBase}${UI_MOUNT}` : UI_MOUNT;
 }
 
 function parseRequestUrl(req: IncomingMessage): URL {
@@ -381,6 +397,12 @@ function stripPluginQuery(search: string): string {
   return qs ? `?${qs}` : "";
 }
 
+function toUiPath(pluginPath: string): string {
+  if (pluginPath === UI_MOUNT || pluginPath === `${UI_MOUNT}/`) return "/";
+  if (pluginPath.startsWith(`${UI_MOUNT}/`)) return pluginPath.slice(UI_MOUNT.length) || "/";
+  return pluginPath;
+}
+
 function rewriteLocation(location: string, publicBase: string): string {
   if (!publicBase) return location;
   const trimmed = location.trim();
@@ -405,19 +427,19 @@ function rewriteLocation(location: string, publicBase: string): string {
 
   if (pathAndQuery.startsWith(publicBase)) return `${pathAndQuery}${hash}`;
   if (pathAndQuery.startsWith("?")) return `${publicBase}${pathAndQuery}${hash}`;
-  if (pathAndQuery.startsWith("/")) return `${publicBase}${pathAndQuery}${hash}`;
+  if (pathAndQuery.startsWith("/")) return `${publicBase}${UI_MOUNT}${pathAndQuery}${hash}`;
   return `${publicBase}/${pathAndQuery}${hash}`;
 }
 
-function rewriteArgocdAbsoluteUrls(html: string, conn: ArgoConn, publicBase: string): string {
-  if (!publicBase || !html.includes(conn.host)) return html;
+function rewriteArgocdAbsoluteUrls(html: string, conn: ArgoConn, uiBase: string): string {
+  if (!uiBase || !html.includes(conn.host)) return html;
   const escaped = conn.host.replace(/\./g, "\\.");
-  return html.replace(new RegExp(`https?:\\/\\/${escaped}`, "gi"), publicBase);
+  return html.replace(new RegExp(`https?:\\/\\/${escaped}`, "gi"), uiBase);
 }
 
-function rewriteRootRelativeUrls(html: string, publicBase: string): string {
-  if (!publicBase || !html.includes("/")) return html;
-  return html.replace(/(\s(?:action|href|src)\s*=\s*["'])\/(?!\/)/gi, `$1${publicBase}/`);
+function rewriteRootRelativeUrls(html: string, uiBase: string): string {
+  if (!uiBase || !html.includes("/")) return html;
+  return html.replace(/(\s(?:action|href|src)\s*=\s*["'])\/(?!\/)/gi, `$1${uiBase}/`);
 }
 
 function rewriteDocumentBase(html: string, publicBase: string): string {
@@ -430,33 +452,18 @@ function rewriteDocumentBase(html: string, publicBase: string): string {
     : `${tag}${html}`;
 }
 
-function buildIframeClientScript(clientEntryPath: string): string {
-  const entryPath = JSON.stringify(clientEntryPath);
+function buildUiClientScript(): string {
   return `<script>(function(){
 function iframePrefix(){var p=location.pathname;var i=p.indexOf("/iframe");if(i<0)return"";return p.slice(0,i+"/iframe".length)}
-function appPath(){
-  var b=iframePrefix();
-  if(!b)return null;
-  var r=location.pathname.slice(b.length);
-  if(!r||r==="/")return "/";
-  return r.charAt(0)==="/"?r:"/"+r;
-}
+function uiPrefix(){var b=iframePrefix();return b?b+"/ui":""}
 function maybeFixUrl(u){
   if(typeof u!=="string"||!u)return u;
-  var base=iframePrefix();
+  var base=uiPrefix();
   if(!base)return u;
   if(/^https?:\\/\\//i.test(u)||u.indexOf("//")===0)return u;
   if(u.indexOf(base+"/")===0||u===base)return u;
-  var broken=/^\\/api\\.[^/]+\\/organizations\\/[^/]+\\/plugin_widgets\\/[^/]+\\/[^/]+\\/iframe(\\/.*)$/.exec(u);
-  if(broken)return base+broken[1];
   if(u.charAt(0)==="/"&&(u.indexOf("/api/")===0||u.indexOf("/api/v1/")===0))return base+u;
   return u;
-}
-var base=iframePrefix();
-var entryPath=${entryPath};
-if(base&&entryPath&&entryPath!=="/"&&appPath()==="/"){
-  var target=location.origin+base+entryPath;
-  if(location.href!==target){history.replaceState(null,"",target);window.dispatchEvent(new PopStateEvent("popstate"))}
 }
 var of=window.fetch;
 window.fetch=function(input,init){
@@ -474,10 +481,11 @@ XMLHttpRequest.prototype.open=function(method,u){try{u=maybeFixUrl(String(u))}ca
 
 function injectHtmlFixes(html: string, publicBase: string, conn: ArgoConn): string {
   if (!html.includes("<")) return html;
-  let out = rewriteArgocdAbsoluteUrls(html, conn, publicBase);
-  out = rewriteRootRelativeUrls(out, publicBase);
-  out = rewriteDocumentBase(out, publicBase);
-  const script = buildIframeClientScript(ARGOCD_ENTRY_PATH);
+  const uiBase = uiPublicBase(publicBase);
+  let out = rewriteArgocdAbsoluteUrls(html, conn, uiBase);
+  out = rewriteRootRelativeUrls(out, uiBase);
+  out = rewriteDocumentBase(out, uiBase);
+  const script = buildUiClientScript();
   if (/<\/head>/i.test(out)) {
     return out.replace(/<\/head>/i, `${script}</head>`);
   }
@@ -510,6 +518,33 @@ async function readRequestBody(req: IncomingMessage): Promise<Buffer | undefined
   return Buffer.concat(chunks);
 }
 
+function renderShell(ctx: ComponentContext, publicBase: string, entryPath: string): string {
+  const qs = contextQueryString(ctx);
+  const iframeSrc = publicBase
+    ? `${publicBase}${UI_MOUNT}${entryPath}${qs}`
+    : `.${UI_MOUNT}${entryPath}${qs}`;
+  const title = `Argo CD — ${ctx.component}`;
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>${escapeHtml(title)}</title>
+  <style>
+    html, body { margin: 0; height: 100%; background: #0b1c3d; }
+    iframe { display: block; width: 100%; height: 100%; border: 0; }
+  </style>
+</head>
+<body>
+  <iframe
+    title="${escapeHtml(title)}"
+    src="${escapeHtml(iframeSrc)}"
+    allow="clipboard-read; clipboard-write"
+  ></iframe>
+</body>
+</html>`;
+}
+
 function renderError(message: string): string {
   return `<!DOCTYPE html>
 <html lang="en">
@@ -539,12 +574,13 @@ async function proxyArgoCd(
     return;
   }
 
-  const upstreamPath = upstreamPathForRequest(req.method ?? "GET", pathname);
+  const argoPath = toUiPath(pathname);
+  const upstreamPath = upstreamPathForRequest(req.method ?? "GET", argoPath);
 
-  if (isArgoCdSpaShellPath(pathname) && upstreamPath === ARGOCD_INDEX_PATH) {
+  if (isArgoCdSpaShellPath(argoPath) && upstreamPath === ARGOCD_INDEX_PATH) {
     console.log(
       `[INFO] SPA shell: org=${ctx.org} env=${ctx.env} component=${ctx.component} ` +
-        `path=${pathname} → upstream ${ARGOCD_INDEX_PATH}`,
+        `ui=${pathname} argo=${argoPath} → upstream ${ARGOCD_INDEX_PATH}`,
     );
   }
 
@@ -659,8 +695,25 @@ const server = createServer(async (req, res) => {
     return send(res, 400, { error: "Missing component context (org, env, component)" });
   }
 
-  const body = await readRequestBody(req);
-  return proxyArgoCd(req, res, pathname, url.search, ctx, publicBase, body);
+  if (method === "GET" && (pathname === "/" || pathname === "/index.html")) {
+    console.log(
+      `[INFO] component tab: org=${ctx.org} env=${ctx.env} component=${ctx.component} ` +
+        `entry=${ARGOCD_ENTRY_PATH}`,
+    );
+    return send(
+      res,
+      200,
+      renderShell(ctx, publicBase || "", ARGOCD_ENTRY_PATH),
+      "text/html; charset=utf-8",
+    );
+  }
+
+  if (pathname === UI_MOUNT || pathname.startsWith(`${UI_MOUNT}/`)) {
+    const body = await readRequestBody(req);
+    return proxyArgoCd(req, res, pathname, url.search, ctx, publicBase, body);
+  }
+
+  return send(res, 404, { error: "Not Found" });
 });
 
 server.listen(port, "0.0.0.0", () => {
