@@ -8,7 +8,9 @@ Cycloid plugin that embeds the **Argo CD** application view for the current comp
 |-----|------|-----------|
 | **ArgoCD** | `iframe` | `component` (`tab_name: ArgoCD`) |
 
-The plugin resolves the Cycloid component context (`org`, `env`, `component`) from the iframe request, logs into `https://argocd.<org>.demo.cycloid.io`, and proxies the Argo CD UI starting at **`/applications`** (applications list).
+The plugin resolves the Cycloid component context (`org`, `env`, `component`) from the iframe request, logs into `https://argocd.<org>.demo.cycloid.io`, fetches the Argo CD SPA shell at **`/`**, then navigates client-side to **`/applications/argocd/app-of-apps`** (configurable via `ARGOCD_ENTRY_PATH`).
+
+Deep Argo CD paths such as `/applications/argocd/app-of-apps` are **client-side routes** in the SPA. They work when you click around in the Argo CD UI, but a server-side `GET` to those paths returns Go’s plain-text `404 page not found`. The plugin therefore always proxies `GET /` upstream and applies `ARGOCD_ENTRY_PATH` with `history.replaceState` in the browser.
 
 ## Install
 
@@ -31,7 +33,7 @@ Optional runtime override:
 |---------|---------|-------------|
 | `ARGOCD_ZONE` | `demo.cycloid.io` | DNS zone suffix (`argocd.<org>.<zone>`) |
 | `ARGOCD_INSECURE_TLS` | `true` | Accept self-signed Argo CD ingress certificates (demo stacks) |
-| `ARGOCD_ENTRY_PATH` | `/applications` | Argo CD UI path opened in the component tab |
+| `ARGOCD_ENTRY_PATH` | `/applications/argocd/app-of-apps` | Client-side route after the SPA loads (not used for the upstream GET) |
 
 ## Enable on a component
 
@@ -79,7 +81,7 @@ cy plugin logs cycloid-plugin-argocd | grep -E 'missing component|component tab'
 Or open `/_cy/context-debug` on the widget iframe URL for a JSON snapshot of
 parsed context and proxy headers.
 
-Rebuild and upgrade to **2.0.7** after entry path changes.
+Rebuild and upgrade to **2.0.9** after entry path changes.
 
 ## Local smoke test
 

@@ -3,7 +3,7 @@ import { request as httpRequest } from "node:http";
 import { request as httpsRequest } from "node:https";
 import { brotliDecompressSync, gunzipSync, inflateSync } from "node:zlib";
 
-const PLUGIN_VERSION = "2.0.7";
+const PLUGIN_VERSION = "2.0.9";
 
 const port = Number(process.env.PORT);
 if (!Number.isFinite(port) || port <= 0) {
@@ -14,7 +14,13 @@ if (!Number.isFinite(port) || port <= 0) {
 const ARGOCD_USERNAME = process.env.ARGOCD_USERNAME?.trim() || "admin";
 const ARGOCD_PASSWORD = process.env.ARGOCD_PASSWORD ?? "cycloid";
 const ARGOCD_ZONE = process.env.ARGOCD_ZONE?.trim() || "demo.cycloid.io";
-const ARGOCD_ENTRY_PATH = process.env.ARGOCD_ENTRY_PATH?.trim() || "/applications";
+// Upstream always loads the SPA shell at /. ARGOCD_ENTRY_PATH is applied client-side
+// (history.replaceState) because Argo CD only serves index.html on GET / — deep paths
+// like /applications/... are client-side routes and return Go "404 page not found" on
+// a direct server GET (see plugin logs: GET / → 404 when entry was /applications).
+const ARGOCD_INDEX_PATH = "/";
+const ARGOCD_ENTRY_PATH =
+  process.env.ARGOCD_ENTRY_PATH?.trim() || "/applications/argocd/app-of-apps";
 const SESSION_TTL_MS = 12 * 60 * 60 * 1000;
 
 function parseBoolEnv(value: string | undefined, defaultValue: boolean): boolean {
@@ -44,7 +50,7 @@ const sessions = new Map<string, SessionEntry>();
 
 console.log(
   `[INFO] plugin v${PLUGIN_VERSION}: user='${ARGOCD_USERNAME}' zone='${ARGOCD_ZONE}' ` +
-    `entry='${ARGOCD_ENTRY_PATH}' insecure_tls=${ARGOCD_INSECURE_TLS}`,
+    `index='${ARGOCD_INDEX_PATH}' client_entry='${ARGOCD_ENTRY_PATH}' insecure_tls=${ARGOCD_INSECURE_TLS}`,
 );
 
 function argocdConn(org: string): ArgoConn {
@@ -396,9 +402,16 @@ function rewriteRootRelativeUrls(html: string, publicBase: string): string {
   return html.replace(/(\s(?:action|href|src)\s*=\s*["'])\/(?!\/)/gi, `$1${publicBase}/`);
 }
 
-const IFRAME_CLIENT_SCRIPT = `<script>(function(){
+function buildIframeClientScript(clientEntryPath: string): string {
+  const entryPath = JSON.stringify(clientEntryPath);
+  return `<script>(function(){
 function iframePrefix(){var p=location.pathname;var i=p.indexOf("/iframe");if(i<0)return"";return p.slice(0,i+"/iframe".length)}
 var base=iframePrefix();
+var entryPath=${entryPath};
+if(base&&entryPath&&entryPath!=="/"){
+  var target=location.origin+base+entryPath;
+  if(location.href!==target){history.replaceState(null,"",target);window.dispatchEvent(new PopStateEvent("popstate"))}
+}
 if(base&&!document.querySelector("base")){
   var el=document.createElement("base");
   el.href=location.origin+base+"/";
@@ -428,6 +441,7 @@ window.fetch=function(input,init){
   return of.apply(this,arguments);
 };
 })();</script>`;
+}
 
 function injectHtmlFixes(html: string, publicBase: string, conn: ArgoConn): string {
   if (!html.includes("<")) return html;
@@ -440,7 +454,7 @@ function injectHtmlFixes(html: string, publicBase: string, conn: ArgoConn): stri
       ? out.replace(/<head(\s[^>]*)?>/i, (m) => `${m}${tag}`)
       : `${tag}${out}`;
   }
-  const script = IFRAME_CLIENT_SCRIPT;
+  const script = buildIframeClientScript(ARGOCD_ENTRY_PATH);
   return /<head[\s>]/i.test(out)
     ? out.replace(/<head(\s[^>]*)?>/i, (m) => `${m}${script}`)
     : `${script}${out}`;
@@ -502,11 +516,12 @@ async function proxyArgoCd(
   }
 
   const upstreamPath =
-    pathname === "/" || pathname === "/index.html" ? ARGOCD_ENTRY_PATH : pathname;
+    pathname === "/" || pathname === "/index.html" ? ARGOCD_INDEX_PATH : pathname;
 
   if (pathname === "/" || pathname === "/index.html") {
     console.log(
-      `[INFO] component tab: org=${ctx.org} env=${ctx.env} component=${ctx.component} → ${upstreamPath}`,
+      `[INFO] component tab: org=${ctx.org} env=${ctx.env} component=${ctx.component} ` +
+        `→ upstream ${ARGOCD_INDEX_PATH} client ${ARGOCD_ENTRY_PATH}`,
     );
   }
 
