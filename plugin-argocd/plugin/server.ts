@@ -3,7 +3,7 @@ import { request as httpRequest } from "node:http";
 import { request as httpsRequest } from "node:https";
 import { brotliDecompressSync, gunzipSync, inflateSync } from "node:zlib";
 
-const PLUGIN_VERSION = "2.0.11";
+const PLUGIN_VERSION = "2.0.12";
 
 const port = Number(process.env.PORT);
 if (!Number.isFinite(port) || port <= 0) {
@@ -14,13 +14,31 @@ if (!Number.isFinite(port) || port <= 0) {
 const ARGOCD_USERNAME = process.env.ARGOCD_USERNAME?.trim() || "admin";
 const ARGOCD_PASSWORD = process.env.ARGOCD_PASSWORD ?? "cycloid";
 const ARGOCD_ZONE = process.env.ARGOCD_ZONE?.trim() || "demo.cycloid.io";
-// Upstream always loads the SPA shell at /. ARGOCD_ENTRY_PATH is applied client-side
-// (history.replaceState) because Argo CD only serves index.html on GET / — deep paths
-// like /applications/... are client-side routes and return Go "404 page not found" on
-// a direct server GET (see plugin logs: GET / → 404 when entry was /applications).
+// Upstream always loads the SPA shell at / for UI routes. Deep paths such as
+// /applications/... are client-side routes (direct GET returns Go 404 from Argo CD).
 const ARGOCD_INDEX_PATH = "/";
 const ARGOCD_ENTRY_PATH =
   process.env.ARGOCD_ENTRY_PATH?.trim() || "/applications/argocd/app-of-apps";
+
+const ARGOCD_STATIC_PREFIXES = ["/api/", "/assets/", "/static/", "/extensions/"];
+
+function isArgoCdStaticPath(pathname: string): boolean {
+  const p = pathname.toLowerCase();
+  if (p === "/favicon.ico" || p === "/robots.txt" || p === "/manifest.json") return true;
+  return ARGOCD_STATIC_PREFIXES.some((prefix) => p.startsWith(prefix));
+}
+
+/** UI routes (applications, settings, …) — serve SPA index, not upstream path. */
+function isArgoCdSpaShellPath(pathname: string): boolean {
+  if (pathname === "/" || pathname === "/index.html") return true;
+  return !isArgoCdStaticPath(pathname);
+}
+
+function upstreamPathForRequest(method: string, pathname: string): string {
+  const m = method.toUpperCase();
+  if ((m === "GET" || m === "HEAD") && isArgoCdSpaShellPath(pathname)) return ARGOCD_INDEX_PATH;
+  return pathname;
+}
 const SESSION_TTL_MS = 12 * 60 * 60 * 1000;
 
 function parseBoolEnv(value: string | undefined, defaultValue: boolean): boolean {
@@ -416,6 +434,13 @@ function buildIframeClientScript(clientEntryPath: string): string {
   const entryPath = JSON.stringify(clientEntryPath);
   return `<script>(function(){
 function iframePrefix(){var p=location.pathname;var i=p.indexOf("/iframe");if(i<0)return"";return p.slice(0,i+"/iframe".length)}
+function appPath(){
+  var b=iframePrefix();
+  if(!b)return null;
+  var r=location.pathname.slice(b.length);
+  if(!r||r==="/")return "/";
+  return r.charAt(0)==="/"?r:"/"+r;
+}
 function maybeFixUrl(u){
   if(typeof u!=="string"||!u)return u;
   var base=iframePrefix();
@@ -429,7 +454,7 @@ function maybeFixUrl(u){
 }
 var base=iframePrefix();
 var entryPath=${entryPath};
-if(base&&entryPath&&entryPath!=="/"){
+if(base&&entryPath&&entryPath!=="/"&&appPath()==="/"){
   var target=location.origin+base+entryPath;
   if(location.href!==target){history.replaceState(null,"",target);window.dispatchEvent(new PopStateEvent("popstate"))}
 }
@@ -514,13 +539,12 @@ async function proxyArgoCd(
     return;
   }
 
-  const upstreamPath =
-    pathname === "/" || pathname === "/index.html" ? ARGOCD_INDEX_PATH : pathname;
+  const upstreamPath = upstreamPathForRequest(req.method ?? "GET", pathname);
 
-  if (pathname === "/" || pathname === "/index.html") {
+  if (isArgoCdSpaShellPath(pathname) && upstreamPath === ARGOCD_INDEX_PATH) {
     console.log(
-      `[INFO] component tab: org=${ctx.org} env=${ctx.env} component=${ctx.component} ` +
-        `→ upstream ${ARGOCD_INDEX_PATH} client ${ARGOCD_ENTRY_PATH}`,
+      `[INFO] SPA shell: org=${ctx.org} env=${ctx.env} component=${ctx.component} ` +
+        `path=${pathname} → upstream ${ARGOCD_INDEX_PATH}`,
     );
   }
 
