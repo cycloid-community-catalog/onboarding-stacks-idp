@@ -3,7 +3,7 @@ import { request as httpRequest } from "node:http";
 import { request as httpsRequest } from "node:https";
 import { brotliDecompressSync, gunzipSync, inflateSync } from "node:zlib";
 
-const PLUGIN_VERSION = "2.1.0";
+const PLUGIN_VERSION = "2.1.1";
 
 const port = Number(process.env.PORT);
 if (!Number.isFinite(port) || port <= 0) {
@@ -26,7 +26,8 @@ const ARGOCD_STATIC_PREFIXES = ["/api/", "/assets/", "/static/", "/extensions/"]
 
 function isArgoCdStaticPath(pathname: string): boolean {
   const p = pathname.toLowerCase();
-  if (p === "/favicon.ico" || p === "/robots.txt" || p === "/manifest.json") return true;
+  if (p === "/favicon.ico" || p === "/robots.txt" || p === "/manifest.json" || p === "/extensions.js")
+    return true;
   return ARGOCD_STATIC_PREFIXES.some((prefix) => p.startsWith(prefix));
 }
 
@@ -78,18 +79,20 @@ function argocdConn(org: string): ArgoConn {
   return { host, baseUrl: `https://${host}` };
 }
 
-function contextQueryString(ctx: ComponentContext): string {
+function contextQueryString(ctx: ComponentContext, publicBase = ""): string {
   const params = new URLSearchParams({
     org: ctx.org,
     project: ctx.project,
     env: ctx.env,
     component: ctx.component,
   });
+  if (publicBase) params.set("_cy_base", publicBase);
   return `?${params.toString()}`;
 }
 
 function uiPublicBase(publicBase: string): string {
-  return publicBase ? `${publicBase}${UI_MOUNT}` : UI_MOUNT;
+  if (!publicBase) return "";
+  return `${publicBase}${UI_MOUNT}`;
 }
 
 function parseRequestUrl(req: IncomingMessage): URL {
@@ -219,6 +222,9 @@ function iframeBaseFromPathname(pathname: string): string {
 }
 
 function getPublicBase(req: IncomingMessage, url: URL): string {
+  const fromQuery = url.searchParams.get("_cy_base")?.trim();
+  if (fromQuery?.startsWith("/")) return fromQuery;
+
   const headerNames = [
     "x-forwarded-uri",
     "x-original-url",
@@ -387,7 +393,7 @@ const HOP_BY_HOP_HEADERS = new Set([
   "upgrade",
 ]);
 
-const PROXY_QUERY_PARAMS = new Set(["org", "project", "env", "component", "path"]);
+const PROXY_QUERY_PARAMS = new Set(["org", "project", "env", "component", "path", "_cy_base"]);
 
 function stripPluginQuery(search: string): string {
   if (!search) return "";
@@ -401,6 +407,15 @@ function toUiPath(pluginPath: string): string {
   if (pluginPath === UI_MOUNT || pluginPath === `${UI_MOUNT}/`) return "/";
   if (pluginPath.startsWith(`${UI_MOUNT}/`)) return pluginPath.slice(UI_MOUNT.length) || "/";
   return pluginPath;
+}
+
+/** Recover /assets/… or /extensions/… when the browser resolves them under a deep UI path. */
+function normalizeArgoAssetPath(argoPath: string): string {
+  const assetIdx = argoPath.indexOf("/assets/");
+  if (assetIdx > 0) return argoPath.slice(assetIdx);
+  const extIdx = argoPath.indexOf("/extensions/");
+  if (extIdx > 0) return argoPath.slice(extIdx);
+  return argoPath;
 }
 
 function rewriteLocation(location: string, publicBase: string): string {
@@ -439,7 +454,12 @@ function rewriteArgocdAbsoluteUrls(html: string, conn: ArgoConn, uiBase: string)
 
 function rewriteRootRelativeUrls(html: string, uiBase: string): string {
   if (!uiBase || !html.includes("/")) return html;
-  return html.replace(/(\s(?:action|href|src)\s*=\s*["'])\/(?!\/)/gi, `$1${uiBase}/`);
+  const prefix = uiBase.replace(/\/$/, "");
+  let out = html.replace(/(\s(?:action|href|src)\s*=\s*["'])\/(?!\/)/gi, `$1${prefix}/`);
+  // Root-absolute /assets/ and /extensions/ ignore <base href> — rewrite explicitly.
+  out = out.replace(/(\s(?:action|href|src)\s*=\s*["'])\/(assets\/)/gi, `$1${prefix}/$2`);
+  out = out.replace(/(\s(?:action|href|src)\s*=\s*["'])\/(extensions\.js)/gi, `$1${prefix}/$2`);
+  return out;
 }
 
 function rewriteDocumentBase(html: string, publicBase: string): string {
@@ -456,13 +476,16 @@ function buildUiClientScript(): string {
   return `<script>(function(){
 function iframePrefix(){var p=location.pathname;var i=p.indexOf("/iframe");if(i<0)return"";return p.slice(0,i+"/iframe".length)}
 function uiPrefix(){var b=iframePrefix();return b?b+"/ui":""}
+function needsProxy(u){
+  return u.indexOf("/api/")===0||u.indexOf("/api/v1/")===0||u.indexOf("/assets/")===0||u.indexOf("/extensions")===0;
+}
 function maybeFixUrl(u){
   if(typeof u!=="string"||!u)return u;
   var base=uiPrefix();
   if(!base)return u;
   if(/^https?:\\/\\//i.test(u)||u.indexOf("//")===0)return u;
   if(u.indexOf(base+"/")===0||u===base)return u;
-  if(u.charAt(0)==="/"&&(u.indexOf("/api/")===0||u.indexOf("/api/v1/")===0))return base+u;
+  if(u.charAt(0)==="/"&&needsProxy(u))return base+u;
   return u;
 }
 var of=window.fetch;
@@ -482,6 +505,10 @@ XMLHttpRequest.prototype.open=function(method,u){try{u=maybeFixUrl(String(u))}ca
 function injectHtmlFixes(html: string, publicBase: string, conn: ArgoConn): string {
   if (!html.includes("<")) return html;
   const uiBase = uiPublicBase(publicBase);
+  if (!uiBase) {
+    console.warn("[WARN] injectHtmlFixes: missing publicBase — asset URLs may 404");
+    return html;
+  }
   let out = rewriteArgocdAbsoluteUrls(html, conn, uiBase);
   out = rewriteRootRelativeUrls(out, uiBase);
   out = rewriteDocumentBase(out, uiBase);
@@ -519,7 +546,7 @@ async function readRequestBody(req: IncomingMessage): Promise<Buffer | undefined
 }
 
 function renderShell(ctx: ComponentContext, publicBase: string, entryPath: string): string {
-  const qs = contextQueryString(ctx);
+  const qs = contextQueryString(ctx, publicBase);
   const iframeSrc = publicBase
     ? `${publicBase}${UI_MOUNT}${entryPath}${qs}`
     : `.${UI_MOUNT}${entryPath}${qs}`;
@@ -574,7 +601,7 @@ async function proxyArgoCd(
     return;
   }
 
-  const argoPath = toUiPath(pathname);
+  const argoPath = normalizeArgoAssetPath(toUiPath(pathname));
   const upstreamPath = upstreamPathForRequest(req.method ?? "GET", argoPath);
 
   if (isArgoCdSpaShellPath(argoPath) && upstreamPath === ARGOCD_INDEX_PATH) {
