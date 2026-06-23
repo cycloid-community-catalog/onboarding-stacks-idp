@@ -81,7 +81,7 @@ cy plugin logs cycloid-plugin-argocd | grep -E 'missing component|component tab'
 Or open `/_cy/context-debug` on the widget iframe URL for a JSON snapshot of
 parsed context and proxy headers.
 
-Rebuild and upgrade to **2.1.1** (asset URL / publicBase fixes).
+Rebuild and upgrade to **2.1.2** (Argo CD relative asset rewrite + publicBase fix).
 
 ## Local smoke test
 

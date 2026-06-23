@@ -3,7 +3,7 @@ import { request as httpRequest } from "node:http";
 import { request as httpsRequest } from "node:https";
 import { brotliDecompressSync, gunzipSync, inflateSync } from "node:zlib";
 
-const PLUGIN_VERSION = "2.1.1";
+const PLUGIN_VERSION = "2.1.2";
 
 const port = Number(process.env.PORT);
 if (!Number.isFinite(port) || port <= 0) {
@@ -225,6 +225,11 @@ function getPublicBase(req: IncomingMessage, url: URL): string {
   const fromQuery = url.searchParams.get("_cy_base")?.trim();
   if (fromQuery?.startsWith("/")) return fromQuery;
 
+  if (req.url) {
+    const fromReq = iframeBaseFromPathValue(req.url);
+    if (fromReq) return fromReq;
+  }
+
   const headerNames = [
     "x-forwarded-uri",
     "x-original-url",
@@ -247,7 +252,17 @@ function getPublicBase(req: IncomingMessage, url: URL): string {
     if (base) return base;
   }
 
+  for (const value of Object.values(req.headers)) {
+    if (typeof value !== "string" || !value.includes("/iframe")) continue;
+    const base = iframeBaseFromPathValue(value);
+    if (base) return base;
+  }
+
   return iframeBaseFromPathname(url.pathname);
+}
+
+function resolvePublicBase(req: IncomingMessage, url: URL): string {
+  return getPublicBase(req, url);
 }
 
 function send(
@@ -409,8 +424,11 @@ function toUiPath(pluginPath: string): string {
   return pluginPath;
 }
 
-/** Recover /assets/… or /extensions/… when the browser resolves them under a deep UI path. */
+/** Recover /assets/…, /main.*.js, /extensions.js when resolved under a deep UI path. */
 function normalizeArgoAssetPath(argoPath: string): string {
+  const mainMatch = /\/main\.[a-z0-9]+\.js$/i.exec(argoPath);
+  if (mainMatch) return argoPath.slice(argoPath.lastIndexOf("/main."));
+  if (/\/extensions\.js$/i.test(argoPath) && argoPath !== "/extensions.js") return "/extensions.js";
   const assetIdx = argoPath.indexOf("/assets/");
   if (assetIdx > 0) return argoPath.slice(assetIdx);
   const extIdx = argoPath.indexOf("/extensions/");
@@ -452,6 +470,16 @@ function rewriteArgocdAbsoluteUrls(html: string, conn: ArgoConn, uiBase: string)
   return html.replace(new RegExp(`https?:\\/\\/${escaped}`, "gi"), uiBase);
 }
 
+function rewriteArgoCdRelativeAssets(html: string, uiBase: string): string {
+  const b = uiBase.replace(/\/$/, "");
+  let out = html;
+  // Argo CD index.html uses path-relative refs (no leading slash): assets/…, main.*.js, extensions.js
+  out = out.replace(/(\s(?:href|src)\s*=\s*["'])assets\//gi, `$1${b}/assets/`);
+  out = out.replace(/(\ssrc\s*=\s*["'])main\.([a-z0-9]+\.js)/gi, `$1${b}/main.$2`);
+  out = out.replace(/(\ssrc\s*=\s*["'])extensions\.js/gi, `$1${b}/extensions.js`);
+  return out;
+}
+
 function rewriteRootRelativeUrls(html: string, uiBase: string): string {
   if (!uiBase || !html.includes("/")) return html;
   const prefix = uiBase.replace(/\/$/, "");
@@ -477,7 +505,9 @@ function buildUiClientScript(): string {
 function iframePrefix(){var p=location.pathname;var i=p.indexOf("/iframe");if(i<0)return"";return p.slice(0,i+"/iframe".length)}
 function uiPrefix(){var b=iframePrefix();return b?b+"/ui":""}
 function needsProxy(u){
-  return u.indexOf("/api/")===0||u.indexOf("/api/v1/")===0||u.indexOf("/assets/")===0||u.indexOf("/extensions")===0;
+  if(u.indexOf("/api/")===0||u.indexOf("/api/v1/")===0)return true;
+  if(u.indexOf("/assets/")===0||u.indexOf("/extensions")===0)return true;
+  return /\\/main\\.[a-z0-9]+\\.js$/i.test(u);
 }
 function maybeFixUrl(u){
   if(typeof u!=="string"||!u)return u;
@@ -485,6 +515,9 @@ function maybeFixUrl(u){
   if(!base)return u;
   if(/^https?:\\/\\//i.test(u)||u.indexOf("//")===0)return u;
   if(u.indexOf(base+"/")===0||u===base)return u;
+  var main=u.match(/\\/main\\.([a-z0-9]+\\.js)$/i);
+  if(main)return base+"/main."+main[1];
+  if(u.endsWith("/extensions.js"))return base+"/extensions.js";
   if(u.charAt(0)==="/"&&needsProxy(u))return base+u;
   return u;
 }
@@ -510,6 +543,7 @@ function injectHtmlFixes(html: string, publicBase: string, conn: ArgoConn): stri
     return html;
   }
   let out = rewriteArgocdAbsoluteUrls(html, conn, uiBase);
+  out = rewriteArgoCdRelativeAssets(out, uiBase);
   out = rewriteRootRelativeUrls(out, uiBase);
   out = rewriteDocumentBase(out, uiBase);
   const script = buildUiClientScript();
@@ -547,6 +581,9 @@ async function readRequestBody(req: IncomingMessage): Promise<Buffer | undefined
 
 function renderShell(ctx: ComponentContext, publicBase: string, entryPath: string): string {
   const qs = contextQueryString(ctx, publicBase);
+  if (!publicBase) {
+    console.warn("[WARN] renderShell: missing publicBase — inner iframe may break asset loading");
+  }
   const iframeSrc = publicBase
     ? `${publicBase}${UI_MOUNT}${entryPath}${qs}`
     : `.${UI_MOUNT}${entryPath}${qs}`;
@@ -589,6 +626,7 @@ async function proxyArgoCd(
   search: string,
   ctx: ComponentContext,
   publicBase: string,
+  url: URL,
   body: Buffer | undefined,
 ): Promise<void> {
   const conn = argocdConn(ctx.org);
@@ -648,7 +686,11 @@ async function proxyArgoCd(
         const responseHeaders = filterProxyHeaders(upstreamRes.headers, publicBase);
 
         if (contentType.includes("text/html")) {
-          const html = Buffer.from(injectHtmlFixes(raw.toString("utf8"), publicBase, conn), "utf8");
+          const effectiveBase = publicBase || resolvePublicBase(req, url);
+          const html = Buffer.from(
+            injectHtmlFixes(raw.toString("utf8"), effectiveBase, conn),
+            "utf8",
+          );
           responseHeaders["content-length"] = String(html.length);
           res.writeHead(upstreamRes.statusCode ?? 502, responseHeaders);
           res.end(html);
@@ -676,7 +718,7 @@ const server = createServer(async (req, res) => {
   const method = req.method ?? "GET";
   const url = parseRequestUrl(req);
   const pathname = resolvePathname(url, url.pathname);
-  const publicBase = getPublicBase(req, url);
+  const publicBase = resolvePublicBase(req, url);
   const ctx = resolveContext(req, url);
 
   res.on("finish", () => {
@@ -737,7 +779,7 @@ const server = createServer(async (req, res) => {
 
   if (pathname === UI_MOUNT || pathname.startsWith(`${UI_MOUNT}/`)) {
     const body = await readRequestBody(req);
-    return proxyArgoCd(req, res, pathname, url.search, ctx, publicBase, body);
+    return proxyArgoCd(req, res, pathname, url.search, ctx, publicBase, url, body);
   }
 
   return send(res, 404, { error: "Not Found" });
