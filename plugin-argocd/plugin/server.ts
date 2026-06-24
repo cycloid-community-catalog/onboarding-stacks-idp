@@ -3,7 +3,7 @@ import { request as httpRequest } from "node:http";
 import { request as httpsRequest } from "node:https";
 import { brotliDecompressSync, gunzipSync, inflateSync } from "node:zlib";
 
-const PLUGIN_VERSION = "2.1.5";
+const PLUGIN_VERSION = "2.1.6";
 
 const port = Number(process.env.PORT);
 if (!Number.isFinite(port) || port <= 0) {
@@ -44,6 +44,18 @@ function upstreamPathForRequest(method: string, pathname: string): string {
   if ((m === "GET" || m === "HEAD") && isArgoCdSpaShellPath(pathname)) return ARGOCD_INDEX_PATH;
   return pathname;
 }
+const ARGOCD_STREAM_PREFIX = "/api/v1/stream";
+
+function isArgoCdStreamRequest(req: IncomingMessage, argoPath: string): boolean {
+  if (argoPath.toLowerCase().startsWith(ARGOCD_STREAM_PREFIX)) return true;
+  const accept = String(req.headers.accept ?? "").toLowerCase();
+  return accept.includes("text/event-stream");
+}
+
+function isEventStreamContentType(contentType: string): boolean {
+  return contentType.toLowerCase().includes("text/event-stream");
+}
+
 const SESSION_TTL_MS = 12 * 60 * 60 * 1000;
 
 function parseBoolEnv(value: string | undefined, defaultValue: boolean): boolean {
@@ -550,6 +562,8 @@ window.fetch=function(input,init){
 };
 var ox=XMLHttpRequest.prototype.open;
 XMLHttpRequest.prototype.open=function(method,u){try{u=maybeFixUrl(String(u))}catch(e){}return ox.apply(this,[method,u].concat([].slice.call(arguments,2)))};
+var OES=window.EventSource;
+if(OES){window.EventSource=function(u,c){return new OES(maybeFixUrl(String(u)),c)}}
 })();</script>`;
 }
 
@@ -580,6 +594,24 @@ function injectHtmlFixes(html: string, publicBase: string, conn: ArgoConn): stri
     return out.replace(/<\/head>/i, `${script}</head>`);
   }
   return `${script}${out}`;
+}
+
+function filterStreamHeaders(
+  headers: IncomingHttpHeaders,
+  publicBase: string,
+): Record<string, string | string[]> {
+  const out: Record<string, string | string[]> = {};
+  for (const [key, value] of Object.entries(headers)) {
+    if (value === undefined) continue;
+    const lower = key.toLowerCase();
+    if (HOP_BY_HOP_HEADERS.has(lower) || STRIPPED_RESPONSE_HEADERS.has(lower)) continue;
+    if (lower === "location" && typeof value === "string") {
+      out[key] = rewriteLocation(value, publicBase);
+      continue;
+    }
+    out[key] = value;
+  }
+  return out;
 }
 
 function filterProxyHeaders(
@@ -691,6 +723,8 @@ async function proxyArgoCd(
     ...(body !== undefined ? { "content-length": String(body.length) } : {}),
   });
 
+  const wantsStream = isArgoCdStreamRequest(req, argoPath);
+
   const upstream = (target.protocol === "https:" ? httpsRequest : httpRequest)(
     {
       hostname: target.hostname,
@@ -703,6 +737,22 @@ async function proxyArgoCd(
     },
     (upstreamRes) => {
       if (upstreamRes.statusCode === 401) sessions.delete(ctx.org);
+
+      const contentType = String(upstreamRes.headers["content-type"] ?? "");
+      const isStream = wantsStream || isEventStreamContentType(contentType);
+
+      if (isStream) {
+        console.log(
+          `[INFO] SSE stream: org=${ctx.org} path=${argoPath} status=${upstreamRes.statusCode}`,
+        );
+        const responseHeaders = filterStreamHeaders(upstreamRes.headers, publicBase);
+        res.writeHead(upstreamRes.statusCode ?? 502, responseHeaders);
+        upstreamRes.pipe(res);
+        upstreamRes.on("error", () => {
+          if (!res.writableEnded) res.end();
+        });
+        return;
+      }
 
       const chunks: Buffer[] = [];
       upstreamRes.on("data", (chunk: Buffer) => chunks.push(chunk));
@@ -734,9 +784,15 @@ async function proxyArgoCd(
   );
 
   upstream.on("error", (err) => {
-    res.writeHead(502, { "content-type": "text/plain; charset=utf-8" });
-    res.end(`Argo CD proxy error: ${(err as Error).message}`);
+    if (!res.headersSent) {
+      res.writeHead(502, { "content-type": "text/plain; charset=utf-8" });
+    }
+    if (!res.writableEnded) res.end(`Argo CD proxy error: ${(err as Error).message}`);
   });
+
+  const abortUpstream = () => upstream.destroy();
+  req.on("close", abortUpstream);
+  res.on("close", abortUpstream);
 
   if (body !== undefined) upstream.write(body);
   upstream.end();
