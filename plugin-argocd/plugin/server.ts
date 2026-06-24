@@ -3,7 +3,7 @@ import { request as httpRequest } from "node:http";
 import { request as httpsRequest } from "node:https";
 import { brotliDecompressSync, gunzipSync, inflateSync } from "node:zlib";
 
-const PLUGIN_VERSION = "2.1.4";
+const PLUGIN_VERSION = "2.1.5";
 
 const port = Number(process.env.PORT);
 if (!Number.isFinite(port) || port <= 0) {
@@ -28,6 +28,8 @@ function isArgoCdStaticPath(pathname: string): boolean {
   const p = pathname.toLowerCase();
   if (p === "/favicon.ico" || p === "/robots.txt" || p === "/manifest.json" || p === "/extensions.js")
     return true;
+  // Hashed app bundle at Argo CD root — must not be rewritten to index.html (SPA shell).
+  if (/^\/main\.[a-z0-9]+\.js$/i.test(pathname)) return true;
   return ARGOCD_STATIC_PREFIXES.some((prefix) => p.startsWith(prefix));
 }
 
