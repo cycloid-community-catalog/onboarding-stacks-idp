@@ -12,5 +12,9 @@ module "cycloid-cred-git" {
   #+ Git repository SSH private key for stacks and config
   git_ssh_key = tls_private_key.github_generated_key.private_key_openssh
 
-  depends_on = [ github_repository.scaffold ]
+  #. git_https_token: ''
+  #+ GitHub PAT for HTTPS clone (stored as Cycloid basic_auth credential)
+  git_https_token = var.github_pat
+
+  depends_on = [github_repository.scaffold]
 }

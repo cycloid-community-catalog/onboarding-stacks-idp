@@ -3,7 +3,7 @@ import { request as httpRequest } from "node:http";
 import { request as httpsRequest } from "node:https";
 import { brotliDecompressSync, gunzipSync, inflateSync } from "node:zlib";
 
-const PLUGIN_VERSION = "2.1.6";
+const PLUGIN_VERSION = "2.1.8";
 
 const port = Number(process.env.PORT);
 if (!Number.isFinite(port) || port <= 0) {
@@ -39,8 +39,9 @@ function isArgoCdSpaShellPath(pathname: string): boolean {
   return !isArgoCdStaticPath(pathname);
 }
 
-function upstreamPathForRequest(method: string, pathname: string): string {
+function upstreamPathForRequest(method: string, pathname: string, req?: IncomingMessage): string {
   const m = method.toUpperCase();
+  if (req && isArgoCdStreamRequest(req, pathname)) return pathname;
   if ((m === "GET" || m === "HEAD") && isArgoCdSpaShellPath(pathname)) return ARGOCD_INDEX_PATH;
   return pathname;
 }
@@ -563,7 +564,55 @@ window.fetch=function(input,init){
 var ox=XMLHttpRequest.prototype.open;
 XMLHttpRequest.prototype.open=function(method,u){try{u=maybeFixUrl(String(u))}catch(e){}return ox.apply(this,[method,u].concat([].slice.call(arguments,2)))};
 var OES=window.EventSource;
-if(OES){window.EventSource=function(u,c){return new OES(maybeFixUrl(String(u)),c)}}
+function parseSseBlock(es,block){
+  var lines=block.split("\\n"),ev="message",data="",id="";
+  for(var i=0;i<lines.length;i++){
+    var ln=lines[i];if(!ln)continue;
+    if(ln.indexOf(":")<0)continue;
+    var ci=ln.indexOf(":"),k=ln.slice(0,ci),v=ln.slice(ci+1).replace(/^ /,"");
+    if(k==="event")ev=v;else if(k==="data")data+=(data?"\\n":"")+v;else if(k==="id")id=v;
+  }
+  if(!data)return;
+  var m={type:ev,data:data,lastEventId:id};
+  if(ev==="message"&&es.onmessage)es.onmessage(m);
+  var ls=es._ev[ev]||[];for(var j=0;j<ls.length;j++)ls[j](m);
+}
+function CyEventSource(url,cfg){
+  var es=this;es.url=url;es.readyState=0;es.onopen=es.onmessage=es.onerror=null;
+  es._ev={};es._closed=false;es.withCredentials=!!(cfg&&cfg.withCredentials);
+  var ac=typeof AbortController!=="undefined"?new AbortController():null;
+  es._close=function(){es._closed=true;es.readyState=2;if(ac)ac.abort()};
+  var opts={credentials:es.withCredentials?"include":"same-origin",cache:"no-store",
+    headers:{Accept:"application/json","Cache-Control":"no-cache"}};
+  if(ac)opts.signal=ac.signal;
+  of(url,opts).then(function(r){
+    if(!r.ok)throw new Error("HTTP "+r.status);
+    es.readyState=1;if(es.onopen)es.onopen({type:"open"});
+    if(!r.body||!r.body.getReader)throw new Error("no body stream");
+    var rd=r.body.getReader(),dec=new TextDecoder(),buf="";
+    function pump(){
+      if(es._closed)return;
+      return rd.read().then(function(res){
+        if(res.done){es.readyState=2;return;}
+        buf+=dec.decode(res.value,{stream:true});
+        var p;while((p=buf.indexOf("\\n\\n"))>=0){parseSseBlock(es,buf.slice(0,p));buf=buf.slice(p+2);}
+        return pump();
+      });
+    }
+    return pump();
+  }).catch(function(e){if(!es._closed){es.readyState=2;if(es.onerror)es.onerror(e);}});
+}
+CyEventSource.CONNECTING=0;CyEventSource.OPEN=1;CyEventSource.CLOSED=2;
+CyEventSource.prototype.close=function(){this._close();};
+CyEventSource.prototype.addEventListener=function(t,fn){(this._ev[t]=this._ev[t]||[]).push(fn);};
+CyEventSource.prototype.removeEventListener=function(t,fn){var a=this._ev[t];if(!a)return;var i=a.indexOf(fn);if(i>=0)a.splice(i,1);};
+function isStreamUrl(u){return /\\/api\\/v1\\/stream\\//i.test(u);}
+window.EventSource=function(u,c){
+  u=maybeFixUrl(String(u));
+  if(isStreamUrl(u))return new CyEventSource(u,c);
+  return OES?new OES(u,c):new CyEventSource(u,c);
+};
+if(OES){window.EventSource.CONNECTING=OES.CONNECTING;window.EventSource.OPEN=OES.OPEN;window.EventSource.CLOSED=OES.CLOSED;}
 })();</script>`;
 }
 
@@ -600,17 +649,9 @@ function filterStreamHeaders(
   headers: IncomingHttpHeaders,
   publicBase: string,
 ): Record<string, string | string[]> {
-  const out: Record<string, string | string[]> = {};
-  for (const [key, value] of Object.entries(headers)) {
-    if (value === undefined) continue;
-    const lower = key.toLowerCase();
-    if (HOP_BY_HOP_HEADERS.has(lower) || STRIPPED_RESPONSE_HEADERS.has(lower)) continue;
-    if (lower === "location" && typeof value === "string") {
-      out[key] = rewriteLocation(value, publicBase);
-      continue;
-    }
-    out[key] = value;
-  }
+  const out = filterProxyHeaders(headers, publicBase);
+  out["cache-control"] = "no-cache, no-transform";
+  out["x-accel-buffering"] = "no";
   return out;
 }
 
@@ -701,7 +742,8 @@ async function proxyArgoCd(
   }
 
   const argoPath = normalizeArgoAssetPath(toUiPath(pathname));
-  const upstreamPath = upstreamPathForRequest(req.method ?? "GET", argoPath);
+  const wantsStream = isArgoCdStreamRequest(req, argoPath);
+  const upstreamPath = upstreamPathForRequest(req.method ?? "GET", argoPath, req);
 
   if (isArgoCdSpaShellPath(argoPath) && upstreamPath === ARGOCD_INDEX_PATH) {
     console.log(
@@ -720,10 +762,10 @@ async function proxyArgoCd(
   const headers = prepareUpstreamHeaders(incomingHeaders, {
     authorization: `Bearer ${token}`,
     cookie: `argocd.token=${token}`,
+    // Cycloid gateway only allows Accept: application/json on plugin routes; restore SSE for Argo CD.
+    ...(wantsStream ? { accept: "text/event-stream" } : {}),
     ...(body !== undefined ? { "content-length": String(body.length) } : {}),
   });
-
-  const wantsStream = isArgoCdStreamRequest(req, argoPath);
 
   const upstream = (target.protocol === "https:" ? httpsRequest : httpRequest)(
     {
@@ -747,6 +789,8 @@ async function proxyArgoCd(
         );
         const responseHeaders = filterStreamHeaders(upstreamRes.headers, publicBase);
         res.writeHead(upstreamRes.statusCode ?? 502, responseHeaders);
+        const flush = (res as ServerResponse & { flushHeaders?: () => void }).flushHeaders;
+        if (typeof flush === "function") flush.call(res);
         upstreamRes.pipe(res);
         upstreamRes.on("error", () => {
           if (!res.writableEnded) res.end();
@@ -790,9 +834,13 @@ async function proxyArgoCd(
     if (!res.writableEnded) res.end(`Argo CD proxy error: ${(err as Error).message}`);
   });
 
-  const abortUpstream = () => upstream.destroy();
-  req.on("close", abortUpstream);
-  res.on("close", abortUpstream);
+  // Do not use req.on("close") — for GET/SSE the request side closes immediately after
+  // headers while the response stream is still open; that was aborting live streams (500).
+  const abortIfClientGone = () => {
+    if (!res.writableFinished && !res.writableEnded) upstream.destroy();
+  };
+  res.on("close", abortIfClientGone);
+  req.on("aborted", abortIfClientGone);
 
   if (body !== undefined) upstream.write(body);
   upstream.end();

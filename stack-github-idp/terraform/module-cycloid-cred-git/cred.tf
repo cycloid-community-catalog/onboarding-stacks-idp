@@ -10,3 +10,17 @@ resource "cycloid_credential" "git-ssh" {
     ssh_key = chomp(var.git_ssh_key)
   }
 }
+
+resource "cycloid_credential" "git-https" {
+  name                   = "${var.cy_project}-app-git-https"
+  description            = "GitHub PAT for HTTPS clone of the application repository."
+  organization_canonical = var.cy_org
+  path                   = "${var.cy_project}-app-git-https"
+  canonical              = "${var.cy_project}-app-git-https"
+
+  type = "basic_auth"
+  body = {
+    username = var.git_https_username
+    password = var.git_https_token
+  }
+}
