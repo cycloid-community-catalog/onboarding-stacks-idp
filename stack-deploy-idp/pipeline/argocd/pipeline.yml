@@ -44,6 +44,30 @@ resources:
     paths:
       - ($ .config_root $)/templating/*
 
+# The stack repo (plugin registration script)
+- name: git_stack
+  type: git
+  icon: github-circle
+  source:
+    uri: ($ .scs_url $)
+    ($- if eq .stack_version_type "tag" $)
+    tag_filter: ($ .stack_version_ref $)
+    fetch_tags: true
+    ($- else $)
+    branch: ($ coalesce .stack_version_ref .catalog_repository_branch $)
+    ($- end $)
+    ($- if eq .scs_cred_type "basic_auth" $)
+    username: ((($ .scs_cred_path $).username))
+    password: ((($ .scs_cred_path $).password))
+    ($- end $)
+    ($- if eq .scs_cred_type "ssh" $)
+    private_key: ((($ .scs_cred_path $).ssh_key))
+    ($- end $)
+    ($- if ne .stack_version_type "tag" $)
+    paths:
+      - ($ .stack_path $)/pipeline/argocd/*
+    ($- end $)
+
 groups:
 - name: overview
   jobs:
@@ -97,6 +121,7 @@ jobs:
     - get: git_config
       trigger: true
     - get: git_manifests
+    - get: git_stack
   - task: manifests
     config:
       platform: linux
@@ -155,6 +180,34 @@ jobs:
   - put: git_manifests
     params:
       repository: git_manifests
+
+  - task: register-plugins
+    config:
+      platform: linux
+      image_resource:
+        type: registry-image
+        source:
+          repository: cycloid/cycloid-toolkit
+          tag: latest
+      inputs:
+      - name: git_stack
+        path: stack
+      run:
+        path: stack/($ coalesce .stack_path "stack-deploy-idp" $)/pipeline/argocd/register-plugins.sh
+    params:
+      REGISTER_PLUGINS: ((register_plugins))
+      PLUGIN_REGISTRY: ((plugin_registry))
+      PLUGIN_ARGOCD_NAME: ((plugin_argocd_name))
+      PLUGIN_ARGOCD_INSTALL_NAME: ((plugin_argocd_install_name))
+      PLUGIN_ARGOCD_VERSION_ID: ((plugin_argocd_version_id))
+      ARGOCD_USERNAME: ((argocd_username))
+      ARGOCD_PASSWORD: ((argocd_password))
+      CY_API_KEY: ((cy_api_key))
+      CY_API_URL: ($ .api_url $)
+      CY_ORG: ($ .org $)
+      CY_PROJECT: ($ .project $)
+      CY_ENV: ($ .env $)
+      CY_COMPONENT: ($ .component $)
 
 
 - name: delete-app

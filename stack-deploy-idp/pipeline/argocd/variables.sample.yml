@@ -91,3 +91,38 @@ cy_api_key: ((admin-api-key.key))
 #. terraform_version (required): '1.8.3'
 #+ terraform version used to execute your code.
 terraform_version: '1.8.3'
+
+#
+# Plugins
+#
+# List registries:  cy plugin registry list --org <org>
+# List plugins:     cy plugin registry plugin list <registry>
+# List versions:    cy plugin registry plugin version list --registry <registry> --plugin <name>
+
+#. register_plugins (optional): true
+#+ Install or upgrade the ArgoCD Cycloid plugin and enable it on this component after manifests are pushed.
+register_plugins: true
+
+#. plugin_registry (optional): ""
+#+ Plugin registry canonical or numeric ID. When empty and the org has exactly one registry, that registry is used.
+plugin_registry: ""
+
+#. plugin_argocd_name (optional): ArgoCD
+#+ ArgoCD plugin name in the registry (from cy plugin registry plugin list). Aliases tried: ArgoCD, cycloid-plugin-argocd, argocd, plugin-argocd.
+plugin_argocd_name: ArgoCD
+
+#. plugin_argocd_install_name (optional): argocd
+#+ Installed plugin name for cy plugin get/upgrade/relation-set.
+plugin_argocd_install_name: argocd
+
+#. plugin_argocd_version_id (optional):
+#+ Registry version ID to install. When empty, the latest published version is used.
+plugin_argocd_version_id: ""
+
+#. argocd_username (optional): admin
+#+ Local ArgoCD account passed to the plugin install config.
+argocd_username: admin
+
+#. argocd_password (optional): cycloid
+#+ ArgoCD password passed to the plugin install config.
+argocd_password: cycloid
