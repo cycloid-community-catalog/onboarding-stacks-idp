@@ -114,6 +114,9 @@ resources:
       app_git_folder: ((app_git_folder))
       app_dockerfile_name: ((app_dockerfile_name))
       app_git_basic_auth: ((app_git_basic_auth))
+      clevercloud_token: ($ .env_providers.clevercloud.token $)
+      clevercloud_secret: ($ .env_providers.clevercloud.secret $)
+      clevercloud_organisation: ($ .env_providers.clevercloud.organisation $)
 
 jobs:
 - name: terraform-plan

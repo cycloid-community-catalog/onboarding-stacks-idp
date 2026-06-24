@@ -13,9 +13,9 @@ terraform {
 }
 
 provider "clevercloud" {
-  organisation = data.cycloid_credential.clever_cloud.body.raw["organization_id"]
-  token        = data.cycloid_credential.clever_cloud.body.raw["cc_token"]
-  secret       = data.cycloid_credential.clever_cloud.body.raw["cc_secret"]
+  organisation = var.clevercloud_organisation
+  token        = var.clevercloud_token
+  secret       = var.clevercloud_secret
 }
 
 provider "cycloid" {
