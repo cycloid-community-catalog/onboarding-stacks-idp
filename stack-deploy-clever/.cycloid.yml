@@ -3,7 +3,7 @@ name: Clever Cloud Docker Application
 canonical: stack-deploy-clever
 author: Cycloid
 description: >
-  Deploys a Docker application on Clever Cloud. Includes a PostgreSQL database, isolated via a network group.
+  Deploys a Docker application on Clever Cloud.
 image: https://cdn-1.webcatalog.io/catalog/clever-cloud/clever-cloud-icon-filled-256.webp?v=1714773930608
 
 config:

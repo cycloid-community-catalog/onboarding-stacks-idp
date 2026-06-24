@@ -8,20 +8,6 @@ resource "clevercloud_networkgroup" "app_cy_network_group" {
   tags        = var.network_group_tags
 }
 
-# PostgreSQL Database
-resource "clevercloud_postgresql" "app_postgresql" {
-  name   = var.postgresql_name
-  region = var.tf_region
-  plan   = var.postgresql_plan
-
-  networkgroups = [
-    {
-      fqdn            = local.postgresql_fqdn
-      networkgroup_id = clevercloud_networkgroup.app_cy_network_group.id
-    }
-  ]
-}
-
 # Docker application: Clever clones app_git_repository at git_ref, then runs docker build (Dockerfile in repo).
 # On first create, the Terraform provider pushes that tree to Clever’s deploy remote (GitDeploy).
 # Clever’s Terraform provider only supports HTTPS clone with deployment.authentication_basic (no git@ / SSH keys).
@@ -56,9 +42,4 @@ resource "clevercloud_docker" "app_docker" {
     path_begin = var.docker_path_begin
   }]
 
-  dependencies = [clevercloud_postgresql.app_postgresql.id]
-
-  environment = {
-    DATABASE_URL = clevercloud_postgresql.app_postgresql.uri
-  }
 }

@@ -21,15 +21,6 @@ variable "network_group_tags" {
   default = []
 }
 
-variable "postgresql_name" {
-  type = string
-}
-
-variable "postgresql_plan" {
-  type    = string
-  default = "xxs_sml"
-}
-
 variable "docker_name" {
   type = string
 }

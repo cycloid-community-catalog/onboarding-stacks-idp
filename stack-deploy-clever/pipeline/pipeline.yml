@@ -21,7 +21,7 @@ shared:
     outputs:
     - name: merged-stack
     params:
-      # Terraform root must match terraform_source (merged-stack/). Same pattern as stack-postgresql.
+      # Terraform root must match terraform_source (merged-stack/).
       STACK_PATH: ($ .stack_path $)/terraform
       CONFIG_PATH: ($ .config_root $)/terraform
 
@@ -99,8 +99,6 @@ resources:
       network_group_name: ((network_group_name))
       network_group_description: ((network_group_description))
       network_group_tags: ((network_group_tags))
-      postgresql_name: ((postgresql_name))
-      postgresql_plan: ((postgresql_plan))
       docker_name: ((docker_name))
       docker_min_instance_count: ((docker_min_instance_count))
       docker_max_instance_count: ((docker_max_instance_count))

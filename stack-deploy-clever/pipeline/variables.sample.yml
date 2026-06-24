@@ -47,12 +47,6 @@ network_group_description: ""
 #. network_group_tags (required): []
 network_group_tags: []
 
-#. postgresql_name (required): pg-myapp
-postgresql_name: pg-myapp
-
-#. postgresql_plan (required): xxs_sml
-postgresql_plan: xxs_sml
-
 #. docker_name (required): app-myapp
 docker_name: app-myapp
 

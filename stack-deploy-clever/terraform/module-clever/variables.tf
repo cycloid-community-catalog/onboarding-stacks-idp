@@ -1,7 +1,6 @@
 locals {
-  app_fqdn        = "${var.app_subdomain}.cleverapps.io"
-  postgresql_fqdn = "${local.app_prefix}.services.clever-cloud.com"
-  app_prefix      = "${var.cy_component}-${var.cy_environment}-${var.cy_project}"
+  app_fqdn   = "${var.app_subdomain}.cleverapps.io"
+  app_prefix = "${var.cy_component}-${var.cy_environment}-${var.cy_project}"
 
   git_ref = trimspace(var.app_release_tag) != "" ? (
     startswith(trimspace(var.app_release_tag), "refs/") ? trimspace(var.app_release_tag) : "refs/tags/${trimspace(var.app_release_tag)}"
@@ -60,25 +59,6 @@ variable "network_group_tags" {
   default     = ["test"]
   # auto_complete with multiselect: true and suggest tag names
   # default: []
-}
-
-# =============================================================================
-# PostgreSQL
-# =============================================================================
-
-variable "postgresql_name" {
-  description = "Name of the PostgreSQL database."
-  type        = string
-  default     = "cy-test-db"
-  # required
-}
-
-variable "postgresql_plan" {
-  description = "PostgreSQL plan (e.g. xxs_sml, s_sml, m_sml)."
-  type        = string
-  default     = "xxs_sml"
-  # dropdown with values: ["xxs_sml", "s_sml", "m_sml"]
-  # default: "xxs_sml"
 }
 
 # =============================================================================

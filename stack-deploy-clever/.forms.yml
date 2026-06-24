@@ -82,7 +82,7 @@ use_cases:
         type: string
         required: true
         default: "($ .organization $)-($ .project $)-($ .environment $)-($ .component $)-network"
-        description: Name of the Clever Cloud network group that isolates database traffic.
+        description: Name of the Clever Cloud network group for the Docker application.
 
       - name: Network Group Description
         key: network_group_description
@@ -100,30 +100,6 @@ use_cases:
         widget_config:
           multiselect: true
         description: Tags to apply to the network group.
-
-  - name: Database
-    groups:
-    - name: PostgreSQL
-      technologies: [terraform]
-      vars:
-      - name: Database Name
-        key: postgresql_name
-        widget: simple_text
-        type: string
-        required: true
-        default: "($ .organization $)-($ .project $)-($ .environment $)-($ .component $)-db"
-        description: Name of the PostgreSQL add-on.
-
-      - name: Database Plan
-        key: postgresql_plan
-        widget: dropdown
-        type: string
-        default: "xxs_sml"
-        values:
-        - xxs_sml
-        - s_sml
-        - m_sml
-        description: PostgreSQL plan size.
 
   - name: Docker Application
     groups:
