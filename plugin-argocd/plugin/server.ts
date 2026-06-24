@@ -3,7 +3,7 @@ import { request as httpRequest } from "node:http";
 import { request as httpsRequest } from "node:https";
 import { brotliDecompressSync, gunzipSync, inflateSync } from "node:zlib";
 
-const PLUGIN_VERSION = "2.1.3";
+const PLUGIN_VERSION = "2.1.4";
 
 const port = Number(process.env.PORT);
 if (!Number.isFinite(port) || port <= 0) {
@@ -480,31 +480,6 @@ function rewriteArgoCdRelativeAssets(html: string, uiBase: string): string {
   return out;
 }
 
-/** Depth from /ui mount, e.g. /applications/argocd/app-of-apps → ../../../ */
-function uiDepthRelativePrefix(argoPath: string): string {
-  const segments = argoPath.replace(/^\/+|\/+$/g, "").split("/").filter(Boolean);
-  if (segments.length === 0) return "./";
-  return "../".repeat(segments.length);
-}
-
-/** Fallback when Cycloid proxy does not pass Referer / publicBase (common in production). */
-function rewriteArgoCdRelativeAssetsByDepth(html: string, argoPath: string): string {
-  const rel = uiDepthRelativePrefix(argoPath);
-  let out = html;
-  out = out.replace(/(\s(?:href|src)\s*=\s*["'])assets\//gi, `$1${rel}assets/`);
-  out = out.replace(/(\ssrc\s*=\s*["'])main\.([a-z0-9]+\.js)/gi, `$1${rel}main.$2`);
-  out = out.replace(/(\ssrc\s*=\s*["'])extensions\.js/gi, `$1${rel}extensions.js`);
-  return out;
-}
-
-function rewriteRootRelativeUrlsByDepth(html: string, argoPath: string): string {
-  const rel = uiDepthRelativePrefix(argoPath);
-  let out = html.replace(/(\s(?:action|href|src)\s*=\s*["'])\/(?!\/)/gi, `$1${rel}`);
-  out = out.replace(/(\s(?:action|href|src)\s*=\s*["'])\/(assets\/)/gi, `$1${rel}$2`);
-  out = out.replace(/(\s(?:action|href|src)\s*=\s*["'])\/(extensions\.js)/gi, `$1${rel}$2`);
-  return out;
-}
-
 /** Argo CD's default base makes path-relative assets resolve to the API origin root (/assets/… → 404). */
 function stripArgoCdRootBase(html: string): string {
   return html.replace(/<base[^>]*href\s*=\s*["']\/["'][^>]*>\s*/gi, "");
@@ -537,8 +512,10 @@ function uiPrefix(){var b=iframePrefix();return b?b+"/ui":""}
 function fixBase(){
   var ui=uiPrefix();
   if(!ui)return;
-  var href=location.origin+ui+"/";
+  var href=ui+"/";
   var bases=document.getElementsByTagName("base");
+  for(var i=0;i<bases.length;i++){if(bases[i].getAttribute("href")==="/")bases[i].remove()}
+  bases=document.getElementsByTagName("base");
   if(bases.length){bases[0].href=href;return}
   var el=document.createElement("base");el.href=href;(document.head||document.documentElement).prepend(el);
 }
@@ -574,12 +551,7 @@ XMLHttpRequest.prototype.open=function(method,u){try{u=maybeFixUrl(String(u))}ca
 })();</script>`;
 }
 
-function injectHtmlFixes(
-  html: string,
-  publicBase: string,
-  conn: ArgoConn,
-  argoPath = "/",
-): string {
+function injectHtmlFixes(html: string, publicBase: string, conn: ArgoConn): string {
   if (!html.includes("<")) return html;
   const uiBase = uiPublicBase(publicBase);
   let out = html;
@@ -590,14 +562,12 @@ function injectHtmlFixes(
     out = rewriteRootRelativeUrls(out, uiBase);
     out = rewriteDocumentBase(out, uiBase);
   } else {
-    // Cycloid often strips Referer before the plugin pod — v2.1.2 bailed out here and
-    // left Argo CD's <base href="/"> intact, so assets/fonts.css hit /assets/… (404).
-    console.warn(
-      `[WARN] injectHtmlFixes: missing publicBase — depth fallback for argoPath=${argoPath}`,
-    );
+    // Cycloid often strips Referer before the plugin pod. Do not rewrite assets to ../
+    // paths — the API gateway rejects .. segments with 403. Strip Argo CD's root base
+    // and rely on the synchronous fixBase() script (injected below) so assets/fonts.css
+    // resolves under …/iframe/ui/ while keeping the plugin_widgets/JWT path segment.
+    console.warn("[WARN] injectHtmlFixes: missing publicBase — strip root base + client fixBase");
     out = stripArgoCdRootBase(out);
-    out = rewriteArgoCdRelativeAssetsByDepth(out, argoPath);
-    out = rewriteRootRelativeUrlsByDepth(out, argoPath);
   }
 
   const script = buildUiClientScript();
@@ -745,7 +715,7 @@ async function proxyArgoCd(
         if (contentType.includes("text/html")) {
           const effectiveBase = publicBase || resolvePublicBase(req, url);
           const html = Buffer.from(
-            injectHtmlFixes(raw.toString("utf8"), effectiveBase, conn, argoPath),
+            injectHtmlFixes(raw.toString("utf8"), effectiveBase, conn),
             "utf8",
           );
           responseHeaders["content-length"] = String(html.length);
