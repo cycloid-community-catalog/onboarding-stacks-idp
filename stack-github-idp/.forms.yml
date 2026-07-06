@@ -26,13 +26,37 @@ use_cases:
         - {label: "NodeJS WebApp", value: "simple-counter"}
         - {label: "Java Spring Boot WebApp", value: "java-spring-boot"}
         default: "NodeJS WebApp"
-      - name: "Repository Description"
-        description: "Description for the Git repository"
-        key: github_repo_description
-        widget: simple_text
-        type: string
-        default: "Scaffolded software project for ($ .project $)"
-        required: false
+
+    - name: NodeJS WebApp
+      technologies: [pipeline]
+      condition: '$git_source_path == "NodeJS WebApp"'
+      vars:
+      - name: "NodeJS Version"
+        description: "Select the Node.js runtime version for the scaffolded application."
+        key: nodejs_version
+        widget: dropdown
+        required: true
+        type: map
+        default: "Node.js 22"
+        values:
+        - {label: "Node.js 20", value: "20"}
+        - {label: "Node.js 22", value: "22"}
+
+    - name: Java Spring Boot WebApp
+      technologies: [pipeline]
+      condition: '$git_source_path == "Java Spring Boot WebApp"'
+      vars:
+      - name: "Java Spring Boot Version"
+        description: "Select the Spring Boot version for the scaffolded application."
+        key: java_spring_boot_version
+        widget: dropdown
+        required: true
+        type: map
+        default: "Spring Boot 3.4"
+        values:
+        - {label: "Spring Boot 3.2", value: "3.2"}
+        - {label: "Spring Boot 3.3", value: "3.3"}
+        - {label: "Spring Boot 3.4", value: "3.4"}
 
     - name: kubernetes
       technologies: [pipeline]

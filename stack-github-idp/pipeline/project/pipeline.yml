@@ -18,7 +18,6 @@ resources:
     vars:
       github_pat: ((github_pat))
       github_organization: ((github_organization))
-      github_repo_description: ((github_repo_description))
       github_repo_visibility: ((github_repo_visibility))
       dockerhub_username: ((dockerhub_username))
       dockerhub_password: ((dockerhub_password))

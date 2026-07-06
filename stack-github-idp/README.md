@@ -75,7 +75,6 @@ graph TD
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `github_repo_description` | Repository description | Auto-generated |
 | `terraform_version` | Terraform version | `1.8.5` |
 | `cy_api_key` | Cycloid API key | From credentials |
 

@@ -10,10 +10,6 @@ github_pat: "((github-pat.token))"
 #+ GitHub organization where the repository will be created
 github_organization: "cycloid-demo"
 
-#. github_repo_description (optional): 'Scaffolded project for ($ .project $) in ($ .env $) environment'
-#+ Description for the GitHub repository
-github_repo_description: "Scaffolded project for ($ .project $) in ($ .env $) environment"
-
 #. github_repo_visibility (required): 'private'
 #+ Visibility level of the GitHub repository (private, public)
 github_repo_visibility: "private"

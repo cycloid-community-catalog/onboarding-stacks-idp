@@ -14,12 +14,6 @@ variable "github_organization" {
   description = "GitHub organization or username where the repository will be created"
 }
 
-variable "github_repo_description" {
-  type        = string
-  description = "Description for the GitHub repository"
-  default     = ""
-}
-
 variable "github_repo_visibility" {
   type        = string
   description = "Visibility level of the GitHub repository"
