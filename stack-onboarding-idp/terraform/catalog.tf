@@ -57,7 +57,7 @@ resource "cycloid_catalog_repository" "my_stacks" {
   url                    = github_repository.idp-git.ssh_clone_url
   branch                 = github_branch.stacks.branch
   credential_canonical   = data.cycloid_credential.git-ssh.canonical
-  owner                  = var.project_owner
+  #owner                  = var.project_owner
   organization_canonical = var.cy_child_org_canonical
 
   depends_on = [
@@ -70,7 +70,7 @@ resource "cycloid_catalog_repository" "idp_stacks" {
   name                   = "idp-stacks"
   url                    = var.github_url_idp
   branch                 = var.github_branch_idp
-  owner                  = var.project_owner
+  #owner                  = var.project_owner
   organization_canonical = var.cy_child_org_canonical
 }
 
@@ -78,6 +78,6 @@ resource "cycloid_catalog_repository" "cmp_stacks" {
   name                   = "onboarding-stacks-cmp"
   url                    = var.github_url_cmp
   branch                 = var.github_branch_cmp
-  owner                  = var.project_owner
+  #owner                  = var.project_owner
   organization_canonical = var.cy_child_org_canonical
 }
