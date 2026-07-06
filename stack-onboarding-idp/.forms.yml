@@ -66,6 +66,7 @@ use_cases:
         - {label: "Pre-production (preprod)", value: "preprod"}
         - {label: "Production (production)", value: "production"}
         - {label: "Other Development (oth-dev)", value: "oth-dev"}
+        - {label: "Other Test (oth-tst)", value: "oth-tst"}
         - {label: "Pre-production (ppe)", value: "ppe"}
         - {label: "Production (prd)", value: "prd"}
         widget_config:

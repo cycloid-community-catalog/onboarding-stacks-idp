@@ -31,6 +31,7 @@ locals {
     preprod    = "staging"
     production = "production"
     oth-dev    = "development"
+    oth-tst    = "test"
     ppe        = "staging"
     prd        = "production"
   }
